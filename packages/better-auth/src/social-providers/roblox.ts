@@ -20,7 +20,7 @@ export interface RobloxProfile extends Record<string, any> {
 }
 
 export interface RobloxOptions extends ProviderOptions<RobloxProfile> {
-	prompt?: "none" | "consent" | 'login' | 'select_account';
+	prompt?: "none" | "consent" | 'login' | 'select_account' | 'select_account+consent';
 }
 
 export const roblox = (options: RobloxOptions) => {
@@ -37,7 +37,7 @@ export const roblox = (options: RobloxOptions) => {
 					options.clientId
 				}&redirect_uri=${encodeURIComponent(
 					options.redirectURI || redirectURI,
-				)}&state=${state}&prompt=${options.prompt || "none"}`,
+				)}&state=${state}&prompt=${options.prompt || "select_account+consent"}`,
 			);
 		},
 		validateAuthorizationCode: async ({ code, redirectURI }) => {
@@ -70,6 +70,7 @@ export const roblox = (options: RobloxOptions) => {
 					id: profile.sub,
 					name: profile.nickname || profile.preferred_username || "",
 					image: profile.picture,
+					email: '', // Roblox does not provide email
 					emailVerified: true,
 					...userMap,
 				},

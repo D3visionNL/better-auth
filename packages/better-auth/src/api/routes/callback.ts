@@ -101,7 +101,7 @@ export const callbackOAuth = createAuthEndpoint(
 			return redirectOnError("unable_to_get_user_info");
 		}
 
-		if (!userInfo.email) {
+		if (!userInfo.email && provider.id !== "roblox") {
 			c.context.logger.error(
 				"Provider did not return email. This could be due to misconfiguration in the provider settings.",
 			);
@@ -115,7 +115,7 @@ export const callbackOAuth = createAuthEndpoint(
 			);
 		}
 		if (link) {
-			if (link.email !== userInfo.email.toLowerCase()) {
+			if (link.email !== userInfo?.email?.toLowerCase() && provider.id !== "roblox") {
 				return redirectOnError("email_doesn't_match");
 			}
 			const newAccount = await c.context.internalAdapter.createAccount({
@@ -139,8 +139,8 @@ export const callbackOAuth = createAuthEndpoint(
 		const result = await handleOAuthUserInfo(c, {
 			userInfo: {
 				...userInfo,
-				email: userInfo.email,
-				name: userInfo.name || userInfo.email,
+				email: userInfo.email || "",
+				name: userInfo.name || userInfo.email || '',
 			},
 			account: {
 				providerId: provider.id,
