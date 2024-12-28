@@ -29,6 +29,7 @@ export const accountSchema = z.object({
 	 * Password is only stored in the credential provider
 	 */
 	password: z.string().nullish(),
+	image: z.string().nullish(),
 	createdAt: z.date().default(() => new Date()),
 	updatedAt: z.date().default(() => new Date()),
 });

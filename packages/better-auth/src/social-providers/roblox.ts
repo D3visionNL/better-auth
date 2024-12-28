@@ -46,6 +46,7 @@ export const roblox = (options: RobloxOptions) => {
 				redirectURI: options.redirectURI || redirectURI,
 				options,
 				tokenEndpoint: "https://apis.roblox.com/oauth/v1/token",
+				authentication: "post",
 			});
 		},
 		async getUserInfo(token) {
@@ -64,7 +65,6 @@ export const roblox = (options: RobloxOptions) => {
 			if (error) {
 				return null;
 			}
-			const userMap = await options.mapProfileToUser?.(profile);
 			return {
 				user: {
 					id: profile.sub,
@@ -72,10 +72,8 @@ export const roblox = (options: RobloxOptions) => {
 					image: profile.picture,
 					email: '', // Roblox does not provide email
 					emailVerified: true,
-					...userMap,
 				},
 				data: {
-					image: profile.picture,
 					...profile,
 				},
 			};

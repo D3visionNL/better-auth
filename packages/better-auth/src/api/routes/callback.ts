@@ -122,6 +122,11 @@ export const callbackOAuth = createAuthEndpoint(
 				userId: link.userId,
 				providerId: provider.id,
 				accountId: userInfo.id,
+				accessToken: tokens.accessToken,
+				refreshToken: tokens.refreshToken,
+				accessTokenExpiresAt: tokens.accessTokenExpiresAt,
+				scope: tokens.scopes?.join(","),
+				image: userInfo.image,
 			});
 			if (!newAccount) {
 				return redirectOnError("unable_to_link_account");
@@ -146,6 +151,7 @@ export const callbackOAuth = createAuthEndpoint(
 				providerId: provider.id,
 				accountId: userInfo.id,
 				...tokens,
+				image: userInfo.image,
 				scope: tokens.scopes?.join(","),
 			},
 			callbackURL,
