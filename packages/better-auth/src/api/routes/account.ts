@@ -49,6 +49,7 @@ export const listUserAccounts = createAuthEndpoint(
 			accounts.map((a) => {
 				return {
 					id: a.id,
+					accountId: a.accountId,
 					provider: a.providerId,
 				};
 			}),

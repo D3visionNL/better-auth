@@ -1,7 +1,7 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
 import { a as OAuth2Tokens } from '../index-BX_Xd9xp.js';
-import { U as User } from '../auth-BsBmRC75.js';
+import { U as User } from '../auth-DAkqRAhq.js';
 import '../helper-Bi8FQwDD.js';
 import 'jose';
 import 'kysely';
@@ -86,15 +86,15 @@ declare const sso: (options?: SSOOptions) => {
                         id: string;
                         email: string;
                         name: string;
-                        emailVerified?: string | undefined;
                         image?: string | undefined;
+                        emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     }, {
                         id: string;
                         email: string;
                         name: string;
-                        emailVerified?: string | undefined;
                         image?: string | undefined;
+                        emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     }>>;
                     organizationId: z.ZodOptional<z.ZodString>;
@@ -117,8 +117,8 @@ declare const sso: (options?: SSOOptions) => {
                         id: string;
                         email: string;
                         name: string;
-                        emailVerified?: string | undefined;
                         image?: string | undefined;
+                        emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     } | undefined;
                 }, {
@@ -140,8 +140,8 @@ declare const sso: (options?: SSOOptions) => {
                         id: string;
                         email: string;
                         name: string;
-                        emailVerified?: string | undefined;
                         image?: string | undefined;
+                        emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     } | undefined;
                 }>;
@@ -218,15 +218,15 @@ declare const sso: (options?: SSOOptions) => {
                         id: string;
                         email: string;
                         name: string;
-                        emailVerified?: string | undefined;
                         image?: string | undefined;
+                        emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     }, {
                         id: string;
                         email: string;
                         name: string;
-                        emailVerified?: string | undefined;
                         image?: string | undefined;
+                        emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     }>>;
                     organizationId: z.ZodOptional<z.ZodString>;
@@ -249,8 +249,8 @@ declare const sso: (options?: SSOOptions) => {
                         id: string;
                         email: string;
                         name: string;
-                        emailVerified?: string | undefined;
                         image?: string | undefined;
+                        emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     } | undefined;
                 }, {
@@ -272,8 +272,8 @@ declare const sso: (options?: SSOOptions) => {
                         id: string;
                         email: string;
                         name: string;
-                        emailVerified?: string | undefined;
                         image?: string | undefined;
+                        emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     } | undefined;
                 }>;
