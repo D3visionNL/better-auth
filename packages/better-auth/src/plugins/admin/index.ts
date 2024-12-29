@@ -439,13 +439,18 @@ export const admin = <O extends AdminOptions>(options?: O) => {
 								: undefined,
 							where.length ? where : undefined,
 						);
+						const total = await ctx.context.internalAdapter.listTotalUsers();
 						return ctx.json({
 							users: users as UserWithRole[],
+							total: total,
+							limit: Number(ctx.query?.limit) || undefined,
+							offset: Number(ctx.query?.offset) || undefined,
 						});
 					} catch (e) {
 						console.log(e);
 						return ctx.json({
 							users: [],
+							total: 0,
 						});
 					}
 				},

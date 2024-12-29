@@ -149,6 +149,9 @@ export const memoryAdapter = (db: MemoryDB) => (options: BetterAuthOptions) => {
 			});
 			return transformOutput(res[0], model);
 		},
+		count: async ({ model }) => {
+			return db[model].length;
+		},
 		delete: async ({ model, where }) => {
 			const table = db[model];
 			const res = convertWhereClause(where, table, model);

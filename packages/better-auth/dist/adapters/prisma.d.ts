@@ -1,4 +1,4 @@
-import { B as BetterAuthOptions, W as Where } from '../auth-DAkqRAhq.js';
+import { B as BetterAuthOptions, W as Where } from '../auth-DqGmFvxB.js';
 import 'kysely';
 import 'better-call';
 import 'zod';
@@ -26,6 +26,10 @@ declare const prismaAdapter: (prisma: PrismaClient, config: PrismaConfig) => (op
         model: string;
         where: Where[];
         select?: string[];
+    }): Promise<any>;
+    count(data: {
+        model: string;
+        where?: Where[];
     }): Promise<any>;
     findMany<T>(data: {
         model: string;

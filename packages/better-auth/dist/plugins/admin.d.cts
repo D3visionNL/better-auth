@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { APIError } from 'better-call';
-import { U as User, S as Session, k as AuthContext, H as HookEndpointContext, I as InferOptionSchema } from '../auth-DLuY-BpD.cjs';
+import { U as User, S as Session, k as AuthContext, H as HookEndpointContext, I as InferOptionSchema } from '../auth-B4TFeTgb.cjs';
 import { z } from 'zod';
 import 'kysely';
 import '../helper-Bi8FQwDD.cjs';
@@ -453,6 +453,12 @@ declare const admin: <O extends AdminOptions>(options?: O) => {
                 asResponse: true;
             }] ? Response : {
                 users: UserWithRole[];
+                total: number;
+                limit: number | undefined;
+                offset: number | undefined;
+            } | {
+                users: never[];
+                total: number;
             }>;
             path: "/admin/list-users";
             options: {

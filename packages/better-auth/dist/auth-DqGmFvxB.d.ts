@@ -3,8 +3,8 @@ import * as better_call from 'better-call';
 import { Endpoint, EndpointResponse, APIError, CookieOptions, ContextTools, EndpointOptions } from 'better-call';
 import * as zod from 'zod';
 import { ZodSchema, z, ZodObject, ZodOptional, ZodString, ZodNull } from 'zod';
-import { L as LiteralString, D as DeepPartial, U as UnionToIntersection, S as StripEmptyObjects, O as OmitId, d as LiteralUnion, P as PrettifyDeep, b as Prettify, E as Expand } from './helper-Bi8FQwDD.cjs';
-import { S as SocialProviders, b as SocialProviderList, O as OAuthProvider } from './index-DOvW5Rd7.cjs';
+import { L as LiteralString, D as DeepPartial, U as UnionToIntersection, S as StripEmptyObjects, O as OmitId, d as LiteralUnion, P as PrettifyDeep, b as Prettify, E as Expand } from './helper-Bi8FQwDD.js';
+import { S as SocialProviders, b as SocialProviderList, O as OAuthProvider } from './index-BX_Xd9xp.js';
 import { Database } from 'better-sqlite3';
 
 declare const optionsMiddleware: Endpoint<better_call.Handler<string, better_call.EndpointOptions, AuthContext>, better_call.EndpointOptions>;
@@ -407,6 +407,10 @@ type Adapter = {
         };
         offset?: number;
     }) => Promise<T[]>;
+    count: (data: {
+        model: string;
+        where?: Where[];
+    }) => Promise<number>;
     /**
      * ⚠︎ Update may not return the updated data
      * if multiple where clauses are provided
@@ -479,6 +483,7 @@ declare const accountSchema: z.ZodObject<{
     id: z.ZodString;
     providerId: z.ZodString;
     accountId: z.ZodString;
+    name: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     userId: z.ZodString;
     accessToken: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     refreshToken: z.ZodOptional<z.ZodNullable<z.ZodString>>;
@@ -510,6 +515,7 @@ declare const accountSchema: z.ZodObject<{
     providerId: string;
     accountId: string;
     password?: string | null | undefined;
+    name?: string | null | undefined;
     image?: string | null | undefined;
     accessToken?: string | null | undefined;
     refreshToken?: string | null | undefined;
@@ -523,6 +529,7 @@ declare const accountSchema: z.ZodObject<{
     providerId: string;
     accountId: string;
     password?: string | null | undefined;
+    name?: string | null | undefined;
     image?: string | null | undefined;
     createdAt?: Date | undefined;
     updatedAt?: Date | undefined;
@@ -1452,6 +1459,7 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
         providerId: string;
         accountId: string;
         password?: string | null | undefined;
+        name?: string | null | undefined;
         image?: string | null | undefined;
         accessToken?: string | null | undefined;
         refreshToken?: string | null | undefined;
@@ -1482,6 +1490,7 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
         updatedAt: Date;
         image?: string | null | undefined;
     }[]>;
+    listTotalUsers: () => Promise<number>;
     deleteUser: (userId: string) => Promise<void>;
     createSession: (userId: string, request: Request | Headers | undefined, dontRememberMe?: boolean, override?: Partial<Session> & Record<string, any>) => Promise<{
         id: string;
@@ -1523,6 +1532,7 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
             providerId: string;
             accountId: string;
             password?: string | null | undefined;
+            name?: string | null | undefined;
             image?: string | null | undefined;
             accessToken?: string | null | undefined;
             refreshToken?: string | null | undefined;
@@ -1552,6 +1562,7 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
             providerId: string;
             accountId: string;
             password?: string | null | undefined;
+            name?: string | null | undefined;
             image?: string | null | undefined;
             accessToken?: string | null | undefined;
             refreshToken?: string | null | undefined;
@@ -1582,6 +1593,7 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
         providerId: string;
         accountId: string;
         password?: string | null | undefined;
+        name?: string | null | undefined;
         image?: string | null | undefined;
         accessToken?: string | null | undefined;
         refreshToken?: string | null | undefined;
@@ -1598,6 +1610,7 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
         providerId: string;
         accountId: string;
         password?: string | null | undefined;
+        name?: string | null | undefined;
         image?: string | null | undefined;
         accessToken?: string | null | undefined;
         refreshToken?: string | null | undefined;
@@ -1614,6 +1627,7 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
         providerId: string;
         accountId: string;
         password?: string | null | undefined;
+        name?: string | null | undefined;
         image?: string | null | undefined;
         accessToken?: string | null | undefined;
         refreshToken?: string | null | undefined;

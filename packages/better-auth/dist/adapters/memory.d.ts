@@ -1,4 +1,4 @@
-import { B as BetterAuthOptions, W as Where } from '../auth-DAkqRAhq.js';
+import { B as BetterAuthOptions, W as Where } from '../auth-DqGmFvxB.js';
 import 'kysely';
 import 'better-call';
 import 'zod';
@@ -37,6 +37,10 @@ declare const memoryAdapter: (db: MemoryDB) => (options: BetterAuthOptions) => {
         where: Where[];
         update: Record<string, any>;
     }) => Promise<any>;
+    count: ({ model }: {
+        model: string;
+        where?: Where[];
+    }) => Promise<number>;
     delete: <T>({ model, where }: {
         model: string;
         where: Where[];

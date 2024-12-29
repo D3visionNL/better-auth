@@ -213,6 +213,22 @@ export const prismaAdapter =
 				});
 				return transformOutput(result, model, select);
 			},
+			async count(data) {
+				const { model, where } = data;
+				const whereClause = convertWhereClause(model, where);
+				if (!db[getModelName(model)]) {
+					throw new BetterAuthError(
+						`Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`,
+					);
+				}
+				const result = await db[getModelName(model)].findMany({
+					where: whereClause,
+					select: {
+						id: true,
+					},
+				});
+				return result.length;
+			},
 			async findMany(data) {
 				const { model, where, limit, offset, sortBy } = data;
 				const whereClause = convertWhereClause(model, where);

@@ -2,7 +2,7 @@ import * as nanostores from 'nanostores';
 import { AccessControl, StatementsPrimitive, Role } from '../plugins/access.cjs';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchOption } from '@better-fetch/fetch';
-import { o as organization, a as Organization, M as Member, I as Invitation } from '../index-d9ua5T2m.cjs';
+import { o as organization, a as Organization, M as Member, I as Invitation } from '../index-DLT5x9Nr.cjs';
 import { b as Prettify } from '../helper-Bi8FQwDD.cjs';
 import { username } from '../plugins/username.cjs';
 export { getPasskeyActions, passkeyClient } from '../plugins/passkey.cjs';
@@ -10,7 +10,7 @@ export { twoFactorClient } from '../plugins/two-factor.cjs';
 import { magicLink } from '../plugins/magic-link.cjs';
 import { phoneNumber } from '../plugins/phone-number.cjs';
 import { anonymous } from '../plugins/anonymous.cjs';
-import { a4 as FieldAttribute, B as BetterAuthOptions, d as BetterAuthPlugin } from '../auth-DLuY-BpD.cjs';
+import { a4 as FieldAttribute, B as BetterAuthOptions, d as BetterAuthPlugin } from '../auth-B4TFeTgb.cjs';
 import { admin } from '../plugins/admin.cjs';
 import { genericOAuth } from '../plugins/generic-oauth.cjs';
 import { jwt } from '../plugins/jwt.cjs';
@@ -104,8 +104,8 @@ declare const organizationClient: <O extends OrganizationClientOptions>(options?
         activeOrganization: nanostores.PreinitializedWritableAtom<{
             data: Prettify<{
                 id: string;
-                createdAt: Date;
                 name: string;
+                createdAt: Date;
                 slug: string;
                 metadata?: any;
                 logo?: string | null | undefined;
@@ -127,8 +127,8 @@ declare const organizationClient: <O extends OrganizationClientOptions>(options?
         listOrganizations: nanostores.PreinitializedWritableAtom<{
             data: {
                 id: string;
-                createdAt: Date;
                 name: string;
+                createdAt: Date;
                 slug: string;
                 metadata?: any;
                 logo?: string | null | undefined;

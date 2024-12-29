@@ -1,7 +1,7 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
 import { a as OAuth2Tokens } from '../index-DOvW5Rd7.cjs';
-import { U as User } from '../auth-DLuY-BpD.cjs';
+import { U as User } from '../auth-B4TFeTgb.cjs';
 import '../helper-Bi8FQwDD.cjs';
 import 'jose';
 import 'kysely';
@@ -84,15 +84,15 @@ declare const sso: (options?: SSOOptions) => {
                         extraFields: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
                     }, "strip", z.ZodTypeAny, {
                         id: string;
-                        email: string;
                         name: string;
+                        email: string;
                         image?: string | undefined;
                         emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     }, {
                         id: string;
-                        email: string;
                         name: string;
+                        email: string;
                         image?: string | undefined;
                         emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
@@ -115,8 +115,8 @@ declare const sso: (options?: SSOOptions) => {
                     discoveryEndpoint?: string | undefined;
                     mapping?: {
                         id: string;
-                        email: string;
                         name: string;
+                        email: string;
                         image?: string | undefined;
                         emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
@@ -138,8 +138,8 @@ declare const sso: (options?: SSOOptions) => {
                     discoveryEndpoint?: string | undefined;
                     mapping?: {
                         id: string;
-                        email: string;
                         name: string;
+                        email: string;
                         image?: string | undefined;
                         emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
@@ -159,11 +159,11 @@ declare const sso: (options?: SSOOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -216,15 +216,15 @@ declare const sso: (options?: SSOOptions) => {
                         extraFields: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodString>>;
                     }, "strip", z.ZodTypeAny, {
                         id: string;
-                        email: string;
                         name: string;
+                        email: string;
                         image?: string | undefined;
                         emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
                     }, {
                         id: string;
-                        email: string;
                         name: string;
+                        email: string;
                         image?: string | undefined;
                         emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
@@ -247,8 +247,8 @@ declare const sso: (options?: SSOOptions) => {
                     discoveryEndpoint?: string | undefined;
                     mapping?: {
                         id: string;
-                        email: string;
                         name: string;
+                        email: string;
                         image?: string | undefined;
                         emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
@@ -270,8 +270,8 @@ declare const sso: (options?: SSOOptions) => {
                     discoveryEndpoint?: string | undefined;
                     mapping?: {
                         id: string;
-                        email: string;
                         name: string;
+                        email: string;
                         image?: string | undefined;
                         emailVerified?: string | undefined;
                         extraFields?: Record<string, string> | undefined;
@@ -291,11 +291,11 @@ declare const sso: (options?: SSOOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };

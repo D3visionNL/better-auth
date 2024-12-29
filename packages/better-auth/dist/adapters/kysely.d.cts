@@ -1,5 +1,5 @@
 import { Kysely } from 'kysely';
-import { B as BetterAuthOptions, K as KyselyDatabaseType, W as Where } from '../auth-DLuY-BpD.cjs';
+import { B as BetterAuthOptions, K as KyselyDatabaseType, W as Where } from '../auth-B4TFeTgb.cjs';
 import 'better-call';
 import 'zod';
 import '../helper-Bi8FQwDD.cjs';
@@ -49,6 +49,10 @@ declare const kyselyAdapter: (db: Kysely<any>, config?: KyselyAdapterConfig) => 
         model: string;
         where: Where[];
         update: Record<string, any>;
+    }): Promise<number>;
+    count(data: {
+        model: string;
+        where?: Where[];
     }): Promise<number>;
     delete<T>(data: {
         model: string;

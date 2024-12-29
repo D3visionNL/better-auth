@@ -1,4 +1,4 @@
-import { a as BASE_ERROR_CODES, d as BetterAuthPlugin } from './auth-DLuY-BpD.cjs';
+import { a as BASE_ERROR_CODES, d as BetterAuthPlugin } from './auth-B4TFeTgb.cjs';
 import * as zod from 'zod';
 export * from 'zod';
 import * as _better_fetch_fetch from '@better-fetch/fetch';

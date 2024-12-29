@@ -6,7 +6,7 @@ import * as _simplewebauthn_server from '@simplewebauthn/server';
 import { CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, AuthenticationResponseJSON } from '@simplewebauthn/server';
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { I as InferOptionSchema } from '../auth-DAkqRAhq.js';
+import { I as InferOptionSchema } from '../auth-DqGmFvxB.js';
 import 'kysely';
 import '../helper-Bi8FQwDD.js';
 import '../index-BX_Xd9xp.js';
@@ -79,11 +79,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -213,11 +213,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -565,11 +565,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -624,11 +624,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -772,11 +772,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -801,11 +801,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -838,11 +838,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -874,11 +874,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -914,11 +914,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -955,11 +955,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
+                            name: string;
                             createdAt: Date;
                             updatedAt: Date;
                             email: string;
                             emailVerified: boolean;
-                            name: string;
                             image?: string | null | undefined;
                         };
                     };

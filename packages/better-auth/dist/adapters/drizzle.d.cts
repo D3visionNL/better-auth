@@ -1,4 +1,4 @@
-import { B as BetterAuthOptions, W as Where } from '../auth-DLuY-BpD.cjs';
+import { B as BetterAuthOptions, W as Where } from '../auth-B4TFeTgb.cjs';
 import 'kysely';
 import 'better-call';
 import 'zod';
@@ -48,6 +48,10 @@ declare const drizzleAdapter: (db: DB, config: DrizzleAdapterConfig) => (options
         };
         offset?: number;
     }): Promise<any[]>;
+    count(data: {
+        model: string;
+        where?: Where[];
+    }): Promise<any>;
     update<T>(data: {
         model: string;
         where: Where[];

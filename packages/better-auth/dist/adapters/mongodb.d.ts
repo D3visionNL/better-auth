@@ -1,5 +1,5 @@
 import { Db } from 'mongodb';
-import { B as BetterAuthOptions, W as Where } from '../auth-DAkqRAhq.js';
+import { B as BetterAuthOptions, W as Where } from '../auth-DqGmFvxB.js';
 import 'kysely';
 import 'better-call';
 import 'zod';
@@ -20,6 +20,10 @@ declare const mongodbAdapter: (db: Db) => (options: BetterAuthOptions) => {
         where: Where[];
         select?: string[];
     }): Promise<any>;
+    count(data: {
+        model: string;
+        where?: Where[];
+    }): Promise<number>;
     findMany<T>(data: {
         model: string;
         where?: Where[];

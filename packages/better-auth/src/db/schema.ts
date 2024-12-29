@@ -9,6 +9,7 @@ export const accountSchema = z.object({
 	id: z.string(),
 	providerId: z.string(),
 	accountId: z.string(),
+	name: z.string().nullish(),
 	userId: z.string(),
 	accessToken: z.string().nullish(),
 	refreshToken: z.string().nullish(),
