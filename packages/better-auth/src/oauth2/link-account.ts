@@ -4,6 +4,8 @@ import type { GenericEndpointContext, User } from "../types";
 import { logger } from "../utils";
 import { isDevelopment } from "../utils/env";
 
+type ExtendedUser = User & { banned?: boolean | null, banReason?: string | null };
+
 export async function handleOAuthUserInfo(
 	c: GenericEndpointContext,
 	{
@@ -11,7 +13,7 @@ export async function handleOAuthUserInfo(
 		account,
 		callbackURL,
 	}: {
-		userInfo: Omit<User, "createdAt" | "updatedAt">;
+		userInfo: Omit<ExtendedUser, "createdAt" | "updatedAt">;
 		account: Omit<Account, "id" | "userId" | "createdAt" | "updatedAt">;
 		callbackURL?: string;
 	},
@@ -30,7 +32,7 @@ export async function handleOAuthUserInfo(
 			throw c.redirect(
 				`${c.context.baseURL}/error?error=internal_server_error`,
 			);
-		});
+		}) as { user: ExtendedUser; accounts: Account[] } | null;
 	let user = dbUser?.user;
 	let isRegister = !user;
 
@@ -157,7 +159,13 @@ export async function handleOAuthUserInfo(
 			isRegister: false,
 		};
 	}
-
+	if(user?.banned){
+		return {
+			error: `user is banned&reason=${user.banReason}`,
+			data: null,
+			isRegister: false,
+		}
+	}
 	const session = await c.context.internalAdapter.createSession(
 		user.id,
 		c.request,

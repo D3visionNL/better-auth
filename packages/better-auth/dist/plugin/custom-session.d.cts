@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { B as BetterAuthOptions, l as InferUser, m as InferSession } from '../auth-B4TFeTgb.cjs';
+import { B as BetterAuthOptions, l as InferUser, m as InferSession } from '../auth-P6YmCh9e.cjs';
 import 'kysely';
 import '../helper-Bi8FQwDD.cjs';
 import '../index-DOvW5Rd7.cjs';

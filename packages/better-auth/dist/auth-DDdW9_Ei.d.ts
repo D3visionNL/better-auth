@@ -3,8 +3,8 @@ import * as better_call from 'better-call';
 import { Endpoint, EndpointResponse, APIError, CookieOptions, ContextTools, EndpointOptions } from 'better-call';
 import * as zod from 'zod';
 import { ZodSchema, z, ZodObject, ZodOptional, ZodString, ZodNull } from 'zod';
-import { L as LiteralString, D as DeepPartial, U as UnionToIntersection, S as StripEmptyObjects, O as OmitId, d as LiteralUnion, P as PrettifyDeep, b as Prettify, E as Expand } from './helper-Bi8FQwDD.cjs';
-import { S as SocialProviders, b as SocialProviderList, O as OAuthProvider } from './index-DOvW5Rd7.cjs';
+import { L as LiteralString, D as DeepPartial, U as UnionToIntersection, S as StripEmptyObjects, O as OmitId, d as LiteralUnion, P as PrettifyDeep, b as Prettify, E as Expand } from './helper-Bi8FQwDD.js';
+import { S as SocialProviders, b as SocialProviderList, O as OAuthProvider } from './index-BX_Xd9xp.js';
 import { Database } from 'better-sqlite3';
 
 declare const optionsMiddleware: Endpoint<better_call.Handler<string, better_call.EndpointOptions, AuthContext>, better_call.EndpointOptions>;
@@ -601,15 +601,15 @@ declare const verificationSchema: z.ZodObject<{
     expiresAt: z.ZodDate;
     identifier: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    id: string;
     value: string;
+    id: string;
     createdAt: Date;
     updatedAt: Date;
     expiresAt: Date;
     identifier: string;
 }, {
-    id: string;
     value: string;
+    id: string;
     expiresAt: Date;
     identifier: string;
     createdAt?: Date | undefined;
@@ -1638,16 +1638,16 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
     }[]>;
     updateAccount: (accountId: string, data: Partial<Account>) => Promise<any>;
     createVerificationValue: (data: Omit<Verification, "createdAt" | "id" | "updatedAt"> & Partial<Verification>) => Promise<{
-        id: string;
         value: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         expiresAt: Date;
         identifier: string;
     }>;
     findVerificationValue: (identifier: string) => Promise<{
-        id: string;
         value: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         expiresAt: Date;

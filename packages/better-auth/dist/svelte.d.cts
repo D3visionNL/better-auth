@@ -5,7 +5,7 @@ import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchError } from '@better-fetch/fetch';
 import { ClientOptions, InferClientAPI, InferActions, InferErrorCodes, BetterAuthClientPlugin, IsSignal } from './types.cjs';
 import { U as UnionToIntersection, P as PrettifyDeep } from './helper-Bi8FQwDD.cjs';
-import { a as BASE_ERROR_CODES } from './auth-B4TFeTgb.cjs';
+import { a as BASE_ERROR_CODES } from './auth-P6YmCh9e.cjs';
 import 'better-call';
 import 'kysely';
 import './index-DOvW5Rd7.cjs';
