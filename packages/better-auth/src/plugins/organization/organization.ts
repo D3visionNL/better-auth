@@ -16,7 +16,6 @@ import { shimContext } from "../../utils/shim";
 import {
 	type AccessControl,
 	type Role,
-	createAccessControl,
 	defaultRoles,
 	type defaultStatements,
 } from "./access";
@@ -198,13 +197,6 @@ export interface OrganizationOptions {
  * });
  * ```
  */
-
-const ac = createAccessControl({
-	name: ["action"],
-});
-const a = ac.newRole({
-	name: ["action"],
-});
 export const organization = <O extends OrganizationOptions>(options?: O) => {
 	const endpoints = {
 		createOrganization,
@@ -310,6 +302,15 @@ export const organization = <O extends OrganizationOptions>(options?: O) => {
 					},
 				},
 				async (ctx) => {
+					if (
+						!ctx.body.permission ||
+						Object.keys(ctx.body.permission).length > 1
+					) {
+						throw new APIError("BAD_REQUEST", {
+							message:
+								"invalid permission check. you can only check one resource permission at a time.",
+						});
+					}
 					const activeOrganizationId =
 						ctx.body.organizationId ||
 						ctx.context.session.session.activeOrganizationId;

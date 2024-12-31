@@ -4,6 +4,8 @@ import { organization } from "./organization";
 import { createAuthClient } from "../../client";
 import { organizationClient } from "./client";
 import { createAccessControl } from "./access";
+import { ORGANIZATION_ERROR_CODES } from "./error-codes";
+import { BetterAuthError } from "../../error";
 
 describe("organization", async (it) => {
 	const { auth, signInWithTestUser, signInWithUser } = await getTestInstance({
@@ -161,12 +163,13 @@ describe("organization", async (it) => {
 		expect(org?.members.length).toBe(1);
 	});
 
+	const newUser = {
+		email: "test2@test.com",
+		password: "test123456",
+		name: "test2",
+	};
+
 	it("invites user to organization", async () => {
-		const newUser = {
-			email: "test2@test.com",
-			password: "test123456",
-			name: "test2",
-		};
 		const { headers } = await signInWithTestUser();
 		const invite = await client.organization.inviteMember({
 			organizationId: organizationId,
@@ -261,6 +264,21 @@ describe("organization", async (it) => {
 			},
 		});
 		expect(member.data?.role).toBe("admin");
+	});
+
+	it("should not allow inviting member with a creator role unless they are creator", async () => {
+		const { headers } = await signInWithUser(newUser.email, newUser.password);
+		const invite = await client.organization.inviteMember({
+			organizationId: organizationId,
+			email: newUser.email,
+			role: "owner",
+			fetchOptions: {
+				headers,
+			},
+		});
+		expect(invite.error?.message).toBe(
+			ORGANIZATION_ERROR_CODES.YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE,
+		);
 	});
 
 	it("should allow removing member from organization", async () => {
@@ -391,15 +409,19 @@ describe("organization", async (it) => {
 describe("access control", async (it) => {
 	const ac = createAccessControl({
 		project: ["create", "read", "update", "delete"],
+		sales: ["create", "read", "update", "delete"],
 	});
 	const owner = ac.newRole({
 		project: ["create", "delete", "update", "read"],
+		sales: ["create", "read", "update", "delete"],
 	});
 	const admin = ac.newRole({
 		project: ["create", "read"],
+		sales: ["create", "read"],
 	});
 	const member = ac.newRole({
 		project: ["read"],
+		sales: ["read"],
 	});
 	const { auth, customFetchImpl, sessionSetter, signInWithTestUser } =
 		await getTestInstance({
@@ -477,5 +499,23 @@ describe("access control", async (it) => {
 			},
 		});
 		expect(canCreateProject).toBe(false);
+	});
+
+	it("should return not success", async () => {
+		let error: BetterAuthError | null = null;
+		try {
+			checkRolePermission({
+				role: "admin",
+				permission: {
+					project: ["read"],
+					sales: ["delete"],
+				},
+			});
+		} catch (e) {
+			if (e instanceof BetterAuthError) {
+				error = e;
+			}
+		}
+		expect(error).toBeInstanceOf(BetterAuthError);
 	});
 });

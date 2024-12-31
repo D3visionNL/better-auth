@@ -14,6 +14,7 @@ import type {
 import { parseUserInput } from "../../db/schema";
 import { generateRandomString } from "../../crypto";
 import { BASE_ERROR_CODES } from "../../error/codes";
+import { originCheck } from "../middlewares";
 
 export const updateUser = <O extends BetterAuthOptions>() =>
 	createAuthEndpoint(
@@ -237,6 +238,15 @@ export const changePassword = createAuthEndpoint(
 
 		return ctx.json({
 			token,
+			user: {
+				id: session.user.id,
+				email: session.user.email,
+				name: session.user.name,
+				image: session.user.image,
+				emailVerified: session.user.emailVerified,
+				createdAt: session.user.createdAt,
+				updatedAt: session.user.updatedAt,
+			},
 		});
 	},
 );
@@ -451,6 +461,7 @@ export const deleteUserCallback = createAuthEndpoint(
 			token: z.string(),
 			callbackURL: z.string().optional(),
 		}),
+		use: [originCheck((ctx) => ctx.query.callbackURL)],
 	},
 	async (ctx) => {
 		if (!ctx.context.options.user?.deleteUser?.enabled) {
