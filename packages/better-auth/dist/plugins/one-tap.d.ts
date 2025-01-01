@@ -56,22 +56,16 @@ declare const oneTap: (options?: OneTapOptions) => {
             }] ? Response : {
                 error: string;
             } | {
-                session: {
-                    id: string;
-                    createdAt: Date;
-                    updatedAt: Date;
-                    userId: string;
-                    expiresAt: Date;
-                    token: string;
-                    ipAddress?: string | null | undefined;
-                    userAgent?: string | null | undefined;
-                };
-                user: {
-                    user: any;
-                    account: any;
-                };
-            } | {
                 token: string;
+                user: {
+                    id: any;
+                    email: any;
+                    emailVerified: any;
+                    name: any;
+                    image: any;
+                    createdAt: any;
+                    updatedAt: any;
+                };
             }>;
             path: "/one-tap/callback";
             options: {

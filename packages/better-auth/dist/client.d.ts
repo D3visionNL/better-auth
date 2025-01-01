@@ -1,4 +1,4 @@
-import { a as BASE_ERROR_CODES, d as BetterAuthPlugin } from './auth-DDdW9_Ei.js';
+import { a as BASE_ERROR_CODES, d as BetterAuthPlugin } from './auth-Ce_9WfBL.js';
 import * as zod from 'zod';
 export * from 'zod';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
@@ -11,7 +11,7 @@ import { Atom, PreinitializedWritableAtom } from 'nanostores';
 import { U as UnionToIntersection, P as PrettifyDeep } from './helper-Bi8FQwDD.js';
 import 'kysely';
 import 'better-call';
-import './index-BX_Xd9xp.js';
+import './index-B0PXeJp8.js';
 import 'jose';
 import 'better-sqlite3';
 
@@ -76,7 +76,7 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
             cloneResponse?: boolean;
         };
         timeout?: number;
-        customFetchImpl?: _better_fetch_fetch.FetchEsque;
+        customFetchImpl: _better_fetch_fetch.FetchEsque;
         baseURL: string;
         throw?: boolean;
         auth?: {

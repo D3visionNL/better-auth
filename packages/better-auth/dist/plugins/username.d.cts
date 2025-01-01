@@ -1,9 +1,9 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { H as HookEndpointContext } from '../auth-P6YmCh9e.cjs';
+import { H as HookEndpointContext } from '../auth-Bl8U888O.cjs';
 import 'kysely';
 import '../helper-Bi8FQwDD.cjs';
-import '../index-DOvW5Rd7.cjs';
+import '../index-KR6jI2X2.cjs';
 import 'jose';
 import 'better-sqlite3';
 
@@ -56,6 +56,15 @@ declare const username: () => {
                 asResponse: true;
             }] ? Response : {
                 token: string;
+                user: {
+                    id: string;
+                    email: string;
+                    emailVerified: boolean;
+                    name: string;
+                    image: string | null | undefined;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             } | null>;
             path: "/sign-in/username";
             options: {

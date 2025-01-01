@@ -2,7 +2,7 @@ import * as nanostores from 'nanostores';
 import { AccessControl, StatementsPrimitive, Role } from '../plugins/access.js';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchOption } from '@better-fetch/fetch';
-import { o as organization, a as Organization, M as Member, I as Invitation } from '../index-Dt4Xhyxm.js';
+import { o as organization, a as Organization, M as Member, I as Invitation } from '../index-DysXqaey.js';
 import { b as Prettify } from '../helper-Bi8FQwDD.js';
 import { username } from '../plugins/username.js';
 export { getPasskeyActions, passkeyClient } from '../plugins/passkey.js';
@@ -10,7 +10,7 @@ export { twoFactorClient } from '../plugins/two-factor.js';
 import { magicLink } from '../plugins/magic-link.js';
 import { phoneNumber } from '../plugins/phone-number.js';
 import { anonymous } from '../plugins/anonymous.js';
-import { a4 as FieldAttribute, B as BetterAuthOptions, d as BetterAuthPlugin } from '../auth-DDdW9_Ei.js';
+import { a4 as FieldAttribute, B as BetterAuthOptions, d as BetterAuthPlugin } from '../auth-Ce_9WfBL.js';
 import { admin } from '../plugins/admin.js';
 import { genericOAuth } from '../plugins/generic-oauth.js';
 import { jwt } from '../plugins/jwt.js';
@@ -22,7 +22,7 @@ import { oidcProvider } from '../plugins/oidc-provider.js';
 import 'zod';
 import 'better-call';
 import 'kysely';
-import '../index-BX_Xd9xp.js';
+import '../index-B0PXeJp8.js';
 import 'jose';
 import 'better-sqlite3';
 import '@simplewebauthn/server';
@@ -69,7 +69,7 @@ declare const organizationClient: <O extends OrganizationClientOptions>(options?
                 roles: any;
             } ? keyof O["roles"] : "admin" | "member" | "owner">(data: {
                 role: R;
-                permission: Partial<{ [key in keyof (O["ac"] extends AccessControl<infer S extends StatementsPrimitive> ? S extends Record<string, any[]> ? S & {
+                permission: { [key in keyof (O["ac"] extends AccessControl<infer S extends StatementsPrimitive> ? S extends Record<string, any[]> ? S & {
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
@@ -81,7 +81,7 @@ declare const organizationClient: <O extends OrganizationClientOptions>(options?
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
-                })]: (O["ac"] extends AccessControl<infer S extends StatementsPrimitive> ? S extends Record<string, any[]> ? S & {
+                })]?: (O["ac"] extends AccessControl<infer S extends StatementsPrimitive> ? S extends Record<string, any[]> ? S & {
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
@@ -93,7 +93,7 @@ declare const organizationClient: <O extends OrganizationClientOptions>(options?
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
-                })[key][number][]; }>;
+                })[key][number][]; };
             }) => boolean;
         };
     };

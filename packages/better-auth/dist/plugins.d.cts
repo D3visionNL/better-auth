@@ -1,9 +1,9 @@
-export { O as OrganizationOptions, o as organization } from './index-UW3neHgs.cjs';
+export { O as OrganizationOptions, o as organization } from './index-DYlvYN0O.cjs';
 export { TwoFactorOptions, TwoFactorProvider, TwoFactorTable, UserWithTwoFactor, twoFactor, twoFactorClient } from './plugins/two-factor.cjs';
 export { username } from './plugins/username.cjs';
 export { bearer } from './plugins/bearer.cjs';
-import { H as HookEndpointContext } from './auth-P6YmCh9e.cjs';
-export { h as AuthEndpoint, i as AuthMiddleware, A as AuthPluginSchema, d as BetterAuthPlugin, c as HookAfterHandler, b as HookBeforeHandler, I as InferOptionSchema, e as InferPluginErrorCodes, g as createAuthEndpoint, f as createAuthMiddleware, o as optionsMiddleware } from './auth-P6YmCh9e.cjs';
+import { H as HookEndpointContext } from './auth-Bl8U888O.cjs';
+export { h as AuthEndpoint, i as AuthMiddleware, A as AuthPluginSchema, d as BetterAuthPlugin, c as HookAfterHandler, b as HookBeforeHandler, I as InferOptionSchema, e as InferPluginErrorCodes, g as createAuthEndpoint, f as createAuthMiddleware, o as optionsMiddleware } from './auth-Bl8U888O.cjs';
 export { H as HIDE_METADATA } from './hide-metadata-DEHJp1rk.cjs';
 export { magicLink } from './plugins/magic-link.cjs';
 export { UserWithPhoneNumber, phoneNumber } from './plugins/phone-number.cjs';
@@ -24,7 +24,7 @@ import './helper-Bi8FQwDD.cjs';
 import './plugins/access.cjs';
 import '@better-fetch/fetch';
 import 'kysely';
-import './index-DOvW5Rd7.cjs';
+import './index-KR6jI2X2.cjs';
 import 'jose';
 import 'better-sqlite3';
 
@@ -60,6 +60,7 @@ declare const oAuthProxy: (opts?: OAuthProxyOptions) => {
                     callbackURL: string;
                     cookies: string;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -100,6 +101,7 @@ declare const oAuthProxy: (opts?: OAuthProxyOptions) => {
                     callbackURL: string;
                     cookies: string;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;

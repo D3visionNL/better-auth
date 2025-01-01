@@ -1,11 +1,11 @@
 import * as better_call from 'better-call';
 import { APIError } from 'better-call';
 import { z } from 'zod';
-import { I as InferOptionSchema, U as User, h as AuthEndpoint, S as Session, H as HookEndpointContext } from '../auth-P6YmCh9e.cjs';
+import { I as InferOptionSchema, U as User, h as AuthEndpoint, S as Session, H as HookEndpointContext } from '../auth-Bl8U888O.cjs';
 import { L as LiteralString } from '../helper-Bi8FQwDD.cjs';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import 'kysely';
-import '../index-DOvW5Rd7.cjs';
+import '../index-KR6jI2X2.cjs';
 import 'jose';
 import 'better-sqlite3';
 
@@ -492,6 +492,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -519,6 +528,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -629,6 +647,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -656,6 +683,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -831,6 +867,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -858,6 +903,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -945,6 +999,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -972,6 +1035,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -1065,6 +1137,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -1092,6 +1173,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -1155,6 +1245,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 asResponse: true;
             }] ? Response : {
                 token: string;
+                user: {
+                    id: string;
+                    email: string;
+                    emailVerified: boolean;
+                    name: string;
+                    image: string | null | undefined;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             }>;
             path: "/two-factor/verify-otp";
             options: {
@@ -1186,6 +1285,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -1213,6 +1321,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -1534,6 +1651,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -1561,6 +1687,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -1624,6 +1759,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 asResponse: true;
             }] ? Response : {
                 token: string;
+                user: {
+                    id: string;
+                    email: string;
+                    emailVerified: boolean;
+                    name: string;
+                    image: string | null | undefined;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             }>;
             path: "/two-factor/verify-totp";
             options: {
@@ -1655,6 +1799,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;
@@ -1682,6 +1835,15 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         body: {
                             token: string;
+                            user: {
+                                id: string;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image: string | null | undefined;
+                                createdAt: Date;
+                                updatedAt: Date;
+                            };
                         };
                         _flag: "json";
                     }>;

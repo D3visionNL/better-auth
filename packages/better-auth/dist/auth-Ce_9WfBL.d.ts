@@ -3,8 +3,8 @@ import * as better_call from 'better-call';
 import { Endpoint, EndpointResponse, APIError, CookieOptions, ContextTools, EndpointOptions } from 'better-call';
 import * as zod from 'zod';
 import { ZodSchema, z, ZodObject, ZodOptional, ZodString, ZodNull } from 'zod';
-import { L as LiteralString, D as DeepPartial, U as UnionToIntersection, S as StripEmptyObjects, O as OmitId, d as LiteralUnion, P as PrettifyDeep, b as Prettify, E as Expand } from './helper-Bi8FQwDD.cjs';
-import { S as SocialProviders, b as SocialProviderList, O as OAuthProvider } from './index-DOvW5Rd7.cjs';
+import { L as LiteralString, D as DeepPartial, U as UnionToIntersection, S as StripEmptyObjects, O as OmitId, d as LiteralUnion, P as PrettifyDeep, b as Prettify, E as Expand } from './helper-Bi8FQwDD.js';
+import { S as SocialProviders, b as SocialProviderList, O as OAuthProvider } from './index-B0PXeJp8.js';
 import { Database } from 'better-sqlite3';
 
 declare const optionsMiddleware: Endpoint<better_call.Handler<string, better_call.EndpointOptions, AuthContext>, better_call.EndpointOptions>;
@@ -601,15 +601,15 @@ declare const verificationSchema: z.ZodObject<{
     expiresAt: z.ZodDate;
     identifier: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    value: string;
     id: string;
+    value: string;
     createdAt: Date;
     updatedAt: Date;
     expiresAt: Date;
     identifier: string;
 }, {
-    value: string;
     id: string;
+    value: string;
     expiresAt: Date;
     identifier: string;
     createdAt?: Date | undefined;
@@ -1513,6 +1513,7 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
     updateSession: (sessionToken: string, session: Partial<Session> & Record<string, any>) => Promise<any>;
     deleteSession: (token: string) => Promise<void>;
     deleteAccounts: (userId: string) => Promise<void>;
+    deleteAccount: (providerId: string, userId: string) => Promise<void>;
     deleteSessions: (userIdOrSessionTokens: string | string[]) => Promise<void>;
     findOAuthUser: (email: string, accountId: string, providerId: string) => Promise<{
         user: {
@@ -1638,16 +1639,16 @@ declare const createInternalAdapter: (adapter: Adapter, ctx: {
     }[]>;
     updateAccount: (accountId: string, data: Partial<Account>) => Promise<any>;
     createVerificationValue: (data: Omit<Verification, "createdAt" | "id" | "updatedAt"> & Partial<Verification>) => Promise<{
-        value: string;
         id: string;
+        value: string;
         createdAt: Date;
         updatedAt: Date;
         expiresAt: Date;
         identifier: string;
     }>;
     findVerificationValue: (identifier: string) => Promise<{
-        value: string;
         id: string;
+        value: string;
         createdAt: Date;
         updatedAt: Date;
         expiresAt: Date;
@@ -1966,9 +1967,18 @@ declare const signInSocial: {
     }>]>(...ctx: C): Promise<C extends [{
         asResponse: true;
     }] ? Response : {
+        redirect: boolean;
         token: string;
         url: undefined;
-        redirect: boolean;
+        user: {
+            id: string;
+            email: string;
+            name: string;
+            image: string | null | undefined;
+            emailVerified: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+        };
     } | {
         url: string;
         redirect: boolean;
@@ -2190,6 +2200,9 @@ declare const signInEmail: {
     }>]>(...ctx: C): Promise<C extends [{
         asResponse: true;
     }] ? Response : {
+        redirect: boolean;
+        token: string;
+        url: string | undefined;
         user: {
             id: string;
             email: string;
@@ -2199,9 +2212,6 @@ declare const signInEmail: {
             createdAt: Date;
             updatedAt: Date;
         };
-        token: string;
-        redirect: boolean;
-        url: string | undefined;
     }>;
     path: "/sign-in/email";
     options: {
@@ -3171,6 +3181,7 @@ declare const forgetPasswordCallback: {
         }, {
             callbackURL: string;
         }>;
+        use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
         metadata: {
             openapi: {
                 description: string;
@@ -3206,6 +3217,7 @@ declare const forgetPasswordCallback: {
         }, {
             callbackURL: string;
         }>;
+        use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
         metadata: {
             openapi: {
                 description: string;
@@ -3487,6 +3499,7 @@ declare const verifyEmail: {
             token: string;
             callbackURL?: string | undefined;
         }>;
+        use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
         metadata: {
             openapi: {
                 description: string;
@@ -3517,6 +3530,18 @@ declare const verifyEmail: {
         asResponse: true;
     }] ? Response : void | {
         status: boolean;
+        user: {
+            id: any;
+            email: any;
+            name: any;
+            image: any;
+            emailVerified: any;
+            createdAt: any;
+            updatedAt: any;
+        };
+    } | {
+        status: boolean;
+        user: null;
     }>;
     path: "/verify-email";
     options: {
@@ -3531,6 +3556,7 @@ declare const verifyEmail: {
             token: string;
             callbackURL?: string | undefined;
         }>;
+        use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
         metadata: {
             openapi: {
                 description: string;
@@ -3929,6 +3955,15 @@ declare const changePassword: {
         asResponse: true;
     }] ? Response : {
         token: string | null;
+        user: {
+            id: string;
+            email: string;
+            name: string;
+            image: string | null | undefined;
+            emailVerified: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+        };
     }>;
     path: "/change-password";
     options: {
@@ -4250,6 +4285,7 @@ declare const deleteUserCallback: {
             token: string;
             callbackURL?: string | undefined;
         }>;
+        use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
     }>]>(...ctx: C): Promise<C extends [{
         asResponse: true;
     }] ? Response : {
@@ -4269,6 +4305,7 @@ declare const deleteUserCallback: {
             token: string;
             callbackURL?: string | undefined;
         }>;
+        use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
     };
     method: better_call.Method | better_call.Method[];
     headers: Headers;
@@ -4777,8 +4814,26 @@ declare const signUpEmail: <O extends BetterAuthOptions>() => {
         asResponse: true;
     }] ? Response : {
         token: null;
+        user: {
+            id: string;
+            email: string;
+            name: string;
+            image: string | null | undefined;
+            emailVerified: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+        };
     } | {
         token: string;
+        user: {
+            id: string;
+            email: string;
+            name: string;
+            image: string | null | undefined;
+            emailVerified: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+        };
     }>;
     path: "/sign-up/email";
     options: {
@@ -4927,6 +4982,9 @@ declare const listUserAccounts: {
         id: string;
         accountId: string;
         provider: string;
+        createdAt: Date;
+        updatedAt: Date;
+        scopes: string[];
     }[]>;
     path: "/list-accounts";
     options: {
@@ -5156,12 +5214,88 @@ declare const linkSocialAccount: {
     method: better_call.Method | better_call.Method[];
     headers: Headers;
 };
+declare const unlinkAccount: {
+    <C extends [better_call.Context<"/unlink-account", {
+        method: "POST";
+        body: z.ZodObject<{
+            providerId: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            providerId: string;
+        }, {
+            providerId: string;
+        }>;
+        use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
+            session: {
+                session: Record<string, any> & {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    userId: string;
+                    expiresAt: Date;
+                    token: string;
+                    ipAddress?: string | null | undefined;
+                    userAgent?: string | null | undefined;
+                };
+                user: Record<string, any> & {
+                    id: string;
+                    email: string;
+                    emailVerified: boolean;
+                    name: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    image?: string | null | undefined;
+                };
+            };
+        }>, better_call.EndpointOptions>[];
+    }>]>(...ctx: C): Promise<C extends [{
+        asResponse: true;
+    }] ? Response : {
+        status: boolean;
+    }>;
+    path: "/unlink-account";
+    options: {
+        method: "POST";
+        body: z.ZodObject<{
+            providerId: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            providerId: string;
+        }, {
+            providerId: string;
+        }>;
+        use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
+            session: {
+                session: Record<string, any> & {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    userId: string;
+                    expiresAt: Date;
+                    token: string;
+                    ipAddress?: string | null | undefined;
+                    userAgent?: string | null | undefined;
+                };
+                user: Record<string, any> & {
+                    id: string;
+                    email: string;
+                    emailVerified: boolean;
+                    name: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    image?: string | null | undefined;
+                };
+            };
+        }>, better_call.EndpointOptions>[];
+    };
+    method: better_call.Method | better_call.Method[];
+    headers: Headers;
+};
 
 /**
  * A middleware to validate callbackURL and origin against
  * trustedOrigins.
  */
 declare const originCheckMiddleware: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>;
+declare const originCheck: (getValue: (ctx: GenericEndpointContext) => string) => better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>;
 
 declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOptions>(ctx: Promise<C> | C, options: Option): {
     api: {
@@ -5372,9 +5506,18 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
             }>]>(...ctx: C_1): Promise<C_1 extends [{
                 asResponse: true;
             }] ? Response : {
+                redirect: boolean;
                 token: string;
                 url: undefined;
-                redirect: boolean;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             } | {
                 url: string;
                 redirect: boolean;
@@ -6022,8 +6165,26 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 asResponse: true;
             }] ? Response : {
                 token: null;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             } | {
                 token: string;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             }>;
             path: "/sign-up/email";
             options: {
@@ -6170,6 +6331,9 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
             }>]>(...ctx: C_1): Promise<C_1 extends [{
                 asResponse: true;
             }] ? Response : {
+                redirect: boolean;
+                token: string;
+                url: string | undefined;
                 user: {
                     id: string;
                     email: string;
@@ -6179,9 +6343,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                     createdAt: Date;
                     updatedAt: Date;
                 };
-                token: string;
-                redirect: boolean;
-                url: string | undefined;
             }>;
             path: "/sign-in/email";
             options: {
@@ -6426,6 +6587,7 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -6456,6 +6618,18 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 asResponse: true;
             }] ? Response : void | {
                 status: boolean;
+                user: {
+                    id: any;
+                    email: any;
+                    name: any;
+                    image: any;
+                    emailVerified: any;
+                    createdAt: any;
+                    updatedAt: any;
+                };
+            } | {
+                status: boolean;
+                user: null;
             }>;
             path: "/verify-email";
             options: {
@@ -6470,6 +6644,7 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -6842,6 +7017,15 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 asResponse: true;
             }] ? Response : {
                 token: string | null;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             }>;
             path: "/change-password";
             options: {
@@ -7437,6 +7621,7 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 }, {
                     callbackURL: string;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -7472,6 +7657,7 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 }, {
                     callbackURL: string;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -8173,6 +8359,9 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 id: string;
                 accountId: string;
                 provider: string;
+                createdAt: Date;
+                updatedAt: Date;
+                scopes: string[];
             }[]>;
             path: "/list-accounts";
             options: {
@@ -8245,6 +8434,7 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
             }>]>(...ctx: C_1): Promise<C_1 extends [{
                 asResponse: true;
             }] ? Response : {
@@ -8264,6 +8454,82 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
+            };
+            method: better_call.Method | better_call.Method[];
+            headers: Headers;
+        };
+        unlinkAccount: {
+            <C_1 extends [better_call.Context<"/unlink-account", {
+                method: "POST";
+                body: zod.ZodObject<{
+                    providerId: zod.ZodString;
+                }, "strip", zod.ZodTypeAny, {
+                    providerId: string;
+                }, {
+                    providerId: string;
+                }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
+                    session: {
+                        session: Record<string, any> & {
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            userId: string;
+                            expiresAt: Date;
+                            token: string;
+                            ipAddress?: string | null | undefined;
+                            userAgent?: string | null | undefined;
+                        };
+                        user: Record<string, any> & {
+                            id: string;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            image?: string | null | undefined;
+                        };
+                    };
+                }>, better_call.EndpointOptions>[];
+            }>]>(...ctx: C_1): Promise<C_1 extends [{
+                asResponse: true;
+            }] ? Response : {
+                status: boolean;
+            }>;
+            path: "/unlink-account";
+            options: {
+                method: "POST";
+                body: zod.ZodObject<{
+                    providerId: zod.ZodString;
+                }, "strip", zod.ZodTypeAny, {
+                    providerId: string;
+                }, {
+                    providerId: string;
+                }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
+                    session: {
+                        session: Record<string, any> & {
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            userId: string;
+                            expiresAt: Date;
+                            token: string;
+                            ipAddress?: string | null | undefined;
+                            userAgent?: string | null | undefined;
+                        };
+                        user: Record<string, any> & {
+                            id: string;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            image?: string | null | undefined;
+                        };
+                    };
+                }>, better_call.EndpointOptions>[];
             };
             method: better_call.Method | better_call.Method[];
             headers: Headers;
@@ -8486,9 +8752,18 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
             }>]>(...ctx: C_1): Promise<C_1 extends [{
                 asResponse: true;
             }] ? Response : {
+                redirect: boolean;
                 token: string;
                 url: undefined;
-                redirect: boolean;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             } | {
                 url: string;
                 redirect: boolean;
@@ -9136,8 +9411,26 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 asResponse: true;
             }] ? Response : {
                 token: null;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             } | {
                 token: string;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             }>;
             path: "/sign-up/email";
             options: {
@@ -9284,6 +9577,9 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
             }>]>(...ctx: C_1): Promise<C_1 extends [{
                 asResponse: true;
             }] ? Response : {
+                redirect: boolean;
+                token: string;
+                url: string | undefined;
                 user: {
                     id: string;
                     email: string;
@@ -9293,9 +9589,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                     createdAt: Date;
                     updatedAt: Date;
                 };
-                token: string;
-                redirect: boolean;
-                url: string | undefined;
             }>;
             path: "/sign-in/email";
             options: {
@@ -9540,6 +9833,7 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -9570,6 +9864,18 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 asResponse: true;
             }] ? Response : void | {
                 status: boolean;
+                user: {
+                    id: any;
+                    email: any;
+                    name: any;
+                    image: any;
+                    emailVerified: any;
+                    createdAt: any;
+                    updatedAt: any;
+                };
+            } | {
+                status: boolean;
+                user: null;
             }>;
             path: "/verify-email";
             options: {
@@ -9584,6 +9890,7 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -9956,6 +10263,15 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 asResponse: true;
             }] ? Response : {
                 token: string | null;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             }>;
             path: "/change-password";
             options: {
@@ -10551,6 +10867,7 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 }, {
                     callbackURL: string;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -10586,6 +10903,7 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 }, {
                     callbackURL: string;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -11287,6 +11605,9 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 id: string;
                 accountId: string;
                 provider: string;
+                createdAt: Date;
+                updatedAt: Date;
+                scopes: string[];
             }[]>;
             path: "/list-accounts";
             options: {
@@ -11359,6 +11680,7 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
             }>]>(...ctx: C_1): Promise<C_1 extends [{
                 asResponse: true;
             }] ? Response : {
@@ -11378,6 +11700,82 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
+            };
+            method: better_call.Method | better_call.Method[];
+            headers: Headers;
+        };
+        unlinkAccount: {
+            <C_1 extends [better_call.Context<"/unlink-account", {
+                method: "POST";
+                body: zod.ZodObject<{
+                    providerId: zod.ZodString;
+                }, "strip", zod.ZodTypeAny, {
+                    providerId: string;
+                }, {
+                    providerId: string;
+                }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
+                    session: {
+                        session: Record<string, any> & {
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            userId: string;
+                            expiresAt: Date;
+                            token: string;
+                            ipAddress?: string | null | undefined;
+                            userAgent?: string | null | undefined;
+                        };
+                        user: Record<string, any> & {
+                            id: string;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            image?: string | null | undefined;
+                        };
+                    };
+                }>, better_call.EndpointOptions>[];
+            }>]>(...ctx: C_1): Promise<C_1 extends [{
+                asResponse: true;
+            }] ? Response : {
+                status: boolean;
+            }>;
+            path: "/unlink-account";
+            options: {
+                method: "POST";
+                body: zod.ZodObject<{
+                    providerId: zod.ZodString;
+                }, "strip", zod.ZodTypeAny, {
+                    providerId: string;
+                }, {
+                    providerId: string;
+                }>;
+                use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
+                    session: {
+                        session: Record<string, any> & {
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            userId: string;
+                            expiresAt: Date;
+                            token: string;
+                            ipAddress?: string | null | undefined;
+                            userAgent?: string | null | undefined;
+                        };
+                        user: Record<string, any> & {
+                            id: string;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            image?: string | null | undefined;
+                        };
+                    };
+                }>, better_call.EndpointOptions>[];
             };
             method: better_call.Method | better_call.Method[];
             headers: Headers;
@@ -11409,6 +11807,8 @@ declare const BASE_ERROR_CODES: {
     EMAIL_CAN_NOT_BE_UPDATED: string;
     CREDENTIAL_ACCOUNT_NOT_FOUND: string;
     SESSION_EXPIRED: string;
+    FAILED_TO_UNLINK_LAST_ACCOUNT: string;
+    ACCOUNT_NOT_FOUND: string;
 };
 
 type WithJsDoc<T, D> = Expand<T & D>;
@@ -11622,9 +12022,18 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
             }>]>(...ctx: C): Promise<C extends [{
                 asResponse: true;
             }] ? Response : {
+                redirect: boolean;
                 token: string;
                 url: undefined;
-                redirect: boolean;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             } | {
                 url: string;
                 redirect: boolean;
@@ -12272,8 +12681,26 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 asResponse: true;
             }] ? Response : {
                 token: null;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             } | {
                 token: string;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             }>;
             path: "/sign-up/email";
             options: {
@@ -12420,6 +12847,9 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
             }>]>(...ctx: C): Promise<C extends [{
                 asResponse: true;
             }] ? Response : {
+                redirect: boolean;
+                token: string;
+                url: string | undefined;
                 user: {
                     id: string;
                     email: string;
@@ -12429,9 +12859,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                     createdAt: Date;
                     updatedAt: Date;
                 };
-                token: string;
-                redirect: boolean;
-                url: string | undefined;
             }>;
             path: "/sign-in/email";
             options: {
@@ -12676,6 +13103,7 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -12706,6 +13134,18 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 asResponse: true;
             }] ? Response : void | {
                 status: boolean;
+                user: {
+                    id: any;
+                    email: any;
+                    name: any;
+                    image: any;
+                    emailVerified: any;
+                    createdAt: any;
+                    updatedAt: any;
+                };
+            } | {
+                status: boolean;
+                user: null;
             }>;
             path: "/verify-email";
             options: {
@@ -12720,6 +13160,7 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -13092,6 +13533,15 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 asResponse: true;
             }] ? Response : {
                 token: string | null;
+                user: {
+                    id: string;
+                    email: string;
+                    name: string;
+                    image: string | null | undefined;
+                    emailVerified: boolean;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             }>;
             path: "/change-password";
             options: {
@@ -13687,6 +14137,7 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 }, {
                     callbackURL: string;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -13722,6 +14173,7 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 }, {
                     callbackURL: string;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 metadata: {
                     openapi: {
                         description: string;
@@ -14423,6 +14875,9 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 id: string;
                 accountId: string;
                 provider: string;
+                createdAt: Date;
+                updatedAt: Date;
+                scopes: string[];
             }[]>;
             path: "/list-accounts";
             options: {
@@ -14495,6 +14950,7 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
             }>]>(...ctx: C): Promise<C extends [{
                 asResponse: true;
             }] ? Response : {
@@ -14514,6 +14970,82 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
+            };
+            method: better_call.Method | better_call.Method[];
+            headers: Headers;
+        };
+        unlinkAccount: {
+            <C extends [better_call.Context<"/unlink-account", {
+                method: "POST";
+                body: zod.ZodObject<{
+                    providerId: zod.ZodString;
+                }, "strip", zod.ZodTypeAny, {
+                    providerId: string;
+                }, {
+                    providerId: string;
+                }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
+                    session: {
+                        session: Record<string, any> & {
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            userId: string;
+                            expiresAt: Date;
+                            token: string;
+                            ipAddress?: string | null | undefined;
+                            userAgent?: string | null | undefined;
+                        };
+                        user: Record<string, any> & {
+                            id: string;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            image?: string | null | undefined;
+                        };
+                    };
+                }>, better_call.EndpointOptions>[];
+            }>]>(...ctx: C): Promise<C extends [{
+                asResponse: true;
+            }] ? Response : {
+                status: boolean;
+            }>;
+            path: "/unlink-account";
+            options: {
+                method: "POST";
+                body: zod.ZodObject<{
+                    providerId: zod.ZodString;
+                }, "strip", zod.ZodTypeAny, {
+                    providerId: string;
+                }, {
+                    providerId: string;
+                }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
+                    session: {
+                        session: Record<string, any> & {
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            userId: string;
+                            expiresAt: Date;
+                            token: string;
+                            ipAddress?: string | null | undefined;
+                            userAgent?: string | null | undefined;
+                        };
+                        user: Record<string, any> & {
+                            id: string;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            image?: string | null | undefined;
+                        };
+                    };
+                }>, better_call.EndpointOptions>[];
             };
             method: better_call.Method | better_call.Method[];
             headers: Headers;
@@ -14538,4 +15070,4 @@ type Auth = {
     $ERROR_CODES: typeof BASE_ERROR_CODES;
 };
 
-export { shouldPublishLog as $, type AuthPluginSchema as A, type BetterAuthOptions as B, type FilterActions as C, type InferSessionAPI as D, type InferAPI as E, type FilteredAPI as F, type GenericEndpointContext as G, type HookEndpointContext as H, type InferOptionSchema as I, createCookieGetter as J, type KyselyDatabaseType as K, getCookies as L, type Models as M, type BetterAuthCookies as N, setCookieCache as O, setSessionCookie as P, deleteSessionCookie as Q, type RateLimit as R, type Session as S, parseCookies as T, type User as U, type Verification as V, type Where as W, type EligibleCookies as X, parseSetCookieHeader as Y, type LogLevel as Z, levels as _, BASE_ERROR_CODES as a, type Logger as a0, type LogHandlerParams as a1, createLogger as a2, logger as a3, type FieldAttribute as a4, type FieldType as a5, createInternalAdapter as a6, type InternalAdapter as a7, type FieldAttributeConfig as a8, createFieldAttribute as a9, createEmailVerificationToken as aA, sendVerificationEmailFn as aB, sendVerificationEmail as aC, verifyEmail as aD, updateUser as aE, changePassword as aF, setPassword as aG, deleteUser as aH, deleteUserCallback as aI, changeEmail as aJ, error as aK, ok as aL, signUpEmail as aM, listUserAccounts as aN, linkSocialAccount as aO, originCheckMiddleware as aP, type InferValueType as aa, type InferFieldsOutput as ab, type InferFieldsInput as ac, type InferFieldsInputClient as ad, type PluginFieldAttribute as ae, type InferFieldsFromPlugins as af, type InferFieldsFromOptions as ag, type BetterAuthDbSchema as ah, getAuthTables as ai, getEndpoints as aj, router as ak, signInSocial as al, signInEmail as am, callbackOAuth as an, getSession as ao, getSessionFromCtx as ap, sessionMiddleware as aq, freshSessionMiddleware as ar, listSessions as as, revokeSession as at, revokeSessions as au, revokeOtherSessions as av, signOut as aw, forgetPassword as ax, forgetPasswordCallback as ay, resetPassword as az, type HookBeforeHandler as b, type HookAfterHandler as c, type BetterAuthPlugin as d, type InferPluginErrorCodes as e, createAuthMiddleware as f, createAuthEndpoint as g, type AuthEndpoint as h, type AuthMiddleware as i, type Auth as j, type AuthContext as k, type InferUser as l, type InferSession as m, type WithJsDoc as n, optionsMiddleware as o, betterAuth as p, type AdditionalUserFieldsInput as q, type AdditionalUserFieldsOutput as r, type AdditionalSessionFieldsInput as s, type AdditionalSessionFieldsOutput as t, type InferPluginTypes as u, type Account as v, init as w, type Adapter as x, type AdapterInstance as y, type SecondaryStorage as z };
+export { shouldPublishLog as $, type AuthPluginSchema as A, type BetterAuthOptions as B, type FilterActions as C, type InferSessionAPI as D, type InferAPI as E, type FilteredAPI as F, type GenericEndpointContext as G, type HookEndpointContext as H, type InferOptionSchema as I, createCookieGetter as J, type KyselyDatabaseType as K, getCookies as L, type Models as M, type BetterAuthCookies as N, setCookieCache as O, setSessionCookie as P, deleteSessionCookie as Q, type RateLimit as R, type Session as S, parseCookies as T, type User as U, type Verification as V, type Where as W, type EligibleCookies as X, parseSetCookieHeader as Y, type LogLevel as Z, levels as _, BASE_ERROR_CODES as a, type Logger as a0, type LogHandlerParams as a1, createLogger as a2, logger as a3, type FieldAttribute as a4, type FieldType as a5, createInternalAdapter as a6, type InternalAdapter as a7, type FieldAttributeConfig as a8, createFieldAttribute as a9, createEmailVerificationToken as aA, sendVerificationEmailFn as aB, sendVerificationEmail as aC, verifyEmail as aD, updateUser as aE, changePassword as aF, setPassword as aG, deleteUser as aH, deleteUserCallback as aI, changeEmail as aJ, error as aK, ok as aL, signUpEmail as aM, listUserAccounts as aN, linkSocialAccount as aO, unlinkAccount as aP, originCheckMiddleware as aQ, originCheck as aR, type InferValueType as aa, type InferFieldsOutput as ab, type InferFieldsInput as ac, type InferFieldsInputClient as ad, type PluginFieldAttribute as ae, type InferFieldsFromPlugins as af, type InferFieldsFromOptions as ag, type BetterAuthDbSchema as ah, getAuthTables as ai, getEndpoints as aj, router as ak, signInSocial as al, signInEmail as am, callbackOAuth as an, getSession as ao, getSessionFromCtx as ap, sessionMiddleware as aq, freshSessionMiddleware as ar, listSessions as as, revokeSession as at, revokeSessions as au, revokeOtherSessions as av, signOut as aw, forgetPassword as ax, forgetPasswordCallback as ay, resetPassword as az, type HookBeforeHandler as b, type HookAfterHandler as c, type BetterAuthPlugin as d, type InferPluginErrorCodes as e, createAuthMiddleware as f, createAuthEndpoint as g, type AuthEndpoint as h, type AuthMiddleware as i, type Auth as j, type AuthContext as k, type InferUser as l, type InferSession as m, type WithJsDoc as n, optionsMiddleware as o, betterAuth as p, type AdditionalUserFieldsInput as q, type AdditionalUserFieldsOutput as r, type AdditionalSessionFieldsInput as s, type AdditionalSessionFieldsOutput as t, type InferPluginTypes as u, type Account as v, init as w, type Adapter as x, type AdapterInstance as y, type SecondaryStorage as z };

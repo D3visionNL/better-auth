@@ -1,4 +1,4 @@
-import { L as LiteralString, b as Prettify } from './helper-Bi8FQwDD.cjs';
+import { L as LiteralString, b as Prettify } from './helper-Bi8FQwDD.js';
 import { z } from 'zod';
 import * as jose from 'jose';
 
@@ -587,6 +587,8 @@ interface GoogleProfile {
 interface GoogleOptions extends ProviderOptions<GoogleProfile> {
     accessType?: "offline" | "online";
     prompt?: "none" | "consent" | "select_account";
+    display?: "page" | "popup" | "touch" | "wap";
+    hd?: string;
 }
 declare const google: (options: GoogleOptions) => {
     id: "google";

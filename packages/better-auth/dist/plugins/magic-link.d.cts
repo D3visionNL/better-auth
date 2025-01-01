@@ -131,6 +131,7 @@ declare const magicLink: (options: MagicLinkOptions) => {
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 requireHeaders: true;
                 metadata: {
                     openapi: {
@@ -161,6 +162,15 @@ declare const magicLink: (options: MagicLinkOptions) => {
                 asResponse: true;
             }] ? Response : {
                 token: string;
+                user: {
+                    id: string;
+                    email: string;
+                    emailVerified: boolean;
+                    name: string;
+                    image: string | null | undefined;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             }>;
             path: "/magic-link/verify";
             options: {
@@ -175,6 +185,7 @@ declare const magicLink: (options: MagicLinkOptions) => {
                     token: string;
                     callbackURL?: string | undefined;
                 }>;
+                use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, void>, better_call.EndpointOptions>[];
                 requireHeaders: true;
                 metadata: {
                     openapi: {

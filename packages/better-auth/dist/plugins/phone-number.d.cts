@@ -1,9 +1,9 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { U as User, I as InferOptionSchema } from '../auth-P6YmCh9e.cjs';
+import { U as User, I as InferOptionSchema } from '../auth-Bl8U888O.cjs';
 import 'kysely';
 import '../helper-Bi8FQwDD.cjs';
-import '../index-DOvW5Rd7.cjs';
+import '../index-KR6jI2X2.cjs';
 import 'jose';
 import 'better-sqlite3';
 
@@ -130,6 +130,7 @@ declare const phoneNumber: (options?: {
                 asResponse: true;
             }] ? Response : {
                 token: string;
+                user: UserWithPhoneNumber;
             }>;
             path: "/sign-in/phone-number";
             options: {
@@ -321,11 +322,13 @@ declare const phoneNumber: (options?: {
             }>]>(...ctx: C): Promise<C extends [{
                 asResponse: true;
             }] ? Response : {
+                status: boolean;
                 token: string;
-                status: boolean;
+                user: UserWithPhoneNumber;
             } | {
-                token: null;
                 status: boolean;
+                token: null;
+                user: UserWithPhoneNumber;
             } | null>;
             path: "/phone-number/verify";
             options: {

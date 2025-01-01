@@ -1,10 +1,10 @@
-import { U as User, S as Session, I as InferOptionSchema, H as HookEndpointContext } from '../auth-P6YmCh9e.cjs';
+import { U as User, S as Session, I as InferOptionSchema, H as HookEndpointContext } from '../auth-Bl8U888O.cjs';
 import * as better_call from 'better-call';
 import { APIError } from 'better-call';
 import 'kysely';
 import 'zod';
 import '../helper-Bi8FQwDD.cjs';
-import '../index-DOvW5Rd7.cjs';
+import '../index-KR6jI2X2.cjs';
 import 'jose';
 import 'better-sqlite3';
 
@@ -86,6 +86,14 @@ declare const anonymous: (options?: AnonymousOptions) => {
                 asResponse: true;
             }] ? Response : {
                 token: string;
+                user: {
+                    id: string;
+                    email: string;
+                    emailVerified: boolean;
+                    name: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                };
             } | null>;
             path: "/sign-in/anonymous";
             options: {

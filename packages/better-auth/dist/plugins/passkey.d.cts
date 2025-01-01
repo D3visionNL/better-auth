@@ -6,10 +6,10 @@ import * as _simplewebauthn_server from '@simplewebauthn/server';
 import { CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, AuthenticationResponseJSON } from '@simplewebauthn/server';
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { I as InferOptionSchema } from '../auth-P6YmCh9e.cjs';
+import { I as InferOptionSchema } from '../auth-Bl8U888O.cjs';
 import 'kysely';
 import '../helper-Bi8FQwDD.cjs';
-import '../index-DOvW5Rd7.cjs';
+import '../index-KR6jI2X2.cjs';
 import 'jose';
 import 'better-sqlite3';
 
