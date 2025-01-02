@@ -89,6 +89,18 @@ export const linkSocialAccount = createAuthEndpoint(
 			provider: z.enum(socialProviderList, {
 				description: "The OAuth2 provider to use",
 			}),
+			/**
+			 * Disable automatic redirection to the provider
+			 *
+			 * This is useful if you want to handle the redirection
+			 * yourself like in a popup or a different tab.
+			 */
+			disableRedirect: z
+				.boolean({
+					description:
+						"Disable automatic redirection to the provider. Useful for handling the redirection yourself",
+				})
+				.optional(),
 		}),
 		use: [sessionMiddleware],
 		metadata: {
@@ -106,6 +118,9 @@ export const linkSocialAccount = createAuthEndpoint(
 											type: "string",
 										},
 										redirect: {
+											type: "boolean",
+										},
+										disableRedirect: {
 											type: "boolean",
 										},
 									},
@@ -157,7 +172,7 @@ export const linkSocialAccount = createAuthEndpoint(
 
 		return c.json({
 			url: url.toString(),
-			redirect: true,
+			redirect: !c.body.disableRedirect,
 		});
 	},
 );

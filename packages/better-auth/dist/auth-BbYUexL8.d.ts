@@ -5068,12 +5068,21 @@ declare const linkSocialAccount: {
              * OAuth2 provider to use`
              */
             provider: z.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
+            /**
+             * Disable automatic redirection to the provider
+             *
+             * This is useful if you want to handle the redirection
+             * yourself like in a popup or a different tab.
+             */
+            disableRedirect: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
             provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
             callbackURL?: string | undefined;
+            disableRedirect?: boolean | undefined;
         }, {
             provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
             callbackURL?: string | undefined;
+            disableRedirect?: boolean | undefined;
         }>;
         use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
             session: {
@@ -5113,6 +5122,9 @@ declare const linkSocialAccount: {
                                             type: string;
                                         };
                                         redirect: {
+                                            type: string;
+                                        };
+                                        disableRedirect: {
                                             type: string;
                                         };
                                     };
@@ -5154,12 +5166,21 @@ declare const linkSocialAccount: {
              * OAuth2 provider to use`
              */
             provider: z.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
+            /**
+             * Disable automatic redirection to the provider
+             *
+             * This is useful if you want to handle the redirection
+             * yourself like in a popup or a different tab.
+             */
+            disableRedirect: z.ZodOptional<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
             provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
             callbackURL?: string | undefined;
+            disableRedirect?: boolean | undefined;
         }, {
             provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
             callbackURL?: string | undefined;
+            disableRedirect?: boolean | undefined;
         }>;
         use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
             session: {
@@ -5199,6 +5220,9 @@ declare const linkSocialAccount: {
                                             type: string;
                                         };
                                         redirect: {
+                                            type: string;
+                                        };
+                                        disableRedirect: {
                                             type: string;
                                         };
                                     };
@@ -8163,12 +8187,15 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
+                    disableRedirect: zod.ZodOptional<zod.ZodBoolean>;
                 }, "strip", zod.ZodTypeAny, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }>;
                 use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
                     session: {
@@ -8208,6 +8235,9 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                                                     type: string;
                                                 };
                                                 redirect: {
+                                                    type: string;
+                                                };
+                                                disableRedirect: {
                                                     type: string;
                                                 };
                                             };
@@ -8239,12 +8269,15 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
+                    disableRedirect: zod.ZodOptional<zod.ZodBoolean>;
                 }, "strip", zod.ZodTypeAny, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }>;
                 use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
                     session: {
@@ -8284,6 +8317,9 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                                                     type: string;
                                                 };
                                                 redirect: {
+                                                    type: string;
+                                                };
+                                                disableRedirect: {
                                                     type: string;
                                                 };
                                             };
@@ -11409,12 +11445,15 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
+                    disableRedirect: zod.ZodOptional<zod.ZodBoolean>;
                 }, "strip", zod.ZodTypeAny, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }>;
                 use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
                     session: {
@@ -11454,6 +11493,9 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                                                     type: string;
                                                 };
                                                 redirect: {
+                                                    type: string;
+                                                };
+                                                disableRedirect: {
                                                     type: string;
                                                 };
                                             };
@@ -11485,12 +11527,15 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
+                    disableRedirect: zod.ZodOptional<zod.ZodBoolean>;
                 }, "strip", zod.ZodTypeAny, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }>;
                 use: Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
                     session: {
@@ -11530,6 +11575,9 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                                                     type: string;
                                                 };
                                                 redirect: {
+                                                    type: string;
+                                                };
+                                                disableRedirect: {
                                                     type: string;
                                                 };
                                             };
@@ -14679,12 +14727,15 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
+                    disableRedirect: zod.ZodOptional<zod.ZodBoolean>;
                 }, "strip", zod.ZodTypeAny, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }>;
                 use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
                     session: {
@@ -14724,6 +14775,9 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                                                     type: string;
                                                 };
                                                 redirect: {
+                                                    type: string;
+                                                };
+                                                disableRedirect: {
                                                     type: string;
                                                 };
                                             };
@@ -14755,12 +14809,15 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
+                    disableRedirect: zod.ZodOptional<zod.ZodBoolean>;
                 }, "strip", zod.ZodTypeAny, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }, {
                     provider: "github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox";
                     callbackURL?: string | undefined;
+                    disableRedirect?: boolean | undefined;
                 }>;
                 use: better_call.Endpoint<better_call.Handler<string, better_call.EndpointOptions, {
                     session: {
@@ -14800,6 +14857,9 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                                                     type: string;
                                                 };
                                                 redirect: {
+                                                    type: string;
+                                                };
+                                                disableRedirect: {
                                                     type: string;
                                                 };
                                             };

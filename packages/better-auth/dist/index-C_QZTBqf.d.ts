@@ -1,8 +1,8 @@
 import { z, ZodLiteral, ZodObject, ZodOptional, ZodArray, ZodString } from 'zod';
 import * as better_call from 'better-call';
-import { b as Prettify } from './helper-Bi8FQwDD.cjs';
-import { U as User, S as Session } from './auth-Bl8U888O.cjs';
-import { AccessControl, Role, StatementsPrimitive, defaultRoles } from './plugins/access.cjs';
+import { b as Prettify } from './helper-Bi8FQwDD.js';
+import { U as User, S as Session } from './auth-BbYUexL8.js';
+import { AccessControl, Role, StatementsPrimitive, defaultRoles } from './plugins/access.js';
 
 declare const organizationSchema: z.ZodObject<{
     id: z.ZodDefault<z.ZodString>;

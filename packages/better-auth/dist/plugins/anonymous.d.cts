@@ -1,4 +1,4 @@
-import { U as User, S as Session, I as InferOptionSchema, H as HookEndpointContext } from '../auth-Bl8U888O.cjs';
+import { U as User, S as Session, I as InferOptionSchema, H as HookEndpointContext } from '../auth-BISvpQdc.cjs';
 import * as better_call from 'better-call';
 import { APIError } from 'better-call';
 import 'kysely';
