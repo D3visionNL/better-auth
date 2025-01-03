@@ -1103,6 +1103,8 @@ declare const admin: <O extends AdminOptions>(options?: O) => {
                 asResponse: true;
             }] ? Response : {
                 success: boolean;
+                token: string;
+                userId: string | undefined;
             }>;
             path: "/admin/revoke-user-session";
             options: {

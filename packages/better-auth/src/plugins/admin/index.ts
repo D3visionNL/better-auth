@@ -797,11 +797,16 @@ export const admin = <O extends AdminOptions>(options?: O) => {
 					},
 				},
 				async (ctx) => {
+					const fetchedSession = await ctx.context.internalAdapter.findSession(
+						ctx.body.sessionToken,
+					);
 					await ctx.context.internalAdapter.deleteSession(
 						ctx.body.sessionToken,
 					);
 					return ctx.json({
 						success: true,
+						token: ctx.body.sessionToken,
+						userId: fetchedSession?.user.id,
 					});
 				},
 			),
