@@ -1,1 +1,246 @@
-"use strict";var R=Object.defineProperty;var L=Object.getOwnPropertyDescriptor;var P=Object.getOwnPropertyNames;var E=Object.prototype.hasOwnProperty;var M=(e,n)=>{for(var d in n)R(e,d,{get:n[d],enumerable:!0})},V=(e,n,d,u)=>{if(n&&typeof n=="object"||typeof n=="function")for(let l of P(n))!E.call(e,l)&&l!==d&&R(e,l,{get:()=>n[l],enumerable:!(u=L(n,l))||u.enumerable});return e};var C=e=>V(R({},"__esModule",{value:!0}),e);var le={};M(le,{prismaAdapter:()=>ce});module.exports=C(le);var s=require("zod"),_=require("better-call"),ye=s.z.object({id:s.z.string(),providerId:s.z.string(),accountId:s.z.string(),name:s.z.string().nullish(),userId:s.z.string(),accessToken:s.z.string().nullish(),refreshToken:s.z.string().nullish(),idToken:s.z.string().nullish(),accessTokenExpiresAt:s.z.date().nullish(),refreshTokenExpiresAt:s.z.date().nullish(),scope:s.z.string().nullish(),password:s.z.string().nullish(),image:s.z.string().nullish(),createdAt:s.z.date().default(()=>new Date),updatedAt:s.z.date().default(()=>new Date)}),ge=s.z.object({id:s.z.string(),email:s.z.string().transform(e=>e.toLowerCase()),emailVerified:s.z.boolean().default(!1),name:s.z.string(),image:s.z.string().nullish(),createdAt:s.z.date().default(()=>new Date),updatedAt:s.z.date().default(()=>new Date)}),he=s.z.object({id:s.z.string(),userId:s.z.string(),expiresAt:s.z.date(),createdAt:s.z.date().default(()=>new Date),updatedAt:s.z.date().default(()=>new Date),token:s.z.string(),ipAddress:s.z.string().nullish(),userAgent:s.z.string().nullish()}),Ae=s.z.object({id:s.z.string(),value:s.z.string(),createdAt:s.z.date().default(()=>new Date),updatedAt:s.z.date().default(()=>new Date),expiresAt:s.z.date(),identifier:s.z.string()});var T=Object.create(null),b=e=>globalThis.process?.env||globalThis.Deno?.env.toObject()||globalThis.__env__||(e?T:globalThis),D=new Proxy(T,{get(e,n){return b()[n]??T[n]},has(e,n){let d=b();return n in d||n in T},set(e,n,d){let u=b(!0);return u[n]=d,!0},deleteProperty(e,n){if(!n)return!1;let d=b(!0);return delete d[n],!0},ownKeys(){let e=b(!0);return Object.keys(e)}});function $(e){return e?e!=="false":!1}var j=typeof process<"u"&&process.env&&process.env.NODE_ENV||"";var H=j==="test"||$(D.TEST);var N=require("@better-auth/utils/random"),v=e=>(0,N.createRandomStringGenerator)("a-z","A-Z","0-9")(e||32);var te=require("zod"),re=require("better-call");var h=class extends Error{constructor(n,d){super(n),this.name="BetterAuthError",this.message=n,this.cause=d,this.stack=""}};var X=require("@better-auth/utils/hash"),Y=require("@noble/ciphers/chacha"),I=require("@noble/ciphers/utils"),ee=require("@noble/ciphers/webcrypto");var W=require("@better-auth/utils/hash");var J=require("jose");var G=require("@noble/hashes/scrypt"),z=require("uncrypto"),Z=require("@better-auth/utils/hex");var q=require("@better-auth/utils/random"),Q=(0,q.createRandomStringGenerator)("a-z","0-9","A-Z","-_");var O=["info","success","warn","error","debug"];function ne(e,n){return O.indexOf(n)<=O.indexOf(e)}var A={reset:"\x1B[0m",bright:"\x1B[1m",dim:"\x1B[2m",underscore:"\x1B[4m",blink:"\x1B[5m",reverse:"\x1B[7m",hidden:"\x1B[8m",fg:{black:"\x1B[30m",red:"\x1B[31m",green:"\x1B[32m",yellow:"\x1B[33m",blue:"\x1B[34m",magenta:"\x1B[35m",cyan:"\x1B[36m",white:"\x1B[37m"},bg:{black:"\x1B[40m",red:"\x1B[41m",green:"\x1B[42m",yellow:"\x1B[43m",blue:"\x1B[44m",magenta:"\x1B[45m",cyan:"\x1B[46m",white:"\x1B[47m"}},se={info:A.fg.blue,success:A.fg.green,warn:A.fg.yellow,error:A.fg.red,debug:A.fg.magenta},ie=(e,n)=>{let d=new Date().toISOString();return`${A.dim}${d}${A.reset} ${se[e]}${e.toUpperCase()}${A.reset} ${A.bright}[Better Auth]:${A.reset} ${n}`},S=e=>{let n=e?.disabled!==!0,d=e?.level??"error",u=(l,y,f=[])=>{if(!n||!ne(d,l))return;let a=ie(l,y);if(!e||typeof e.log!="function"){l==="error"?console.error(a,...f):l==="warn"?console.warn(a,...f):console.log(a,...f);return}e.log(l==="success"?"info":l,a,...f)};return Object.fromEntries(O.map(l=>[l,(...[y,...f])=>u(l,y,f)]))},ae=S();var x=e=>{let n=e.plugins?.reduce((i,p)=>{let c=p.schema;if(!c)return i;for(let[t,o]of Object.entries(c))i[t]={fields:{...i[t]?.fields,...o.fields},modelName:o.modelName||t};return i},{}),d=e.rateLimit?.storage==="database",u={rateLimit:{modelName:e.rateLimit?.modelName||"rateLimit",fields:{key:{type:"string",fieldName:e.rateLimit?.fields?.key||"key"},count:{type:"number",fieldName:e.rateLimit?.fields?.count||"count"},lastRequest:{type:"number",fieldName:e.rateLimit?.fields?.lastRequest||"lastRequest"}}}},{user:l,session:y,account:f,...a}=n||{};return{user:{modelName:e.user?.modelName||"user",fields:{name:{type:"string",required:!0,fieldName:e.user?.fields?.name||"name"},email:{type:"string",unique:!0,required:!0,fieldName:e.user?.fields?.email||"email"},emailVerified:{type:"boolean",defaultValue:()=>!1,required:!0,fieldName:e.user?.fields?.emailVerified||"emailVerified"},image:{type:"string",required:!1,fieldName:e.user?.fields?.image||"image"},createdAt:{type:"date",defaultValue:()=>new Date,required:!0,fieldName:e.user?.fields?.createdAt||"createdAt"},updatedAt:{type:"date",defaultValue:()=>new Date,required:!0,fieldName:e.user?.fields?.updatedAt||"updatedAt"},...l?.fields,...e.user?.additionalFields},order:1},session:{modelName:e.session?.modelName||"session",fields:{expiresAt:{type:"date",required:!0,fieldName:e.session?.fields?.expiresAt||"expiresAt"},token:{type:"string",required:!0,fieldName:e.session?.fields?.token||"token",unique:!0},createdAt:{type:"date",required:!0,fieldName:e.session?.fields?.createdAt||"createdAt"},updatedAt:{type:"date",required:!0,fieldName:e.session?.fields?.updatedAt||"updatedAt"},ipAddress:{type:"string",required:!1,fieldName:e.session?.fields?.ipAddress||"ipAddress"},userAgent:{type:"string",required:!1,fieldName:e.session?.fields?.userAgent||"userAgent"},userId:{type:"string",fieldName:e.session?.fields?.userId||"userId",references:{model:e.user?.modelName||"user",field:"id",onDelete:"cascade"},required:!0},...y?.fields,...e.session?.additionalFields},order:2},account:{modelName:e.account?.modelName||"account",fields:{accountId:{type:"string",required:!0,fieldName:e.account?.fields?.accountId||"accountId"},providerId:{type:"string",required:!0,fieldName:e.account?.fields?.providerId||"providerId"},userId:{type:"string",references:{model:e.user?.modelName||"user",field:"id",onDelete:"cascade"},required:!0,fieldName:e.account?.fields?.userId||"userId"},accessToken:{type:"string",required:!1,fieldName:e.account?.fields?.accessToken||"accessToken"},refreshToken:{type:"string",required:!1,fieldName:e.account?.fields?.refreshToken||"refreshToken"},idToken:{type:"string",required:!1,fieldName:e.account?.fields?.idToken||"idToken"},accessTokenExpiresAt:{type:"date",required:!1,fieldName:e.account?.fields?.accessTokenExpiresAt||"accessTokenExpiresAt"},refreshTokenExpiresAt:{type:"date",required:!1,fieldName:e.account?.fields?.accessTokenExpiresAt||"refreshTokenExpiresAt"},scope:{type:"string",required:!1,fieldName:e.account?.fields?.scope||"scope"},password:{type:"string",required:!1,fieldName:e.account?.fields?.password||"password"},createdAt:{type:"date",required:!0,fieldName:e.account?.fields?.createdAt||"createdAt"},updatedAt:{type:"date",required:!0,fieldName:e.account?.fields?.updatedAt||"updatedAt"},...f?.fields},order:3},verification:{modelName:e.verification?.modelName||"verification",fields:{identifier:{type:"string",required:!0,fieldName:e.verification?.fields?.identifier||"identifier"},value:{type:"string",required:!0,fieldName:e.verification?.fields?.value||"value"},expiresAt:{type:"date",required:!0,fieldName:e.verification?.fields?.expiresAt||"expiresAt"},createdAt:{type:"date",required:!1,defaultValue:()=>new Date,fieldName:e.verification?.fields?.createdAt||"createdAt"},updatedAt:{type:"date",required:!1,defaultValue:()=>new Date,fieldName:e.verification?.fields?.updatedAt||"updatedAt"}},order:4},...a,...d?u:{}}};var oe=require("zod");var U=require("kysely"),F=require("kysely");function k(e,n,d){return d==="update"?e:e==null&&n.defaultValue?typeof n.defaultValue=="function"?n.defaultValue():n.defaultValue:e}var ue=(e,n)=>{let d=x(n);function u(a,i){return i==="id"?i:d[a].fields[i].fieldName||i}function l(a){switch(a){case"starts_with":return"startsWith";case"ends_with":return"endsWith";default:return a}}function y(a){return d[a].modelName}let f=n?.advanced?.generateId===!1;return{transformInput(a,i,p){let c=f||p==="update"?{}:{id:n.advanced?.generateId?n.advanced.generateId({model:i}):a.id||v()},t=d[i].fields;for(let o in t){let r=a[o];r===void 0&&(!t[o].defaultValue||p==="update")||(c[t[o].fieldName||o]=k(r,t[o],p))}return c},transformOutput(a,i,p=[]){if(!a)return null;let c=a.id||a._id?p.length===0||p.includes("id")?{id:a.id}:{}:{},t=d[i].fields;for(let o in t){if(p.length&&!p.includes(o))continue;let r=t[o];r&&(c[o]=a[r.fieldName||o])}return c},convertWhereClause(a,i){if(!i)return{};if(i.length===1){let r=i[0];return r?{[u(a,r.field)]:r.operator==="eq"||!r.operator?r.value:{[l(r.operator)]:r.value}}:void 0}let p=i.filter(r=>r.connector==="AND"||!r.connector),c=i.filter(r=>r.connector==="OR"),t=p.map(r=>({[u(a,r.field)]:r.operator==="eq"||!r.operator?r.value:{[l(r.operator)]:r.value}})),o=c.map(r=>({[u(a,r.field)]:{[r.operator||"eq"]:r.value}}));return{...t.length?{AND:t}:{},...o.length?{OR:o}:{}}},convertSelect:(a,i)=>{if(!(!a||!i))return a.reduce((p,c)=>({...p,[u(i,c)]:!0}),{})},getModelName:y,getField:u}},ce=(e,n)=>d=>{let u=e,{transformInput:l,transformOutput:y,convertWhereClause:f,convertSelect:a,getModelName:i,getField:p}=ue(n,d);return{id:"prisma",async create(c){let{model:t,data:o,select:r}=c,m=l(o,t,"create");if(!u[i(t)])throw new h(`Model ${t} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);let g=await u[i(t)].create({data:m,select:a(r,t)});return y(g,t,r)},async findOne(c){let{model:t,where:o,select:r}=c,m=f(t,o);if(!u[i(t)])throw new h(`Model ${t} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);let g=await u[i(t)].findFirst({where:m,select:a(r,t)});return y(g,t,r)},async count(c){let{model:t,where:o}=c,r=f(t,o);if(!u[i(t)])throw new h(`Model ${t} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);return(await u[i(t)].findMany({where:r,select:{id:!0}})).length},async findMany(c){let{model:t,where:o,limit:r,offset:m,sortBy:g}=c,w=f(t,o);if(!u[i(t)])throw new h(`Model ${t} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);return(await u[i(t)].findMany({where:w,take:r||100,skip:m||0,...g?.field?{orderBy:{[p(t,g.field)]:g.direction==="desc"?"desc":"asc"}}:{}})).map(B=>y(B,t))},async update(c){let{model:t,where:o,update:r}=c;if(!u[i(t)])throw new h(`Model ${t} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`);let m=f(t,o),g=l(r,t,"update"),w=await u[i(t)].update({where:m,data:g});return y(w,t)},async updateMany(c){let{model:t,where:o,update:r}=c,m=f(t,o),g=l(r,t,"update"),w=await u[i(t)].updateMany({where:m,data:g});return w?w.count:0},async delete(c){let{model:t,where:o}=c,r=f(t,o);try{await u[i(t)].delete({where:r})}catch{}},async deleteMany(c){let{model:t,where:o}=c,r=f(t,o),m=await u[i(t)].deleteMany({where:r});return m?m.count:0},options:n}};0&&(module.exports={prismaAdapter});
+'use strict';
+
+var chunkP65Q6LR5_cjs = require('../chunk-P65Q6LR5.cjs');
+require('../chunk-WRPAFI4I.cjs');
+var chunkH74YRRNV_cjs = require('../chunk-H74YRRNV.cjs');
+require('../chunk-LB4ZM24Q.cjs');
+require('../chunk-NIMYOIVU.cjs');
+require('../chunk-CCKQSGIR.cjs');
+require('../chunk-XJGHQ3F6.cjs');
+require('../chunk-2HPSCSV7.cjs');
+require('../chunk-VXYIYABQ.cjs');
+var chunkPEZRSDZS_cjs = require('../chunk-PEZRSDZS.cjs');
+
+// src/adapters/prisma-adapter/prisma-adapter.ts
+var createTransform = (config, options) => {
+  const schema = chunkP65Q6LR5_cjs.getAuthTables(options);
+  function getField(model, field) {
+    if (field === "id") {
+      return field;
+    }
+    const f = schema[model].fields[field];
+    return f.fieldName || field;
+  }
+  function operatorToPrismaOperator(operator) {
+    switch (operator) {
+      case "starts_with":
+        return "startsWith";
+      case "ends_with":
+        return "endsWith";
+      default:
+        return operator;
+    }
+  }
+  function getModelName(model) {
+    return schema[model].modelName;
+  }
+  const useDatabaseGeneratedId = options?.advanced?.generateId === false;
+  return {
+    transformInput(data, model, action) {
+      const transformedData = useDatabaseGeneratedId || action === "update" ? {} : {
+        id: options.advanced?.generateId ? options.advanced.generateId({
+          model
+        }) : data.id || chunkH74YRRNV_cjs.generateId()
+      };
+      const fields = schema[model].fields;
+      for (const field in fields) {
+        const value = data[field];
+        if (value === void 0 && (!fields[field].defaultValue || action === "update")) {
+          continue;
+        }
+        transformedData[fields[field].fieldName || field] = chunkP65Q6LR5_cjs.withApplyDefault(
+          value,
+          fields[field],
+          action
+        );
+      }
+      return transformedData;
+    },
+    transformOutput(data, model, select = []) {
+      if (!data) return null;
+      const transformedData = data.id || data._id ? select.length === 0 || select.includes("id") ? {
+        id: data.id
+      } : {} : {};
+      const tableSchema = schema[model].fields;
+      for (const key in tableSchema) {
+        if (select.length && !select.includes(key)) {
+          continue;
+        }
+        const field = tableSchema[key];
+        if (field) {
+          transformedData[key] = data[field.fieldName || key];
+        }
+      }
+      return transformedData;
+    },
+    convertWhereClause(model, where) {
+      if (!where) return {};
+      if (where.length === 1) {
+        const w = where[0];
+        if (!w) {
+          return;
+        }
+        return {
+          [getField(model, w.field)]: w.operator === "eq" || !w.operator ? w.value : {
+            [operatorToPrismaOperator(w.operator)]: w.value
+          }
+        };
+      }
+      const and = where.filter((w) => w.connector === "AND" || !w.connector);
+      const or = where.filter((w) => w.connector === "OR");
+      const andClause = and.map((w) => {
+        return {
+          [getField(model, w.field)]: w.operator === "eq" || !w.operator ? w.value : {
+            [operatorToPrismaOperator(w.operator)]: w.value
+          }
+        };
+      });
+      const orClause = or.map((w) => {
+        return {
+          [getField(model, w.field)]: {
+            [w.operator || "eq"]: w.value
+          }
+        };
+      });
+      return {
+        ...andClause.length ? { AND: andClause } : {},
+        ...orClause.length ? { OR: orClause } : {}
+      };
+    },
+    convertSelect: (select, model) => {
+      if (!select || !model) return void 0;
+      return select.reduce((prev, cur) => {
+        return {
+          ...prev,
+          [getField(model, cur)]: true
+        };
+      }, {});
+    },
+    getModelName,
+    getField
+  };
+};
+var prismaAdapter = (prisma, config) => (options) => {
+  const db = prisma;
+  const {
+    transformInput,
+    transformOutput,
+    convertWhereClause,
+    convertSelect,
+    getModelName,
+    getField
+  } = createTransform(config, options);
+  return {
+    id: "prisma",
+    async create(data) {
+      const { model, data: values, select } = data;
+      const transformed = transformInput(values, model, "create");
+      if (!db[getModelName(model)]) {
+        throw new chunkPEZRSDZS_cjs.BetterAuthError(
+          `Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`
+        );
+      }
+      const result = await db[getModelName(model)].create({
+        data: transformed,
+        select: convertSelect(select, model)
+      });
+      return transformOutput(result, model, select);
+    },
+    async findOne(data) {
+      const { model, where, select } = data;
+      const whereClause = convertWhereClause(model, where);
+      if (!db[getModelName(model)]) {
+        throw new chunkPEZRSDZS_cjs.BetterAuthError(
+          `Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`
+        );
+      }
+      const result = await db[getModelName(model)].findFirst({
+        where: whereClause,
+        select: convertSelect(select, model)
+      });
+      return transformOutput(result, model, select);
+    },
+    async count(data) {
+      const { model, where } = data;
+      const whereClause = convertWhereClause(model, where);
+      if (!db[getModelName(model)]) {
+        throw new chunkPEZRSDZS_cjs.BetterAuthError(
+          `Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`
+        );
+      }
+      const result = await db[getModelName(model)].findMany({
+        where: whereClause,
+        select: {
+          id: true
+        }
+      });
+      return result.length;
+    },
+    async findMany(data) {
+      const { model, where, limit, offset, sortBy } = data;
+      const whereClause = convertWhereClause(model, where);
+      if (!db[getModelName(model)]) {
+        throw new chunkPEZRSDZS_cjs.BetterAuthError(
+          `Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`
+        );
+      }
+      const result = await db[getModelName(model)].findMany({
+        where: whereClause,
+        take: limit || 100,
+        skip: offset || 0,
+        ...sortBy?.field ? {
+          orderBy: {
+            [getField(model, sortBy.field)]: sortBy.direction === "desc" ? "desc" : "asc"
+          }
+        } : {}
+      });
+      return result.map((r) => transformOutput(r, model));
+    },
+    async update(data) {
+      const { model, where, update } = data;
+      if (!db[getModelName(model)]) {
+        throw new chunkPEZRSDZS_cjs.BetterAuthError(
+          `Model ${model} does not exist in the database. If you haven't generated the Prisma client, you need to run 'npx prisma generate'`
+        );
+      }
+      const whereClause = convertWhereClause(model, where);
+      const transformed = transformInput(update, model, "update");
+      const result = await db[getModelName(model)].update({
+        where: whereClause,
+        data: transformed
+      });
+      return transformOutput(result, model);
+    },
+    async updateMany(data) {
+      const { model, where, update } = data;
+      const whereClause = convertWhereClause(model, where);
+      const transformed = transformInput(update, model, "update");
+      const result = await db[getModelName(model)].updateMany({
+        where: whereClause,
+        data: transformed
+      });
+      return result ? result.count : 0;
+    },
+    async delete(data) {
+      const { model, where } = data;
+      const whereClause = convertWhereClause(model, where);
+      try {
+        await db[getModelName(model)].delete({
+          where: whereClause
+        });
+      } catch (e) {
+      }
+    },
+    async deleteMany(data) {
+      const { model, where } = data;
+      const whereClause = convertWhereClause(model, where);
+      const result = await db[getModelName(model)].deleteMany({
+        where: whereClause
+      });
+      return result ? result.count : 0;
+    },
+    options: config
+  };
+};
+
+exports.prismaAdapter = prismaAdapter;

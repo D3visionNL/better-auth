@@ -1,11 +1,11 @@
 import * as better_call from 'better-call';
 import { APIError } from 'better-call';
 import { z } from 'zod';
-import { I as InferOptionSchema, U as User, h as AuthEndpoint, S as Session, H as HookEndpointContext } from '../auth-BISvpQdc.cjs';
+import { I as InferOptionSchema, U as User, h as AuthEndpoint, S as Session, H as HookEndpointContext } from '../auth-Wqh-EswE.cjs';
 import { L as LiteralString } from '../helper-Bi8FQwDD.cjs';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import 'kysely';
-import '../index-KR6jI2X2.cjs';
+import '../index-q7pIlaCQ.cjs';
 import 'jose';
 import 'better-sqlite3';
 

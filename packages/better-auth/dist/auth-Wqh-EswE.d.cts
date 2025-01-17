@@ -4,7 +4,7 @@ import { Endpoint, EndpointResponse, APIError, CookieOptions, ContextTools, Endp
 import * as zod from 'zod';
 import { ZodSchema, z, ZodObject, ZodOptional, ZodString, ZodNull } from 'zod';
 import { L as LiteralString, D as DeepPartial, U as UnionToIntersection, S as StripEmptyObjects, O as OmitId, d as LiteralUnion, P as PrettifyDeep, b as Prettify, E as Expand } from './helper-Bi8FQwDD.cjs';
-import { S as SocialProviders, b as SocialProviderList, O as OAuthProvider } from './index-KR6jI2X2.cjs';
+import { S as SocialProviders, b as SocialProviderList, O as OAuthProvider } from './index-q7pIlaCQ.cjs';
 import { Database } from 'better-sqlite3';
 
 declare const optionsMiddleware: Endpoint<better_call.Handler<string, better_call.EndpointOptions, AuthContext>, better_call.EndpointOptions>;
@@ -164,6 +164,10 @@ type FieldAttributeConfig<T extends FieldType = FieldType> = {
     };
     unique?: boolean;
     /**
+     * If the field should be a bigint on the database instead of integer.
+     */
+    bigint?: boolean;
+    /**
      * A zod schema to validate the value.
      */
     validator?: {
@@ -179,6 +183,7 @@ type FieldAttribute<T extends FieldType = FieldType> = {
     type: T;
 } & FieldAttributeConfig<T>;
 declare const createFieldAttribute: <T extends FieldType, C extends Omit<FieldAttributeConfig<T>, "type">>(type: T, config?: C) => {
+    bigint?: boolean;
     input?: boolean;
     required?: boolean;
     transform?: {
@@ -437,15 +442,29 @@ type Adapter = {
      *
      * @param options
      * @param file - file path if provided by the user
-     * @returns
      */
-    createSchema?: (options: BetterAuthOptions, file?: string) => Promise<{
-        code: string;
-        fileName: string;
-        append?: boolean;
-        overwrite?: boolean;
-    }>;
+    createSchema?: (options: BetterAuthOptions, file?: string) => Promise<AdapterSchemaCreation>;
     options?: Record<string, any>;
+};
+type AdapterSchemaCreation = {
+    /**
+     * Code to be inserted into the file
+     */
+    code: string;
+    /**
+     * Path to the file, including the file name and extension.
+     * Relative paths are supported, with the current working directory of the developer's project as the base.
+     */
+    path: string;
+    /**
+     * Append the file if it already exists.
+     * Note: This will not apply if `overwrite` is set to true.
+     */
+    append?: boolean;
+    /**
+     * Overwrite the file if it already exists
+     */
+    overwrite?: boolean;
 };
 interface AdapterInstance {
     (options: BetterAuthOptions): Adapter;
@@ -781,6 +800,12 @@ type BetterAuthOptions = {
          * Auto signin the user after they verify their email
          */
         autoSignInAfterVerification?: boolean;
+        /**
+         * Number of seconds the verification token is
+         * valid for.
+         * @default 3600 seconds (1 hour)
+         */
+        expiresIn?: number;
     };
     /**
      * Email and password authentication
@@ -1380,6 +1405,12 @@ type BetterAuthOptions = {
          */
         after?: HookAfterHandler;
     };
+    /**
+     * Disabled paths
+     *
+     * Paths you want to disable.
+     */
+    disabledPaths?: string[];
 };
 
 type HookEndpointContext<C extends Record<string, any> = {}> = ContextTools & {
@@ -1819,17 +1850,6 @@ type zodKey<T> = isAny<T> extends true ? "any" : equals<T, boolean> extends true
 declare const signInSocial: {
     <C extends [better_call.Context<"/sign-in/social", {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            /**
-             * Redirect to the current URL after the
-             * user has signed in.
-             */
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: z.ZodObject<{
             /**
              * Callback URL to redirect to after the user
@@ -1986,17 +2006,6 @@ declare const signInSocial: {
     path: "/sign-in/social";
     options: {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            /**
-             * Redirect to the current URL after the
-             * user has signed in.
-             */
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: z.ZodObject<{
             /**
              * Callback URL to redirect to after the user
@@ -3246,17 +3255,14 @@ declare const forgetPasswordCallback: {
 };
 declare const resetPassword: {
     <C extends [better_call.Context<"/reset-password", {
+        method: "POST";
         query: z.ZodOptional<z.ZodObject<{
             token: z.ZodOptional<z.ZodString>;
-            currentURL: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
             token?: string | undefined;
-            currentURL?: string | undefined;
         }, {
             token?: string | undefined;
-            currentURL?: string | undefined;
         }>>;
-        method: "POST";
         body: z.ZodObject<{
             newPassword: z.ZodString;
             token: z.ZodOptional<z.ZodString>;
@@ -3296,17 +3302,14 @@ declare const resetPassword: {
     }>;
     path: "/reset-password";
     options: {
+        method: "POST";
         query: z.ZodOptional<z.ZodObject<{
             token: z.ZodOptional<z.ZodString>;
-            currentURL: z.ZodOptional<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
             token?: string | undefined;
-            currentURL?: string | undefined;
         }, {
             token?: string | undefined;
-            currentURL?: string | undefined;
         }>>;
-        method: "POST";
         body: z.ZodObject<{
             newPassword: z.ZodString;
             token: z.ZodOptional<z.ZodString>;
@@ -3348,7 +3351,11 @@ declare function createEmailVerificationToken(secret: string, email: string,
 /**
  * The email to update from
  */
-updateTo?: string): Promise<string>;
+updateTo?: string, 
+/**
+ * The time in seconds for the token to expire
+ */
+expiresIn?: number): Promise<string>;
 /**
  * A function to send a verification email to the user
  */
@@ -3356,13 +3363,6 @@ declare function sendVerificationEmailFn(ctx: GenericEndpointContext, user: User
 declare const sendVerificationEmail: {
     <C extends [better_call.Context<"/send-verification-email", {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: z.ZodObject<{
             email: z.ZodString;
             callbackURL: z.ZodOptional<z.ZodString>;
@@ -3423,13 +3423,6 @@ declare const sendVerificationEmail: {
     path: "/send-verification-email";
     options: {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: z.ZodObject<{
             email: z.ZodString;
             callbackURL: z.ZodOptional<z.ZodString>;
@@ -4313,13 +4306,6 @@ declare const deleteUserCallback: {
 declare const changeEmail: {
     <C extends [better_call.Context<"/change-email", {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: z.ZodObject<{
             newEmail: z.ZodString;
             callbackURL: z.ZodOptional<z.ZodString>;
@@ -4385,13 +4371,6 @@ declare const changeEmail: {
     path: "/change-email";
     options: {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: z.ZodObject<{
             newEmail: z.ZodString;
             callbackURL: z.ZodOptional<z.ZodString>;
@@ -4569,13 +4548,6 @@ declare const ok: {
 declare const signUpEmail: <O extends BetterAuthOptions>() => {
     <C extends better_call.HasRequiredKeys<better_call.Context<"/sign-up/email", {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: ZodObject<{
             name: ZodString;
             email: ZodString;
@@ -4650,13 +4622,6 @@ declare const signUpEmail: <O extends BetterAuthOptions>() => {
         };
     }>> extends true ? [better_call.Context<"/sign-up/email", {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: ZodObject<{
             name: ZodString;
             email: ZodString;
@@ -4731,13 +4696,6 @@ declare const signUpEmail: <O extends BetterAuthOptions>() => {
         };
     }>] : [(better_call.Context<"/sign-up/email", {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: ZodObject<{
             name: ZodString;
             email: ZodString;
@@ -4838,13 +4796,6 @@ declare const signUpEmail: <O extends BetterAuthOptions>() => {
     path: "/sign-up/email";
     options: {
         method: "POST";
-        query: z.ZodOptional<z.ZodObject<{
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: ZodObject<{
             name: ZodString;
             email: ZodString;
@@ -5048,17 +4999,6 @@ declare const linkSocialAccount: {
     <C extends [better_call.Context<"/link-social", {
         method: "POST";
         requireHeaders: true;
-        query: z.ZodOptional<z.ZodObject<{
-            /**
-             * Redirect to the current URL after the
-             * user has signed in.
-             */
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: z.ZodObject<{
             /**
              * Callback URL to redirect to after the user has signed in.
@@ -5146,17 +5086,6 @@ declare const linkSocialAccount: {
     options: {
         method: "POST";
         requireHeaders: true;
-        query: z.ZodOptional<z.ZodObject<{
-            /**
-             * Redirect to the current URL after the
-             * user has signed in.
-             */
-            currentURL: z.ZodOptional<z.ZodString>;
-        }, "strip", z.ZodTypeAny, {
-            currentURL?: string | undefined;
-        }, {
-            currentURL?: string | undefined;
-        }>>;
         body: z.ZodObject<{
             /**
              * Callback URL to redirect to after the user has signed in.
@@ -5436,13 +5365,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
         signInSocial: {
             <C_1 extends [better_call.Context<"/sign-in/social", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     newUserCallbackURL: zod.ZodOptional<zod.ZodString>;
@@ -5549,13 +5471,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
             path: "/sign-in/social";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     newUserCallbackURL: zod.ZodOptional<zod.ZodString>;
@@ -5920,13 +5835,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
         signUpEmail: {
             <C_1 extends better_call.HasRequiredKeys<better_call.Context<"/sign-up/email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -6009,13 +5917,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 };
             }>> extends true ? [better_call.Context<"/sign-up/email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -6098,13 +5999,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
                 };
             }>] : [(better_call.Context<"/sign-up/email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -6213,13 +6107,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
             path: "/sign-up/email";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -6501,17 +6388,14 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
         };
         resetPassword: {
             <C_1 extends [better_call.Context<"/reset-password", {
+                method: "POST";
                 query: zod.ZodOptional<zod.ZodObject<{
                     token: zod.ZodOptional<zod.ZodString>;
-                    currentURL: zod.ZodOptional<zod.ZodString>;
                 }, "strip", zod.ZodTypeAny, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }>>;
-                method: "POST";
                 body: zod.ZodObject<{
                     newPassword: zod.ZodString;
                     token: zod.ZodOptional<zod.ZodString>;
@@ -6551,17 +6435,14 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
             }>;
             path: "/reset-password";
             options: {
+                method: "POST";
                 query: zod.ZodOptional<zod.ZodObject<{
                     token: zod.ZodOptional<zod.ZodString>;
-                    currentURL: zod.ZodOptional<zod.ZodString>;
                 }, "strip", zod.ZodTypeAny, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }>>;
-                method: "POST";
                 body: zod.ZodObject<{
                     newPassword: zod.ZodString;
                     token: zod.ZodOptional<zod.ZodString>;
@@ -6702,13 +6583,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
         sendVerificationEmail: {
             <C_1 extends [better_call.Context<"/send-verification-email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     email: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -6769,13 +6643,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
             path: "/send-verification-email";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     email: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -6835,13 +6702,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
         changeEmail: {
             <C_1 extends [better_call.Context<"/change-email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     newEmail: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -6907,13 +6767,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
             path: "/change-email";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     newEmail: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -8177,13 +8030,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
             <C_1 extends [better_call.Context<"/link-social", {
                 method: "POST";
                 requireHeaders: true;
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
@@ -8259,13 +8105,6 @@ declare function getEndpoints<C extends AuthContext, Option extends BetterAuthOp
             options: {
                 method: "POST";
                 requireHeaders: true;
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
@@ -8694,13 +8533,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
         signInSocial: {
             <C_1 extends [better_call.Context<"/sign-in/social", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     newUserCallbackURL: zod.ZodOptional<zod.ZodString>;
@@ -8807,13 +8639,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
             path: "/sign-in/social";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     newUserCallbackURL: zod.ZodOptional<zod.ZodString>;
@@ -9178,13 +9003,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
         signUpEmail: {
             <C_1 extends better_call.HasRequiredKeys<better_call.Context<"/sign-up/email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -9267,13 +9085,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 };
             }>> extends true ? [better_call.Context<"/sign-up/email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -9356,13 +9167,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
                 };
             }>] : [(better_call.Context<"/sign-up/email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -9471,13 +9275,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
             path: "/sign-up/email";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -9759,17 +9556,14 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
         };
         resetPassword: {
             <C_1 extends [better_call.Context<"/reset-password", {
+                method: "POST";
                 query: zod.ZodOptional<zod.ZodObject<{
                     token: zod.ZodOptional<zod.ZodString>;
-                    currentURL: zod.ZodOptional<zod.ZodString>;
                 }, "strip", zod.ZodTypeAny, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }>>;
-                method: "POST";
                 body: zod.ZodObject<{
                     newPassword: zod.ZodString;
                     token: zod.ZodOptional<zod.ZodString>;
@@ -9809,17 +9603,14 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
             }>;
             path: "/reset-password";
             options: {
+                method: "POST";
                 query: zod.ZodOptional<zod.ZodObject<{
                     token: zod.ZodOptional<zod.ZodString>;
-                    currentURL: zod.ZodOptional<zod.ZodString>;
                 }, "strip", zod.ZodTypeAny, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }>>;
-                method: "POST";
                 body: zod.ZodObject<{
                     newPassword: zod.ZodString;
                     token: zod.ZodOptional<zod.ZodString>;
@@ -9960,13 +9751,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
         sendVerificationEmail: {
             <C_1 extends [better_call.Context<"/send-verification-email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     email: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -10027,13 +9811,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
             path: "/send-verification-email";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     email: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -10093,13 +9870,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
         changeEmail: {
             <C_1 extends [better_call.Context<"/change-email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     newEmail: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -10165,13 +9935,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
             path: "/change-email";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     newEmail: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -11435,13 +11198,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
             <C_1 extends [better_call.Context<"/link-social", {
                 method: "POST";
                 requireHeaders: true;
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
@@ -11517,13 +11273,6 @@ declare const router: <C extends AuthContext, Option extends BetterAuthOptions>(
             options: {
                 method: "POST";
                 requireHeaders: true;
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
@@ -11976,13 +11725,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
         signInSocial: {
             <C extends [better_call.Context<"/sign-in/social", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     newUserCallbackURL: zod.ZodOptional<zod.ZodString>;
@@ -12089,13 +11831,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
             path: "/sign-in/social";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     newUserCallbackURL: zod.ZodOptional<zod.ZodString>;
@@ -12460,13 +12195,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
         signUpEmail: {
             <C extends better_call.HasRequiredKeys<better_call.Context<"/sign-up/email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -12549,13 +12277,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 };
             }>> extends true ? [better_call.Context<"/sign-up/email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -12638,13 +12359,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
                 };
             }>] : [(better_call.Context<"/sign-up/email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -12753,13 +12467,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
             path: "/sign-up/email";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     name: zod.ZodString;
                     email: zod.ZodString;
@@ -13041,17 +12748,14 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
         };
         resetPassword: {
             <C extends [better_call.Context<"/reset-password", {
+                method: "POST";
                 query: zod.ZodOptional<zod.ZodObject<{
                     token: zod.ZodOptional<zod.ZodString>;
-                    currentURL: zod.ZodOptional<zod.ZodString>;
                 }, "strip", zod.ZodTypeAny, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }>>;
-                method: "POST";
                 body: zod.ZodObject<{
                     newPassword: zod.ZodString;
                     token: zod.ZodOptional<zod.ZodString>;
@@ -13091,17 +12795,14 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
             }>;
             path: "/reset-password";
             options: {
+                method: "POST";
                 query: zod.ZodOptional<zod.ZodObject<{
                     token: zod.ZodOptional<zod.ZodString>;
-                    currentURL: zod.ZodOptional<zod.ZodString>;
                 }, "strip", zod.ZodTypeAny, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }, {
                     token?: string | undefined;
-                    currentURL?: string | undefined;
                 }>>;
-                method: "POST";
                 body: zod.ZodObject<{
                     newPassword: zod.ZodString;
                     token: zod.ZodOptional<zod.ZodString>;
@@ -13242,13 +12943,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
         sendVerificationEmail: {
             <C extends [better_call.Context<"/send-verification-email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     email: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -13309,13 +13003,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
             path: "/send-verification-email";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     email: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -13375,13 +13062,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
         changeEmail: {
             <C extends [better_call.Context<"/change-email", {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     newEmail: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -13447,13 +13127,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
             path: "/change-email";
             options: {
                 method: "POST";
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     newEmail: zod.ZodString;
                     callbackURL: zod.ZodOptional<zod.ZodString>;
@@ -14717,13 +14390,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
             <C extends [better_call.Context<"/link-social", {
                 method: "POST";
                 requireHeaders: true;
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
@@ -14799,13 +14465,6 @@ declare const betterAuth: <O extends BetterAuthOptions>(options: O) => {
             options: {
                 method: "POST";
                 requireHeaders: true;
-                query: zod.ZodOptional<zod.ZodObject<{
-                    currentURL: zod.ZodOptional<zod.ZodString>;
-                }, "strip", zod.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: zod.ZodObject<{
                     callbackURL: zod.ZodOptional<zod.ZodString>;
                     provider: zod.ZodEnum<["github", ...("github" | "apple" | "discord" | "facebook" | "microsoft" | "google" | "spotify" | "twitch" | "twitter" | "dropbox" | "linkedin" | "gitlab" | "reddit" | "roblox")[]]>;
@@ -15130,4 +14789,4 @@ type Auth = {
     $ERROR_CODES: typeof BASE_ERROR_CODES;
 };
 
-export { shouldPublishLog as $, type AuthPluginSchema as A, type BetterAuthOptions as B, type FilterActions as C, type InferSessionAPI as D, type InferAPI as E, type FilteredAPI as F, type GenericEndpointContext as G, type HookEndpointContext as H, type InferOptionSchema as I, createCookieGetter as J, type KyselyDatabaseType as K, getCookies as L, type Models as M, type BetterAuthCookies as N, setCookieCache as O, setSessionCookie as P, deleteSessionCookie as Q, type RateLimit as R, type Session as S, parseCookies as T, type User as U, type Verification as V, type Where as W, type EligibleCookies as X, parseSetCookieHeader as Y, type LogLevel as Z, levels as _, BASE_ERROR_CODES as a, type Logger as a0, type LogHandlerParams as a1, createLogger as a2, logger as a3, type FieldAttribute as a4, type FieldType as a5, createInternalAdapter as a6, type InternalAdapter as a7, type FieldAttributeConfig as a8, createFieldAttribute as a9, createEmailVerificationToken as aA, sendVerificationEmailFn as aB, sendVerificationEmail as aC, verifyEmail as aD, updateUser as aE, changePassword as aF, setPassword as aG, deleteUser as aH, deleteUserCallback as aI, changeEmail as aJ, error as aK, ok as aL, signUpEmail as aM, listUserAccounts as aN, linkSocialAccount as aO, unlinkAccount as aP, originCheckMiddleware as aQ, originCheck as aR, type InferValueType as aa, type InferFieldsOutput as ab, type InferFieldsInput as ac, type InferFieldsInputClient as ad, type PluginFieldAttribute as ae, type InferFieldsFromPlugins as af, type InferFieldsFromOptions as ag, type BetterAuthDbSchema as ah, getAuthTables as ai, getEndpoints as aj, router as ak, signInSocial as al, signInEmail as am, callbackOAuth as an, getSession as ao, getSessionFromCtx as ap, sessionMiddleware as aq, freshSessionMiddleware as ar, listSessions as as, revokeSession as at, revokeSessions as au, revokeOtherSessions as av, signOut as aw, forgetPassword as ax, forgetPasswordCallback as ay, resetPassword as az, type HookBeforeHandler as b, type HookAfterHandler as c, type BetterAuthPlugin as d, type InferPluginErrorCodes as e, createAuthMiddleware as f, createAuthEndpoint as g, type AuthEndpoint as h, type AuthMiddleware as i, type Auth as j, type AuthContext as k, type InferUser as l, type InferSession as m, type WithJsDoc as n, optionsMiddleware as o, betterAuth as p, type AdditionalUserFieldsInput as q, type AdditionalUserFieldsOutput as r, type AdditionalSessionFieldsInput as s, type AdditionalSessionFieldsOutput as t, type InferPluginTypes as u, type Account as v, init as w, type Adapter as x, type AdapterInstance as y, type SecondaryStorage as z };
+export { levels as $, type AuthPluginSchema as A, type BetterAuthOptions as B, type SecondaryStorage as C, type FilterActions as D, type InferSessionAPI as E, type FilteredAPI as F, type GenericEndpointContext as G, type HookEndpointContext as H, type InferOptionSchema as I, type InferAPI as J, type KyselyDatabaseType as K, createCookieGetter as L, type Models as M, getCookies as N, type BetterAuthCookies as O, setCookieCache as P, setSessionCookie as Q, type RateLimit as R, type Session as S, deleteSessionCookie as T, type User as U, type Verification as V, type Where as W, parseCookies as X, type EligibleCookies as Y, parseSetCookieHeader as Z, type LogLevel as _, BASE_ERROR_CODES as a, shouldPublishLog as a0, type Logger as a1, type LogHandlerParams as a2, createLogger as a3, logger as a4, type FieldAttribute as a5, type FieldType as a6, createInternalAdapter as a7, type InternalAdapter as a8, type FieldAttributeConfig as a9, resetPassword as aA, createEmailVerificationToken as aB, sendVerificationEmailFn as aC, sendVerificationEmail as aD, verifyEmail as aE, updateUser as aF, changePassword as aG, setPassword as aH, deleteUser as aI, deleteUserCallback as aJ, changeEmail as aK, error as aL, ok as aM, signUpEmail as aN, listUserAccounts as aO, linkSocialAccount as aP, unlinkAccount as aQ, originCheckMiddleware as aR, originCheck as aS, createFieldAttribute as aa, type InferValueType as ab, type InferFieldsOutput as ac, type InferFieldsInput as ad, type InferFieldsInputClient as ae, type PluginFieldAttribute as af, type InferFieldsFromPlugins as ag, type InferFieldsFromOptions as ah, type BetterAuthDbSchema as ai, getAuthTables as aj, getEndpoints as ak, router as al, signInSocial as am, signInEmail as an, callbackOAuth as ao, getSession as ap, getSessionFromCtx as aq, sessionMiddleware as ar, freshSessionMiddleware as as, listSessions as at, revokeSession as au, revokeSessions as av, revokeOtherSessions as aw, signOut as ax, forgetPassword as ay, forgetPasswordCallback as az, type HookBeforeHandler as b, type HookAfterHandler as c, type BetterAuthPlugin as d, type InferPluginErrorCodes as e, createAuthMiddleware as f, createAuthEndpoint as g, type AuthEndpoint as h, type AuthMiddleware as i, type Auth as j, type AuthContext as k, type InferUser as l, type InferSession as m, type WithJsDoc as n, optionsMiddleware as o, betterAuth as p, type AdditionalUserFieldsInput as q, type AdditionalUserFieldsOutput as r, type AdditionalSessionFieldsInput as s, type AdditionalSessionFieldsOutput as t, type InferPluginTypes as u, type Account as v, init as w, type Adapter as x, type AdapterSchemaCreation as y, type AdapterInstance as z };

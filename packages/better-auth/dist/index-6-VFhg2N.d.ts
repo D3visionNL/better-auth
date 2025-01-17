@@ -1,4 +1,4 @@
-import { L as LiteralString, b as Prettify } from './helper-Bi8FQwDD.cjs';
+import { L as LiteralString, b as Prettify } from './helper-Bi8FQwDD.js';
 import { z } from 'zod';
 import * as jose from 'jose';
 
@@ -757,6 +757,12 @@ interface FacebookProfile {
     };
 }
 interface FacebookOptions extends ProviderOptions<FacebookProfile> {
+    /**
+     * Extend list of fields to retrieve from the Facebook user profile.
+     *
+     * @default ["id", "name", "email", "picture"]
+     */
+    fields?: string[];
 }
 declare const facebook: (options: FacebookOptions) => {
     id: "facebook";
@@ -772,6 +778,7 @@ declare const facebook: (options: FacebookOptions) => {
         redirectURI: string;
         codeVerifier?: string;
     }) => Promise<OAuth2Tokens>;
+    verifyIdToken(token: string, nonce: string | undefined): Promise<boolean>;
     getUserInfo(token: OAuth2Tokens): Promise<{
         user: {
             id: string;
@@ -1043,6 +1050,7 @@ declare const socialProviders: {
             redirectURI: string;
             codeVerifier?: string;
         }) => Promise<OAuth2Tokens>;
+        verifyIdToken(token: string, nonce: string | undefined): Promise<boolean>;
         getUserInfo(token: OAuth2Tokens): Promise<{
             user: {
                 id: string;

@@ -1,1 +1,38 @@
-"use strict";var p=Object.create;var a=Object.defineProperty;var l=Object.getOwnPropertyDescriptor;var c=Object.getOwnPropertyNames;var q=Object.getPrototypeOf,f=Object.prototype.hasOwnProperty;var m=(t,e)=>{for(var r in e)a(t,r,{get:e[r],enumerable:!0})},u=(t,e,r,n)=>{if(e&&typeof e=="object"||typeof e=="function")for(let s of c(e))!f.call(t,s)&&s!==r&&a(t,s,{get:()=>e[s],enumerable:!(n=l(e,s))||n.enumerable});return t};var R=(t,e,r)=>(r=t!=null?p(q(t)):{},u(e||!t||!t.__esModule?a(r,"default",{value:t,enumerable:!0}):r,t)),d=t=>u(a({},"__esModule",{value:!0}),t);var A={};m(A,{isAuthPath:()=>o,svelteKitHandler:()=>g,toSvelteKitHandler:()=>y});module.exports=d(A);var y=t=>e=>t.handler(e.request),g=async({auth:t,event:e,resolve:r})=>{let{building:n}=await import("$app/environment").catch(i=>{}).then(i=>i||{});if(n)return r(e);let{request:s,url:h}=e;return o(h.toString(),t.options)?t.handler(s):r(e)};function o(t,e){let r=new URL(t),n=new URL(`${e.baseURL||r.origin}${e.basePath||"/api/auth"}`);return!(r.origin!==n.origin||!r.pathname.startsWith(n.pathname.endsWith("/")?n.pathname:`${n.pathname}/`))}0&&(module.exports={isAuthPath,svelteKitHandler,toSvelteKitHandler});
+'use strict';
+
+// src/integrations/svelte-kit.ts
+var toSvelteKitHandler = (auth) => {
+  return (event) => auth.handler(event.request);
+};
+var svelteKitHandler = async ({
+  auth,
+  event,
+  resolve
+}) => {
+  const { building } = await import('$app/environment').catch((e) => {
+  }).then((m) => m || {});
+  if (building) {
+    return resolve(event);
+  }
+  const { request, url } = event;
+  if (isAuthPath(url.toString(), auth.options)) {
+    return auth.handler(request);
+  }
+  return resolve(event);
+};
+function isAuthPath(url, options) {
+  const _url = new URL(url);
+  const baseURL = new URL(
+    `${options.baseURL || _url.origin}${options.basePath || "/api/auth"}`
+  );
+  if (_url.origin !== baseURL.origin) return false;
+  if (!_url.pathname.startsWith(
+    baseURL.pathname.endsWith("/") ? baseURL.pathname : `${baseURL.pathname}/`
+  ))
+    return false;
+  return true;
+}
+
+exports.isAuthPath = isAuthPath;
+exports.svelteKitHandler = svelteKitHandler;
+exports.toSvelteKitHandler = toSvelteKitHandler;

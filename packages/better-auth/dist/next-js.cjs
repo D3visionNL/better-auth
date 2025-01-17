@@ -1,1 +1,62 @@
-"use strict";var p=Object.defineProperty;var y=Object.getOwnPropertyDescriptor;var M=Object.getOwnPropertyNames;var x=Object.prototype.hasOwnProperty;var S=(e,t)=>{for(var o in t)p(e,o,{get:t[o],enumerable:!0})},w=(e,t,o,a)=>{if(t&&typeof t=="object"||typeof t=="function")for(let n of M(t))!x.call(e,n)&&n!==o&&p(e,n,{get:()=>t[n],enumerable:!(a=y(t,n))||a.enumerable});return e};var O=e=>w(p({},"__esModule",{value:!0}),e);var _={};S(_,{nextCookies:()=>E,toNextJsHandler:()=>R});module.exports=O(_);var k=require("next/headers");var d=Object.create(null),c=e=>globalThis.process?.env||globalThis.Deno?.env.toObject()||globalThis.__env__||(e?d:globalThis),D=new Proxy(d,{get(e,t){return c()[t]??d[t]},has(e,t){let o=c();return t in o||t in d},set(e,t,o){let a=c(!0);return a[t]=o,!0},deleteProperty(e,t){if(!t)return!1;let o=c(!0);return delete o[t],!0},ownKeys(){let e=c(!0);return Object.keys(e)}});function A(e){return e?e!=="false":!1}var j=typeof process<"u"&&process.env&&process.env.NODE_ENV||"";var Y=j==="test"||A(D.TEST);var $=require("@better-auth/utils/base64");var v=require("@better-auth/utils/hmac");function b(e){let t=new Map;return e.split(", ").forEach(a=>{let n=a.split(";").map(l=>l.trim()),[r,...u]=n,[m,...f]=r.split("="),g=f.join("=");if(!m||g===void 0)return;let i={value:g};u.forEach(l=>{let[T,...C]=l.split("="),s=C.join("="),h=T.trim().toLowerCase();switch(h){case"max-age":i["max-age"]=s?parseInt(s.trim(),10):void 0;break;case"expires":i.expires=s?new Date(s.trim()):void 0;break;case"domain":i.domain=s?s.trim():void 0;break;case"path":i.path=s?s.trim():void 0;break;case"secure":i.secure=!0;break;case"httponly":i.httponly=!0;break;case"samesite":i.samesite=s?s.trim().toLowerCase():void 0;break;default:i[h]=s?s.trim():!0;break}}),t.set(m,i)}),t}function R(e){let t=async o=>"handler"in e?e.handler(o):e(o);return{GET:t,POST:t}}var E=()=>({id:"next-cookies",hooks:{after:[{matcher(e){return!0},handler:async e=>{let t=e.responseHeader;if(!("_flag"in e&&e._flag==="router")&&t instanceof Headers){let o=t?.get("set-cookie");if(!o)return;let a=b(o),n=await(0,k.cookies)();a.forEach((r,u)=>{if(!u)return;let m={sameSite:r.samesite,secure:r.secure,maxAge:r["max-age"],httpOnly:r.httponly,domain:r.domain,path:r.path};try{n.set(u,decodeURIComponent(r.value),m)}catch{}});return}}}]}});0&&(module.exports={nextCookies,toNextJsHandler});
+'use strict';
+
+var chunkOJX3P352_cjs = require('./chunk-OJX3P352.cjs');
+require('./chunk-2HPSCSV7.cjs');
+require('./chunk-VXYIYABQ.cjs');
+require('./chunk-PEZRSDZS.cjs');
+var headers = require('next/headers');
+
+function toNextJsHandler(auth) {
+  const handler = async (request) => {
+    return "handler" in auth ? auth.handler(request) : auth(request);
+  };
+  return {
+    GET: handler,
+    POST: handler
+  };
+}
+var nextCookies = () => {
+  return {
+    id: "next-cookies",
+    hooks: {
+      after: [
+        {
+          matcher(ctx) {
+            return true;
+          },
+          handler: async (ctx) => {
+            const returned = ctx.responseHeader;
+            if ("_flag" in ctx && ctx._flag === "router") {
+              return;
+            }
+            if (returned instanceof Headers) {
+              const setCookies = returned?.get("set-cookie");
+              if (!setCookies) return;
+              const parsed = chunkOJX3P352_cjs.parseSetCookieHeader(setCookies);
+              const cookieHelper = await headers.cookies();
+              parsed.forEach((value, key) => {
+                if (!key) return;
+                const opts = {
+                  sameSite: value.samesite,
+                  secure: value.secure,
+                  maxAge: value["max-age"],
+                  httpOnly: value.httponly,
+                  domain: value.domain,
+                  path: value.path
+                };
+                try {
+                  cookieHelper.set(key, decodeURIComponent(value.value), opts);
+                } catch (e) {
+                }
+              });
+              return;
+            }
+          }
+        }
+      ]
+    }
+  };
+};
+
+exports.nextCookies = nextCookies;
+exports.toNextJsHandler = toNextJsHandler;

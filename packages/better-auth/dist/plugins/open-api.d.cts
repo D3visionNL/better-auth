@@ -1,7 +1,12 @@
 import * as better_call from 'better-call';
 import { OpenAPIParameter, OpenAPISchemaType } from 'better-call';
+import { k as AuthContext, B as BetterAuthOptions } from '../auth-Wqh-EswE.cjs';
 import { L as LiteralString } from '../helper-Bi8FQwDD.cjs';
+import 'kysely';
 import 'zod';
+import '../index-q7pIlaCQ.cjs';
+import 'jose';
+import 'better-sqlite3';
 
 interface Path {
     get?: {
@@ -65,6 +70,28 @@ interface Path {
         };
     };
 }
+declare function generator(ctx: AuthContext, options: BetterAuthOptions): Promise<{
+    openapi: string;
+    info: {
+        title: string;
+        description: string;
+        version: string;
+    };
+    components: {
+        schemas: {};
+    };
+    security: {
+        apiKeyCookie: never[];
+    }[];
+    servers: {
+        url: string;
+    }[];
+    tags: {
+        name: string;
+        description: string;
+    }[];
+    paths: Record<string, Path>;
+}>;
 
 interface OpenAPIOptions {
     /**
@@ -96,6 +123,7 @@ declare const openAPI: <O extends OpenAPIOptions>(options?: O) => {
                 info: {
                     title: string;
                     description: string;
+                    version: string;
                 };
                 components: {
                     schemas: {};
@@ -141,4 +169,4 @@ declare const openAPI: <O extends OpenAPIOptions>(options?: O) => {
     };
 };
 
-export { type OpenAPIOptions, openAPI };
+export { type OpenAPIOptions, type Path, generator, openAPI };

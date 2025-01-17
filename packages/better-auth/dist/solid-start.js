@@ -1,1 +1,12 @@
-function n(r){let e=async t=>"handler"in r?r.handler(t.request):r(t.request);return{GET:e,POST:e}}export{n as toSolidStartHandler};
+// src/integrations/solid-start.ts
+function toSolidStartHandler(auth) {
+  const handler = async (event) => {
+    return "handler" in auth ? auth.handler(event.request) : auth(event.request);
+  };
+  return {
+    GET: handler,
+    POST: handler
+  };
+}
+
+export { toSolidStartHandler };

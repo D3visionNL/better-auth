@@ -5,10 +5,10 @@ import { BetterFetchError } from '@better-fetch/fetch';
 import { DeepReadonly, Ref } from 'vue';
 import { ClientOptions, InferClientAPI, InferActions, InferErrorCodes, BetterAuthClientPlugin, IsSignal } from './types.cjs';
 import { U as UnionToIntersection, P as PrettifyDeep } from './helper-Bi8FQwDD.cjs';
-import { a as BASE_ERROR_CODES } from './auth-BISvpQdc.cjs';
+import { a as BASE_ERROR_CODES } from './auth-Wqh-EswE.cjs';
 import 'better-call';
 import 'kysely';
-import './index-KR6jI2X2.cjs';
+import './index-q7pIlaCQ.cjs';
 import 'jose';
 import 'better-sqlite3';
 
@@ -78,12 +78,6 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
             name: string;
             hooks: {
                 onSuccess(context: _better_fetch_fetch.SuccessContext<any>): void;
-            };
-        } | {
-            id: string;
-            name: string;
-            hooks: {
-                onRequest<T extends Record<string, any>>(context: _better_fetch_fetch.RequestContext<T>): _better_fetch_fetch.RequestContext<T>;
             };
         })[];
         cache?: RequestCache;

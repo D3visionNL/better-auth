@@ -1,9 +1,9 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { H as HookEndpointContext } from '../auth-BISvpQdc.cjs';
+import { H as HookEndpointContext } from '../auth-Wqh-EswE.cjs';
 import 'kysely';
 import '../helper-Bi8FQwDD.cjs';
-import '../index-KR6jI2X2.cjs';
+import '../index-q7pIlaCQ.cjs';
 import 'jose';
 import 'better-sqlite3';
 
@@ -116,6 +116,105 @@ interface OIDCOptions {
      */
     generateClientSecret?: () => string;
 }
+interface AuthorizationQuery {
+    /**
+     * The response type. Must be 'code' or 'token'. Code is for authorization code flow, token is
+     * for implicit flow.
+     */
+    response_type: "code" | "token";
+    /**
+     * The redirect URI for the client. Must be one of the registered redirect URLs for the client.
+     */
+    redirect_uri?: string;
+    /**
+     * The scope of the request. Must be a space-separated list of case sensitive strings.
+     *
+     * - "openid" is required for all requests
+     * - "profile" is required for requests that require user profile information.
+     * - "email" is required for requests that require user email information.
+     * - "offline_access" is required for requests that require a refresh token.
+     */
+    scope?: string;
+    /**
+     * Opaque value used to maintain state between the request and the callback. Typically,
+     * Cross-Site Request Forgery (CSRF, XSRF) mitigation is done by cryptographically binding the
+     * value of this parameter with a browser cookie.
+     *
+     * Note: Better Auth stores the state in a database instead of a cookie. - This is to minimize
+     * the complication with native apps and other clients that may not have access to cookies.
+     */
+    state: string;
+    /**
+     * The client ID. Must be the ID of a registered client.
+     */
+    client_id: string;
+    /**
+     * The prompt parameter is used to specify the type of user interaction that is required.
+     */
+    prompt?: "none" | "consent" | "login" | "select_account";
+    /**
+     * The display parameter is used to specify how the authorization server displays the
+     * authentication and consent user interface pages to the end user.
+     */
+    display?: "page" | "popup" | "touch" | "wap";
+    /**
+     * End-User's preferred languages and scripts for the user interface, represented as a
+     * space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. For
+     * instance, the value "fr-CA fr en" represents a preference for French as spoken in Canada,
+     * then French (without a region designation), followed by English (without a region
+     * designation).
+     *
+     * Better Auth does not support this parameter yet. It'll not throw an error if it's provided,
+     *
+     * 🏗️ currently not implemented
+     */
+    ui_locales?: string;
+    /**
+     * The maximum authentication age.
+     *
+     * Specifies the allowable elapsed time in seconds since the last time the End-User was
+     * actively authenticated by the provider. If the elapsed time is greater than this value, the
+     * provider MUST attempt to actively re-authenticate the End-User.
+     *
+     * Note that max_age=0 is equivalent to prompt=login.
+     */
+    max_age?: number;
+    /**
+     * Requested Authentication Context Class Reference values.
+     *
+     * Space-separated string that
+     * specifies the acr values that the Authorization Server is being requested to use for
+     * processing this Authentication Request, with the values appearing in order of preference.
+     * The Authentication Context Class satisfied by the authentication performed is returned as
+     * the acr Claim Value, as specified in Section 2. The acr Claim is requested as a Voluntary
+     * Claim by this parameter.
+     */
+    acr_values?: string;
+    /**
+     * Hint to the Authorization Server about the login identifier the End-User might use to log in
+     * (if necessary). This hint can be used by an RP if it first asks the End-User for their
+     * e-mail address (or other identifier) and then wants to pass that value as a hint to the
+     * discovered authorization service. It is RECOMMENDED that the hint value match the value used
+     * for discovery. This value MAY also be a phone number in the format specified for the
+     * phone_number Claim. The use of this parameter is left to the OP's discretion.
+     */
+    login_hint?: string;
+    /**
+     * ID Token previously issued by the Authorization Server being passed as a hint about the
+     * End-User's current or past authenticated session with the Client.
+     *
+     * 🏗️ currently not implemented
+     */
+    id_token_hint?: string;
+    /**
+     * Code challenge
+     */
+    code_challenge?: string;
+    /**
+     * Code challenge method used
+     */
+    code_challenge_method?: "plain" | "s256";
+}
 interface Client {
     /**
      * Client ID
@@ -168,6 +267,109 @@ interface Client {
      * Whether the client is disabled or not.
      */
     disabled: boolean;
+}
+interface TokenBody {
+    /**
+     * The grant type. Must be 'authorization_code' or 'refresh_token'.
+     */
+    grant_type: "authorization_code" | "refresh_token";
+    /**
+     * The authorization code received from the authorization server.
+     */
+    code?: string;
+    /**
+     * The redirect URI of the client.
+     */
+    redirect_uri?: string;
+    /**
+     * The client ID.
+     */
+    client_id?: string;
+    /**
+     * The client secret.
+     */
+    client_secret?: string;
+    /**
+     * The refresh token received from the authorization server.
+     */
+    refresh_token?: string;
+}
+interface CodeVerificationValue {
+    /**
+     * The client ID
+     */
+    clientId: string;
+    /**
+     * The redirect URI for the client
+     */
+    redirectURI: string;
+    /**
+     * The scopes that the client requested
+     */
+    scope: string[];
+    /**
+     * The user ID
+     */
+    userId: string;
+    /**
+     * The time that the user authenticated
+     */
+    authTime: number;
+    /**
+     * Whether the user needs to consent to the scopes
+     * before the code can be exchanged for an access token.
+     *
+     * If this is true, then the code is treated as a consent
+     * request. Once the user consents, the code will be updated
+     * with the actual code.
+     */
+    requireConsent: boolean;
+    /**
+     * The state parameter from the request
+     *
+     * If the prompt is set to `consent`, then the state
+     * parameter is saved here. This is to prevent the client
+     * from using the code before the user consents.
+     */
+    state: string | null;
+    /**
+     * Code challenge
+     */
+    codeChallenge?: string;
+    /**
+     * Code Challenge Method
+     */
+    codeChallengeMethod?: "sha256" | "plain";
+}
+interface OAuthAccessToken {
+    /**
+     * The access token
+     */
+    accessToken: string;
+    /**
+     * The refresh token
+     */
+    refreshToken: string;
+    /**
+     * The time that the access token expires
+     */
+    accessTokenExpiresAt: Date;
+    /**
+     * The time that the refresh token expires
+     */
+    refreshTokenExpiresAt: Date;
+    /**
+     * The client ID
+     */
+    clientId: string;
+    /**
+     * The user ID
+     */
+    userId: string;
+    /**
+     * The scopes that the access token has access to
+     */
+    scopes: string;
 }
 interface OIDCMetadata {
     /**
@@ -683,4 +885,4 @@ declare const oidcProvider: (options: OIDCOptions) => {
     };
 };
 
-export { oidcProvider };
+export { type AuthorizationQuery, type Client, type CodeVerificationValue, type OAuthAccessToken, type OIDCMetadata, type OIDCOptions, type TokenBody, oidcProvider };

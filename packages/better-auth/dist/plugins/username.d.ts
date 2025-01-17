@@ -1,13 +1,32 @@
-import * as better_call from 'better-call';
+import { I as InferOptionSchema, H as HookEndpointContext } from '../auth-BsEf_Tfi.js';
 import { z } from 'zod';
-import { H as HookEndpointContext } from '../auth-BbYUexL8.js';
+import * as better_call from 'better-call';
 import 'kysely';
 import '../helper-Bi8FQwDD.js';
-import '../index-B0PXeJp8.js';
+import '../index-6-VFhg2N.js';
 import 'jose';
 import 'better-sqlite3';
 
-declare const username: () => {
+declare const schema: {
+    user: {
+        fields: {
+            username: {
+                type: "string";
+                required: false;
+                unique: true;
+                returned: true;
+                transform: {
+                    input(value: string | number | boolean | string[] | Date | number[] | null | undefined): string | undefined;
+                };
+            };
+        };
+    };
+};
+
+type UsernameOptions = {
+    schema?: InferOptionSchema<typeof schema>;
+};
+declare const username: (options?: UsernameOptions) => {
     id: "username";
     endpoints: {
         signInUsername: {
@@ -144,4 +163,4 @@ declare const username: () => {
     };
 };
 
-export { username };
+export { type UsernameOptions, username };

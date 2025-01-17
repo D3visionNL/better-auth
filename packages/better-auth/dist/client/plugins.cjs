@@ -1,1 +1,346 @@
-"use strict";var T=Object.defineProperty;var L=Object.getOwnPropertyDescriptor;var F=Object.getOwnPropertyNames;var N=Object.prototype.hasOwnProperty;var z=(e,t)=>{for(var r in t)T(e,r,{get:t[r],enumerable:!0})},D=(e,t,r,s)=>{if(t&&typeof t=="object"||typeof t=="function")for(let n of F(t))!N.call(e,n)&&n!==r&&T(e,n,{get:()=>t[n],enumerable:!(s=L(t,n))||s.enumerable});return e};var M=e=>D(T({},"__esModule",{value:!0}),e);var fe={};z(fe,{InferServerPlugin:()=>x,adminClient:()=>re,anonymousClient:()=>ee,customSessionClient:()=>ue,emailOTPClient:()=>ie,genericOAuthClient:()=>ne,getPasskeyActions:()=>U,inferAdditionalFields:()=>te,jwtClient:()=>oe,magicLinkClient:()=>X,multiSessionClient:()=>se,oidcClient:()=>pe,oneTapClient:()=>ae,organizationClient:()=>V,passkeyClient:()=>K,phoneNumberClient:()=>Z,ssoClient:()=>ce,twoFactorClient:()=>Y,usernameClient:()=>Q});module.exports=M(fe);var y=Symbol("clean");var u=[],p=0,O=4,j=0,c=e=>{let t=[],r={get(){return r.lc||r.listen(()=>{})(),r.value},lc:0,listen(s){return r.lc=t.push(s),()=>{for(let o=p+O;o<u.length;)u[o]===s?u.splice(o,O):o+=O;let n=t.indexOf(s);~n&&(t.splice(n,1),--r.lc||r.off())}},notify(s,n){j++;let o=!u.length;for(let a of t)u.push(a,r.value,s,n);if(o){for(p=0;p<u.length;p+=O)u[p](u[p+1],u[p+2],u[p+3]);u.length=0}},off(){},set(s){let n=r.value;n!==s&&(r.value=s,r.notify(n))},subscribe(s){let n=r.listen(s);return s(r.value),n},value:e};return process.env.NODE_ENV!=="production"&&(r[y]=()=>{t=[],r.lc=0,r.off()}),r};var $=5,d=6,S=10,q=(e,t,r,s)=>(e.events=e.events||{},e.events[r+S]||(e.events[r+S]=s(n=>{e.events[r].reduceRight((o,a)=>(a(o),o),{shared:{},...n})})),e.events[r]=e.events[r]||[],e.events[r].push(t),()=>{let n=e.events[r],o=n.indexOf(t);n.splice(o,1),n.length||(delete e.events[r],e.events[r+S](),delete e.events[r+S])});var w=1e3,b=(e,t)=>q(e,s=>{let n=t(s);n&&e.events[d].push(n)},$,s=>{let n=e.listen;e.listen=(...a)=>(!e.lc&&!e.active&&(e.active=!0,s()),n(...a));let o=e.off;if(e.events[d]=[],e.off=()=>{o(),setTimeout(()=>{if(e.active&&!e.lc){e.active=!1;for(let a of e.events[d])a();e.events[d]=[]}},w)},process.env.NODE_ENV!=="production"){let a=e[y];e[y]=()=>{for(let i of e.events[d])i();e.events[d]=[],e.active=!1,a()}}return()=>{e.listen=n,e.off=o}});function E(e){let t=e;return{newRole(r){return G(r)}}}function G(e){return{statements:e,authorize(t,r){for(let[s,n]of Object.entries(t)){let o=e[s];return o?(r==="OR"?n.some(i=>o.includes(i)):n.every(i=>o.includes(i)))?{success:!0}:{success:!1,error:`Unauthorized to access resource "${s}"`}:{success:!1,error:`You are not allowed to access resource: ${s}`}}return{success:!1,error:"Not authorized"}}}}var W={organization:["update","delete"],member:["create","update","delete"],invitation:["create","cancel"]},R=E(W),_=R.newRole({organization:["update"],invitation:["create","cancel"],member:["create","update","delete"]}),C=R.newRole({organization:["update","delete"],member:["create","update","delete"],invitation:["create","cancel"]}),k=R.newRole({organization:[],member:[],invitation:[]});var v=Object.create(null),g=e=>globalThis.process?.env||globalThis.Deno?.env.toObject()||globalThis.__env__||(e?v:globalThis),B=new Proxy(v,{get(e,t){return g()[t]??v[t]},has(e,t){let r=g();return t in r||t in v},set(e,t,r){let s=g(!0);return s[t]=r,!0},deleteProperty(e,t){if(!t)return!1;let r=g(!0);return delete r[t],!0},ownKeys(){let e=g(!0);return Object.keys(e)}});function H(e){return e?e!=="false":!1}var J=typeof process<"u"&&process.env&&process.env.NODE_ENV||"";var Ie=J==="test"||H(B.TEST);var h=class extends Error{constructor(t,r){super(t),this.name="BetterAuthError",this.message=t,this.cause=r,this.stack=""}};var f=(e,t,r,s)=>{let n=c({data:null,error:null,isPending:!0,isRefetching:!1}),o=()=>{let i=typeof s=="function"?s({data:n.get().data,error:n.get().error,isPending:n.get().isPending}):s;return r(t,{...i,async onSuccess(l){typeof window<"u"&&n.set({data:l.data,error:null,isPending:!1,isRefetching:!1}),await i?.onSuccess?.(l)},async onError(l){n.set({error:l.error,data:null,isPending:!1,isRefetching:!1}),await i?.onError?.(l)},async onRequest(l){let P=n.get();n.set({isPending:P.data===null,data:P.data,error:null,isRefetching:!0}),await i?.onRequest?.(l)}})};e=Array.isArray(e)?e:[e];let a=!1;for(let i of e)i.subscribe(()=>{a?o():b(n,()=>(o(),a=!0,()=>{n.off(),i.off()}))});return n};var Ve={true:!0,false:!1,null:null,undefined:void 0,nan:Number.NaN,infinity:Number.POSITIVE_INFINITY,"-infinity":Number.NEGATIVE_INFINITY};var V=e=>{let t=c(!1),r=c(!1),s=c(!1),n={admin:_,member:k,owner:C,...e?.roles};return{id:"organization",$InferServerPlugin:{},getActions:o=>({$Infer:{ActiveOrganization:{},Organization:{},Invitation:{},Member:{}},organization:{checkRolePermission:a=>{if(Object.keys(a.permission).length>1)throw new h("you can only check one resource permission at a time.");let i=n[a.role];return i?(i?.authorize(a.permission)).success:!1}}}),getAtoms:o=>{let a=f(t,"/organization/list",o,{method:"GET"}),i=f([r],"/organization/get-full-organization",o,()=>({method:"GET"})),l=f([s],"/organization/get-active-member",o,{method:"GET"});return{$listOrg:t,$activeOrgSignal:r,$activeMemberSignal:s,activeOrganization:i,listOrganizations:a,activeMember:l}},pathMethods:{"/organization/get-full-organization":"GET"},atomListeners:[{matcher(o){return o==="/organization/create"||o==="/organization/delete"},signal:"$listOrg"},{matcher(o){return o.startsWith("/organization")},signal:"$activeOrgSignal"},{matcher(o){return o.includes("/organization/update-member-role")},signal:"$activeMemberSignal"}]}};var Q=()=>({id:"username",$InferServerPlugin:{}});var m=require("@simplewebauthn/browser");var U=(e,{$listPasskeys:t})=>({signIn:{passkey:async(n,o)=>{let a=await e("/passkey/generate-authenticate-options",{method:"POST",body:{email:n?.email}});if(!a.data)return a;try{let i=await(0,m.startAuthentication)({optionsJSON:a.data,useBrowserAutofill:n?.autoFill}),l=await e("/passkey/verify-authentication",{body:{response:i},...n?.fetchOptions,...o,method:"POST"});if(!l.data)return l}catch{return{data:null,error:{message:"auth cancelled",status:400,statusText:"BAD_REQUEST"}}}}},passkey:{addPasskey:async(n,o)=>{let a=await e("/passkey/generate-register-options",{method:"GET"});if(!a.data)return a;try{let i=await(0,m.startRegistration)({optionsJSON:a.data,useAutoRegister:n?.useAutoRegister}),l=await e("/passkey/verify-registration",{...n?.fetchOptions,...o,body:{response:i,name:n?.name},method:"POST"});if(!l.data)return l;t.set(Math.random())}catch(i){return i instanceof m.WebAuthnError?i.code==="ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED"?{data:null,error:{message:"previously registered",status:400,statusText:"BAD_REQUEST"}}:i.code==="ERROR_CEREMONY_ABORTED"?{data:null,error:{message:"registration cancelled",status:400,statusText:"BAD_REQUEST"}}:{data:null,error:{message:i.message,status:400,statusText:"BAD_REQUEST"}}:{data:null,error:{message:i instanceof Error?i.message:"unknown error",status:500,statusText:"INTERNAL_SERVER_ERROR"}}}}},$Infer:{}}),K=()=>{let e=c();return{id:"passkey",$InferServerPlugin:{},getActions:t=>U(t,{$listPasskeys:e}),getAtoms(t){return{listPasskeys:f(e,"/passkey/list-user-passkeys",t,{method:"GET"}),$listPasskeys:e}},pathMethods:{"/passkey/register":"POST","/passkey/authenticate":"POST"},atomListeners:[{matcher(t){return t==="/passkey/verify-registration"||t==="/passkey/delete-passkey"||t==="/passkey/update-passkey"},signal:"_listPasskeys"}]}};var Y=e=>({id:"two-factor",$InferServerPlugin:{},atomListeners:[{matcher:t=>t.startsWith("/two-factor/"),signal:"$sessionSignal"}],pathMethods:{"/two-factor/disable":"POST","/two-factor/enable":"POST","/two-factor/send-otp":"POST","/two-factor/generate-backup-codes":"POST"},fetchPlugins:[{id:"two-factor",name:"two-factor",hooks:{async onSuccess(t){t.data?.twoFactorRedirect&&e?.onTwoFactorRedirect&&await e.onTwoFactorRedirect()}}}]});var X=()=>({id:"magic-link",$InferServerPlugin:{}});var Z=()=>({id:"phoneNumber",$InferServerPlugin:{},atomListeners:[{matcher(e){return e==="/phone-number/update"||e==="/phone-number/verify"},signal:"$sessionSignal"}]});var ee=()=>({id:"anonymous",$InferServerPlugin:{},pathMethods:{"/sign-in/anonymous":"POST"}});var te=e=>({id:"additional-fields-client",$InferServerPlugin:{}});var re=()=>({id:"better-auth-client",$InferServerPlugin:{},pathMethods:{"/admin/list-users":"GET","/admin/stop-impersonating":"POST"}});var ne=()=>({id:"generic-oauth-client",$InferServerPlugin:{}});var oe=()=>({id:"better-auth-client",$InferServerPlugin:{}});var se=()=>({id:"multi-session",$InferServerPlugin:{},atomListeners:[{matcher(e){return e==="/multi-session/set-active"},signal:"$sessionSignal"}]});var ie=()=>({id:"email-otp",$InferServerPlugin:{}});var A=!1,ae=e=>({id:"one-tap",getActions:(t,r)=>({oneTap:async(s,n)=>{if(A){console.warn("A Google One Tap request is already in progress. Please wait.");return}A=!0;try{if(typeof window>"u"||!window.document){console.warn("Google One Tap is only available in browser environments");return}let{autoSelect:o,cancelOnTapOutside:a,context:i}=s??{},l=i??e.context??"signin";await le(),await new Promise(P=>{window.google?.accounts.id.initialize({client_id:e.clientId,callback:async I=>{await t("/one-tap/callback",{method:"POST",body:{idToken:I.credential},...s?.fetchOptions,...n}),(!s?.fetchOptions&&!n||s?.callbackURL)&&(window.location.href=s?.callbackURL??"/"),P()},auto_select:o,cancel_on_tap_outside:a,context:l}),window.google?.accounts.id.prompt()})}catch(o){throw console.error("Error during Google One Tap flow:",o),o}finally{A=!1}}}),getAtoms(t){return{}}}),le=()=>new Promise(e=>{if(window.googleScriptInitialized){e();return}let t=document.createElement("script");t.src="https://accounts.google.com/gsi/client",t.async=!0,t.defer=!0,t.onload=()=>{window.googleScriptInitialized=!0,e()},document.head.appendChild(t)});var ue=()=>x();var x=()=>({id:"infer-server-plugin",$InferServerPlugin:{}});var ce=()=>({id:"sso-client",$InferServerPlugin:{}});var pe=()=>({id:"oidc-client",$InferServerPlugin:{}});0&&(module.exports={InferServerPlugin,adminClient,anonymousClient,customSessionClient,emailOTPClient,genericOAuthClient,getPasskeyActions,inferAdditionalFields,jwtClient,magicLinkClient,multiSessionClient,oidcClient,oneTapClient,organizationClient,passkeyClient,phoneNumberClient,ssoClient,twoFactorClient,usernameClient});
+'use strict';
+
+var chunkYLFV4SQL_cjs = require('../chunk-YLFV4SQL.cjs');
+var chunkCF7NIEGH_cjs = require('../chunk-CF7NIEGH.cjs');
+var chunk2X5G64P2_cjs = require('../chunk-2X5G64P2.cjs');
+require('../chunk-RBN34WVC.cjs');
+var chunkCXGP5FNG_cjs = require('../chunk-CXGP5FNG.cjs');
+require('../chunk-U4I57HJ4.cjs');
+require('../chunk-S5UORXJH.cjs');
+require('../chunk-CCKQSGIR.cjs');
+require('../chunk-VXYIYABQ.cjs');
+var chunkPEZRSDZS_cjs = require('../chunk-PEZRSDZS.cjs');
+var nanostores = require('nanostores');
+
+var organizationClient = (options) => {
+  const $listOrg = nanostores.atom(false);
+  const $activeOrgSignal = nanostores.atom(false);
+  const $activeMemberSignal = nanostores.atom(false);
+  const roles = {
+    admin: chunk2X5G64P2_cjs.adminAc,
+    member: chunk2X5G64P2_cjs.memberAc,
+    owner: chunk2X5G64P2_cjs.ownerAc,
+    ...options?.roles
+  };
+  return {
+    id: "organization",
+    $InferServerPlugin: {},
+    getActions: ($fetch) => ({
+      $Infer: {
+        ActiveOrganization: {},
+        Organization: {},
+        Invitation: {},
+        Member: {}
+      },
+      organization: {
+        checkRolePermission: (data) => {
+          if (Object.keys(data.permission).length > 1) {
+            throw new chunkPEZRSDZS_cjs.BetterAuthError(
+              "you can only check one resource permission at a time."
+            );
+          }
+          const role = roles[data.role];
+          if (!role) {
+            return false;
+          }
+          const isAuthorized = role?.authorize(data.permission);
+          return isAuthorized.success;
+        }
+      }
+    }),
+    getAtoms: ($fetch) => {
+      const listOrganizations = chunkCXGP5FNG_cjs.useAuthQuery(
+        $listOrg,
+        "/organization/list",
+        $fetch,
+        {
+          method: "GET"
+        }
+      );
+      const activeOrganization = chunkCXGP5FNG_cjs.useAuthQuery(
+        [$activeOrgSignal],
+        "/organization/get-full-organization",
+        $fetch,
+        () => ({
+          method: "GET"
+        })
+      );
+      const activeMember = chunkCXGP5FNG_cjs.useAuthQuery(
+        [$activeMemberSignal],
+        "/organization/get-active-member",
+        $fetch,
+        {
+          method: "GET"
+        }
+      );
+      return {
+        $listOrg,
+        $activeOrgSignal,
+        $activeMemberSignal,
+        activeOrganization,
+        listOrganizations,
+        activeMember
+      };
+    },
+    pathMethods: {
+      "/organization/get-full-organization": "GET"
+    },
+    atomListeners: [
+      {
+        matcher(path) {
+          return path === "/organization/create" || path === "/organization/delete";
+        },
+        signal: "$listOrg"
+      },
+      {
+        matcher(path) {
+          return path.startsWith("/organization");
+        },
+        signal: "$activeOrgSignal"
+      },
+      {
+        matcher(path) {
+          return path.includes("/organization/update-member-role");
+        },
+        signal: "$activeMemberSignal"
+      }
+    ]
+  };
+};
+
+// src/plugins/username/client.ts
+var usernameClient = () => {
+  return {
+    id: "username",
+    $InferServerPlugin: {}
+  };
+};
+
+// src/plugins/magic-link/client.ts
+var magicLinkClient = () => {
+  return {
+    id: "magic-link",
+    $InferServerPlugin: {}
+  };
+};
+
+// src/plugins/phone-number/client.ts
+var phoneNumberClient = () => {
+  return {
+    id: "phoneNumber",
+    $InferServerPlugin: {},
+    atomListeners: [
+      {
+        matcher(path) {
+          return path === "/phone-number/update" || path === "/phone-number/verify";
+        },
+        signal: "$sessionSignal"
+      }
+    ]
+  };
+};
+
+// src/plugins/anonymous/client.ts
+var anonymousClient = () => {
+  return {
+    id: "anonymous",
+    $InferServerPlugin: {},
+    pathMethods: {
+      "/sign-in/anonymous": "POST"
+    }
+  };
+};
+
+// src/plugins/additional-fields/client.ts
+var inferAdditionalFields = (schema) => {
+  return {
+    id: "additional-fields-client",
+    $InferServerPlugin: {}
+  };
+};
+
+// src/plugins/admin/client.ts
+var adminClient = () => {
+  return {
+    id: "better-auth-client",
+    $InferServerPlugin: {},
+    pathMethods: {
+      "/admin/list-users": "GET",
+      "/admin/stop-impersonating": "POST"
+    }
+  };
+};
+
+// src/plugins/generic-oauth/client.ts
+var genericOAuthClient = () => {
+  return {
+    id: "generic-oauth-client",
+    $InferServerPlugin: {}
+  };
+};
+
+// src/plugins/jwt/client.ts
+var jwtClient = () => {
+  return {
+    id: "better-auth-client",
+    $InferServerPlugin: {}
+  };
+};
+
+// src/plugins/multi-session/client.ts
+var multiSessionClient = () => {
+  return {
+    id: "multi-session",
+    $InferServerPlugin: {},
+    atomListeners: [
+      {
+        matcher(path) {
+          return path === "/multi-session/set-active";
+        },
+        signal: "$sessionSignal"
+      }
+    ]
+  };
+};
+
+// src/plugins/email-otp/client.ts
+var emailOTPClient = () => {
+  return {
+    id: "email-otp",
+    $InferServerPlugin: {}
+  };
+};
+
+// src/plugins/one-tap/client.ts
+var isRequestInProgress = false;
+var oneTapClient = (options) => {
+  return {
+    id: "one-tap",
+    getActions: ($fetch, _) => ({
+      oneTap: async (opts, fetchOptions) => {
+        if (isRequestInProgress) {
+          console.warn(
+            "A Google One Tap request is already in progress. Please wait."
+          );
+          return;
+        }
+        isRequestInProgress = true;
+        try {
+          if (typeof window === "undefined" || !window.document) {
+            console.warn(
+              "Google One Tap is only available in browser environments"
+            );
+            return;
+          }
+          const { autoSelect, cancelOnTapOutside, context } = opts ?? {};
+          const contextValue = context ?? options.context ?? "signin";
+          await loadGoogleScript();
+          await new Promise((resolve) => {
+            window.google?.accounts.id.initialize({
+              client_id: options.clientId,
+              callback: async (response) => {
+                await $fetch("/one-tap/callback", {
+                  method: "POST",
+                  body: { idToken: response.credential },
+                  ...opts?.fetchOptions,
+                  ...fetchOptions
+                });
+                if (!opts?.fetchOptions && !fetchOptions || opts?.callbackURL) {
+                  window.location.href = opts?.callbackURL ?? "/";
+                }
+                resolve();
+              },
+              auto_select: autoSelect,
+              cancel_on_tap_outside: cancelOnTapOutside,
+              context: contextValue
+            });
+            window.google?.accounts.id.prompt();
+          });
+        } catch (error) {
+          console.error("Error during Google One Tap flow:", error);
+          throw error;
+        } finally {
+          isRequestInProgress = false;
+        }
+      }
+    }),
+    getAtoms($fetch) {
+      return {};
+    }
+  };
+};
+var loadGoogleScript = () => {
+  return new Promise((resolve) => {
+    if (window.googleScriptInitialized) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      window.googleScriptInitialized = true;
+      resolve();
+    };
+    document.head.appendChild(script);
+  });
+};
+
+// src/plugins/custom-session/client.ts
+var customSessionClient = () => {
+  return InferServerPlugin();
+};
+
+// src/client/plugins/infer-plugin.ts
+var InferServerPlugin = () => {
+  return {
+    id: "infer-server-plugin",
+    $InferServerPlugin: {}
+  };
+};
+
+// src/plugins/sso/client.ts
+var ssoClient = () => {
+  return {
+    id: "sso-client",
+    $InferServerPlugin: {}
+  };
+};
+
+// src/plugins/oidc-provider/client.ts
+var oidcClient = () => {
+  return {
+    id: "oidc-client",
+    $InferServerPlugin: {}
+  };
+};
+
+Object.defineProperty(exports, "getPasskeyActions", {
+  enumerable: true,
+  get: function () { return chunkYLFV4SQL_cjs.getPasskeyActions; }
+});
+Object.defineProperty(exports, "passkeyClient", {
+  enumerable: true,
+  get: function () { return chunkYLFV4SQL_cjs.passkeyClient; }
+});
+Object.defineProperty(exports, "twoFactorClient", {
+  enumerable: true,
+  get: function () { return chunkCF7NIEGH_cjs.twoFactorClient; }
+});
+exports.InferServerPlugin = InferServerPlugin;
+exports.adminClient = adminClient;
+exports.anonymousClient = anonymousClient;
+exports.customSessionClient = customSessionClient;
+exports.emailOTPClient = emailOTPClient;
+exports.genericOAuthClient = genericOAuthClient;
+exports.inferAdditionalFields = inferAdditionalFields;
+exports.jwtClient = jwtClient;
+exports.magicLinkClient = magicLinkClient;
+exports.multiSessionClient = multiSessionClient;
+exports.oidcClient = oidcClient;
+exports.oneTapClient = oneTapClient;
+exports.organizationClient = organizationClient;
+exports.phoneNumberClient = phoneNumberClient;
+exports.ssoClient = ssoClient;
+exports.usernameClient = usernameClient;

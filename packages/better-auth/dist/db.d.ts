@@ -1,10 +1,10 @@
-import { x as Adapter, B as BetterAuthOptions, W as Where, a4 as FieldAttribute, a5 as FieldType, K as KyselyDatabaseType } from './auth-BbYUexL8.js';
-export { ah as BetterAuthDbSchema, a8 as FieldAttributeConfig, ag as InferFieldsFromOptions, af as InferFieldsFromPlugins, ac as InferFieldsInput, ad as InferFieldsInputClient, ab as InferFieldsOutput, aa as InferValueType, a7 as InternalAdapter, ae as PluginFieldAttribute, a9 as createFieldAttribute, a6 as createInternalAdapter, ai as getAuthTables } from './auth-BbYUexL8.js';
+import { x as Adapter, B as BetterAuthOptions, W as Where, a5 as FieldAttribute, a6 as FieldType, K as KyselyDatabaseType } from './auth-BsEf_Tfi.js';
+export { ai as BetterAuthDbSchema, a9 as FieldAttributeConfig, ah as InferFieldsFromOptions, ag as InferFieldsFromPlugins, ad as InferFieldsInput, ae as InferFieldsInputClient, ac as InferFieldsOutput, ab as InferValueType, a8 as InternalAdapter, af as PluginFieldAttribute, aa as createFieldAttribute, a7 as createInternalAdapter, aj as getAuthTables } from './auth-BsEf_Tfi.js';
 import { z } from 'zod';
 import 'kysely';
 import 'better-call';
 import './helper-Bi8FQwDD.js';
-import './index-B0PXeJp8.js';
+import './index-6-VFhg2N.js';
 import 'jose';
 import 'better-sqlite3';
 

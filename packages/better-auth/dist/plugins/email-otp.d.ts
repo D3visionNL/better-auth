@@ -1,10 +1,10 @@
 import * as better_call from 'better-call';
 import { APIError } from 'better-call';
 import { z } from 'zod';
-import { H as HookEndpointContext } from '../auth-BbYUexL8.js';
+import { H as HookEndpointContext } from '../auth-BsEf_Tfi.js';
 import 'kysely';
 import '../helper-Bi8FQwDD.js';
-import '../index-B0PXeJp8.js';
+import '../index-6-VFhg2N.js';
 import 'jose';
 import 'better-sqlite3';
 
@@ -646,6 +646,19 @@ declare const emailOTP: (options: EmailOTPOptions) => {
         readonly INVALID_EMAIL: "invalid email";
         readonly USER_NOT_FOUND: "user not found";
     };
+    rateLimit: ({
+        pathMatcher(path: string): path is "/email-otp/send-verification-otp";
+        window: number;
+        max: number;
+    } | {
+        pathMatcher(path: string): path is "/email-otp/verify-email";
+        window: number;
+        max: number;
+    } | {
+        pathMatcher(path: string): path is "/sign-in/email-otp";
+        window: number;
+        max: number;
+    })[];
 };
 
 export { emailOTP };

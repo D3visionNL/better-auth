@@ -1,1 +1,38 @@
-"use strict";var i=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var x=Object.getOwnPropertyNames;var y=Object.prototype.hasOwnProperty;var A=(e,t)=>{for(var r in t)i(e,r,{get:t[r],enumerable:!0})},R=(e,t,r,s)=>{if(t&&typeof t=="object"||typeof t=="function")for(let n of x(t))!y.call(e,n)&&n!==r&&i(e,n,{get:()=>t[n],enumerable:!(s=f(t,n))||s.enumerable});return e};var T=e=>R(i({},"__esModule",{value:!0}),e);var g={};A(g,{adminAc:()=>d,createAccessControl:()=>u,defaultAc:()=>o,defaultRoles:()=>b,defaultStatements:()=>p,memberAc:()=>S,ownerAc:()=>l,role:()=>m});module.exports=T(g);function u(e){let t=e;return{newRole(r){return m(r)}}}function m(e){return{statements:e,authorize(t,r){for(let[s,n]of Object.entries(t)){let a=e[s];return a?(r==="OR"?n.some(c=>a.includes(c)):n.every(c=>a.includes(c)))?{success:!0}:{success:!1,error:`Unauthorized to access resource "${s}"`}:{success:!1,error:`You are not allowed to access resource: ${s}`}}return{success:!1,error:"Not authorized"}}}}var p={organization:["update","delete"],member:["create","update","delete"],invitation:["create","cancel"]},o=u(p),d=o.newRole({organization:["update"],invitation:["create","cancel"],member:["create","update","delete"]}),l=o.newRole({organization:["update","delete"],member:["create","update","delete"],invitation:["create","cancel"]}),S=o.newRole({organization:[],member:[],invitation:[]}),b={admin:d,owner:l,member:S};0&&(module.exports={adminAc,createAccessControl,defaultAc,defaultRoles,defaultStatements,memberAc,ownerAc,role});
+'use strict';
+
+var chunk2X5G64P2_cjs = require('../chunk-2X5G64P2.cjs');
+
+
+
+Object.defineProperty(exports, "adminAc", {
+  enumerable: true,
+  get: function () { return chunk2X5G64P2_cjs.adminAc; }
+});
+Object.defineProperty(exports, "createAccessControl", {
+  enumerable: true,
+  get: function () { return chunk2X5G64P2_cjs.createAccessControl; }
+});
+Object.defineProperty(exports, "defaultAc", {
+  enumerable: true,
+  get: function () { return chunk2X5G64P2_cjs.defaultAc; }
+});
+Object.defineProperty(exports, "defaultRoles", {
+  enumerable: true,
+  get: function () { return chunk2X5G64P2_cjs.defaultRoles; }
+});
+Object.defineProperty(exports, "defaultStatements", {
+  enumerable: true,
+  get: function () { return chunk2X5G64P2_cjs.defaultStatements; }
+});
+Object.defineProperty(exports, "memberAc", {
+  enumerable: true,
+  get: function () { return chunk2X5G64P2_cjs.memberAc; }
+});
+Object.defineProperty(exports, "ownerAc", {
+  enumerable: true,
+  get: function () { return chunk2X5G64P2_cjs.ownerAc; }
+});
+Object.defineProperty(exports, "role", {
+  enumerable: true,
+  get: function () { return chunk2X5G64P2_cjs.role; }
+});

@@ -1,1 +1,256 @@
-import{and as z,asc as J,desc as G,eq as F,inArray as U,like as I,or as Q}from"drizzle-orm";import{z as s}from"zod";import{APIError as ne}from"better-call";var se=s.object({id:s.string(),providerId:s.string(),accountId:s.string(),name:s.string().nullish(),userId:s.string(),accessToken:s.string().nullish(),refreshToken:s.string().nullish(),idToken:s.string().nullish(),accessTokenExpiresAt:s.date().nullish(),refreshTokenExpiresAt:s.date().nullish(),scope:s.string().nullish(),password:s.string().nullish(),image:s.string().nullish(),createdAt:s.date().default(()=>new Date),updatedAt:s.date().default(()=>new Date)}),ie=s.object({id:s.string(),email:s.string().transform(e=>e.toLowerCase()),emailVerified:s.boolean().default(!1),name:s.string(),image:s.string().nullish(),createdAt:s.date().default(()=>new Date),updatedAt:s.date().default(()=>new Date)}),ae=s.object({id:s.string(),userId:s.string(),expiresAt:s.date(),createdAt:s.date().default(()=>new Date),updatedAt:s.date().default(()=>new Date),token:s.string(),ipAddress:s.string().nullish(),userAgent:s.string().nullish()}),oe=s.object({id:s.string(),value:s.string(),createdAt:s.date().default(()=>new Date),updatedAt:s.date().default(()=>new Date),expiresAt:s.date(),identifier:s.string()});var R=Object.create(null),T=e=>globalThis.process?.env||globalThis.Deno?.env.toObject()||globalThis.__env__||(e?R:globalThis),S=new Proxy(R,{get(e,i){return T()[i]??R[i]},has(e,i){let u=T();return i in u||i in R},set(e,i,u){let m=T(!0);return m[i]=u,!0},deleteProperty(e,i){if(!i)return!1;let u=T(!0);return delete u[i],!0},ownKeys(){let e=T(!0);return Object.keys(e)}});function L(e){return e?e!=="false":!1}var M=typeof process<"u"&&process.env&&process.env.NODE_ENV||"";var E=M==="test"||L(S.TEST);import{createRandomStringGenerator as P}from"@better-auth/utils/random";var k=e=>P("a-z","A-Z","0-9")(e||32);import{z as at}from"zod";import{APIError as dt}from"better-call";var A=class extends Error{constructor(i,u){super(i),this.name="BetterAuthError",this.message=i,this.cause=u,this.stack=""}};import{createHash as je}from"@better-auth/utils/hash";import{xchacha20poly1305 as Ke}from"@noble/ciphers/chacha";import{bytesToHex as ze,hexToBytes as Je,utf8ToBytes as Ge}from"@noble/ciphers/utils";import{managedNonce as Ze}from"@noble/ciphers/webcrypto";import{createHash as Fe}from"@better-auth/utils/hash";import{SignJWT as Ne}from"jose";import{scryptAsync as qe}from"@noble/hashes/scrypt";import{getRandomValues as Me}from"uncrypto";import{hex as Pe}from"@better-auth/utils/hex";import{createRandomStringGenerator as _}from"@better-auth/utils/random";var C=_("a-z","0-9","A-Z","-_");var O=["info","success","warn","error","debug"];function $(e,i){return O.indexOf(i)<=O.indexOf(e)}var x={reset:"\x1B[0m",bright:"\x1B[1m",dim:"\x1B[2m",underscore:"\x1B[4m",blink:"\x1B[5m",reverse:"\x1B[7m",hidden:"\x1B[8m",fg:{black:"\x1B[30m",red:"\x1B[31m",green:"\x1B[32m",yellow:"\x1B[33m",blue:"\x1B[34m",magenta:"\x1B[35m",cyan:"\x1B[36m",white:"\x1B[37m"},bg:{black:"\x1B[40m",red:"\x1B[41m",green:"\x1B[42m",yellow:"\x1B[43m",blue:"\x1B[44m",magenta:"\x1B[45m",cyan:"\x1B[46m",white:"\x1B[47m"}},j={info:x.fg.blue,success:x.fg.green,warn:x.fg.yellow,error:x.fg.red,debug:x.fg.magenta},H=(e,i)=>{let u=new Date().toISOString();return`${x.dim}${u}${x.reset} ${j[e]}${e.toUpperCase()}${x.reset} ${x.bright}[Better Auth]:${x.reset} ${i}`},B=e=>{let i=e?.disabled!==!0,u=e?.level??"error",m=(f,y,p=[])=>{if(!i||!$(u,f))return;let w=H(f,y);if(!e||typeof e.log!="function"){f==="error"?console.error(w,...p):f==="warn"?console.warn(w,...p):console.log(w,...p);return}e.log(f==="success"?"info":f,w,...p)};return Object.fromEntries(O.map(f=>[f,(...[y,...p])=>m(f,y,p)]))},K=B();var v=e=>{let i=e.plugins?.reduce((a,c)=>{let n=c.schema;if(!n)return a;for(let[t,d]of Object.entries(n))a[t]={fields:{...a[t]?.fields,...d.fields},modelName:d.modelName||t};return a},{}),u=e.rateLimit?.storage==="database",m={rateLimit:{modelName:e.rateLimit?.modelName||"rateLimit",fields:{key:{type:"string",fieldName:e.rateLimit?.fields?.key||"key"},count:{type:"number",fieldName:e.rateLimit?.fields?.count||"count"},lastRequest:{type:"number",fieldName:e.rateLimit?.fields?.lastRequest||"lastRequest"}}}},{user:f,session:y,account:p,...w}=i||{};return{user:{modelName:e.user?.modelName||"user",fields:{name:{type:"string",required:!0,fieldName:e.user?.fields?.name||"name"},email:{type:"string",unique:!0,required:!0,fieldName:e.user?.fields?.email||"email"},emailVerified:{type:"boolean",defaultValue:()=>!1,required:!0,fieldName:e.user?.fields?.emailVerified||"emailVerified"},image:{type:"string",required:!1,fieldName:e.user?.fields?.image||"image"},createdAt:{type:"date",defaultValue:()=>new Date,required:!0,fieldName:e.user?.fields?.createdAt||"createdAt"},updatedAt:{type:"date",defaultValue:()=>new Date,required:!0,fieldName:e.user?.fields?.updatedAt||"updatedAt"},...f?.fields,...e.user?.additionalFields},order:1},session:{modelName:e.session?.modelName||"session",fields:{expiresAt:{type:"date",required:!0,fieldName:e.session?.fields?.expiresAt||"expiresAt"},token:{type:"string",required:!0,fieldName:e.session?.fields?.token||"token",unique:!0},createdAt:{type:"date",required:!0,fieldName:e.session?.fields?.createdAt||"createdAt"},updatedAt:{type:"date",required:!0,fieldName:e.session?.fields?.updatedAt||"updatedAt"},ipAddress:{type:"string",required:!1,fieldName:e.session?.fields?.ipAddress||"ipAddress"},userAgent:{type:"string",required:!1,fieldName:e.session?.fields?.userAgent||"userAgent"},userId:{type:"string",fieldName:e.session?.fields?.userId||"userId",references:{model:e.user?.modelName||"user",field:"id",onDelete:"cascade"},required:!0},...y?.fields,...e.session?.additionalFields},order:2},account:{modelName:e.account?.modelName||"account",fields:{accountId:{type:"string",required:!0,fieldName:e.account?.fields?.accountId||"accountId"},providerId:{type:"string",required:!0,fieldName:e.account?.fields?.providerId||"providerId"},userId:{type:"string",references:{model:e.user?.modelName||"user",field:"id",onDelete:"cascade"},required:!0,fieldName:e.account?.fields?.userId||"userId"},accessToken:{type:"string",required:!1,fieldName:e.account?.fields?.accessToken||"accessToken"},refreshToken:{type:"string",required:!1,fieldName:e.account?.fields?.refreshToken||"refreshToken"},idToken:{type:"string",required:!1,fieldName:e.account?.fields?.idToken||"idToken"},accessTokenExpiresAt:{type:"date",required:!1,fieldName:e.account?.fields?.accessTokenExpiresAt||"accessTokenExpiresAt"},refreshTokenExpiresAt:{type:"date",required:!1,fieldName:e.account?.fields?.accessTokenExpiresAt||"refreshTokenExpiresAt"},scope:{type:"string",required:!1,fieldName:e.account?.fields?.scope||"scope"},password:{type:"string",required:!1,fieldName:e.account?.fields?.password||"password"},createdAt:{type:"date",required:!0,fieldName:e.account?.fields?.createdAt||"createdAt"},updatedAt:{type:"date",required:!0,fieldName:e.account?.fields?.updatedAt||"updatedAt"},...p?.fields},order:3},verification:{modelName:e.verification?.modelName||"verification",fields:{identifier:{type:"string",required:!0,fieldName:e.verification?.fields?.identifier||"identifier"},value:{type:"string",required:!0,fieldName:e.verification?.fields?.value||"value"},expiresAt:{type:"date",required:!0,fieldName:e.verification?.fields?.expiresAt||"expiresAt"},createdAt:{type:"date",required:!1,defaultValue:()=>new Date,fieldName:e.verification?.fields?.createdAt||"createdAt"},updatedAt:{type:"date",required:!1,defaultValue:()=>new Date,fieldName:e.verification?.fields?.updatedAt||"updatedAt"}},order:4},...w,...u?m:{}}};import{z as Et}from"zod";import{Kysely as _t,MssqlDialect as Ct}from"kysely";import{MysqlDialect as jt,PostgresDialect as Ht,SqliteDialect as Kt}from"kysely";function D(e,i,u){return u==="update"?e:e==null&&i.defaultValue?typeof i.defaultValue=="function"?i.defaultValue():i.defaultValue:e}var Z=(e,i,u)=>{let m=v(u);function f(a,c){return c==="id"?c:m[a].fields[c].fieldName||c}function y(a){let c=i.schema||e._.fullSchema;if(!c)throw new A("Drizzle adapter failed to initialize. Schema not found. Please provide a schema object in the adapter options object.");let n=p(a),t=c[n];if(!t)throw new A(`[# Drizzle Adapter]: The model "${n}" was not found in the schema object. Please pass the schema directly to the adapter options.`);return t}let p=a=>m[a].modelName!==a?m[a].modelName:i.usePlural?`${a}s`:a,w=u?.advanced?.generateId===!1;return{getSchema:y,transformInput(a,c,n){let t=w||n==="update"?{}:{id:u.advanced?.generateId?u.advanced.generateId({model:c}):a.id||k()},d=m[c].fields;for(let o in d){let l=a[o];l===void 0&&!d[o].defaultValue||(t[d[o].fieldName||o]=D(l,d[o],n))}return t},transformOutput(a,c,n=[]){if(!a)return null;let t=a.id||a._id?n.length===0||n.includes("id")?{id:a.id}:{}:{},d=m[c].fields;for(let o in d){if(n.length&&!n.includes(o))continue;let l=d[o];l&&(t[o]=a[l.fieldName||o])}return t},convertWhereClause(a,c){let n=y(c);if(!a)return[];if(a.length===1){let r=a[0];if(!r)return[];let h=f(c,r.field);if(!n[h])throw new A(`The field "${r.field}" does not exist in the schema for the model "${c}". Please update your schema.`);if(r.operator==="in"){if(!Array.isArray(r.value))throw new A(`The value for the field "${r.field}" must be an array when using the "in" operator.`);return[U(n[h],r.value)]}return r.operator==="contains"?[I(n[h],`%${r.value}%`)]:r.operator==="starts_with"?[I(n[h],`${r.value}%`)]:r.operator==="ends_with"?[I(n[h],`%${r.value}`)]:[F(n[h],r.value)]}let t=a.filter(r=>r.connector==="AND"||!r.connector),d=a.filter(r=>r.connector==="OR"),o=z(...t.map(r=>{let h=f(c,r.field);if(r.operator==="in"){if(!Array.isArray(r.value))throw new A(`The value for the field "${r.field}" must be an array when using the "in" operator.`);return U(n[h],r.value)}return F(n[h],r.value)})),l=Q(...d.map(r=>{let h=f(c,r.field);return F(n[h],r.value)})),g=[];return t.length&&g.push(o),d.length&&g.push(l),g},withReturning:async(a,c,n)=>{if(i.provider!=="mysql")return(await c.returning())[0];await c;let t=y(p(a));return(await e.select().from(t).where(F(t.id,n.id)))[0]},getField:f,getModelName:p}};function X(e,i,u){if(!e)throw new A("Drizzle adapter failed to initialize. Schema not found. Please provide a schema object in the adapter options object.");for(let m in u)if(!e[m])throw new A(`The field "${m}" does not exist in the "${i}" schema. Please update your drizzle schema or re-generate using "npx @better-auth/cli generate".`)}var Vr=(e,i)=>u=>{let{transformInput:m,transformOutput:f,convertWhereClause:y,getSchema:p,withReturning:w,getField:a,getModelName:c}=Z(e,i,u);return{id:"drizzle",async create(n){let{model:t,data:d}=n,o=m(d,t,"create"),l=p(t);X(l,c(t),o);let g=e.insert(l).values(o),r=await w(t,g,o);return f(r,t)},async findOne(n){let{model:t,where:d,select:o}=n,l=p(t),g=y(d,t),r=await e.select().from(l).where(...g);return r.length?f(r[0],t,o):null},async findMany(n){let{model:t,where:d,sortBy:o,limit:l,offset:g}=n,r=p(t),h=d?y(d,t):[],b=o?.direction==="desc"?G:J,N=e.select().from(r).limit(l||100).offset(g||0);return o?.field&&N.orderBy(b(r[a(t,o?.field)])),(await N.where(...h)).map(q=>f(q,t))},async count(n){let{model:t,where:d}=n,o=p(t),l=d?y(d,t):[];return(await e.select().from(o).where(...l)).length},async update(n){let{model:t,where:d,update:o}=n,l=p(t),g=y(d,t),r=m(o,t,"update"),h=e.update(l).set(r).where(...g),b=await w(t,h,r);return f(b,t)},async updateMany(n){let{model:t,where:d,update:o}=n,l=p(t),g=y(d,t),r=m(o,t,"update"),b=await e.update(l).set(r).where(...g);return b?b.changes:0},async delete(n){let{model:t,where:d}=n,o=p(t),l=y(d,t);await e.delete(o).where(...l)},async deleteMany(n){let{model:t,where:d}=n,o=p(t),l=y(d,t),r=await e.delete(o).where(...l);return r?r.length:0},options:i}};export{Vr as drizzleAdapter};
+import { getAuthTables, withApplyDefault } from '../chunk-WMXORMNQ.js';
+import '../chunk-BO77WNCJ.js';
+import { generateId } from '../chunk-KLDFBLYL.js';
+import '../chunk-6YL5J5JY.js';
+import '../chunk-SK6Y2YH6.js';
+import '../chunk-3XTQSPPA.js';
+import '../chunk-WN2RDYR6.js';
+import '../chunk-FURNA6HY.js';
+import '../chunk-TQQSPPNA.js';
+import { BetterAuthError } from '../chunk-UNWCXKMP.js';
+import { desc, asc, inArray, like, eq, and, or } from 'drizzle-orm';
+
+var createTransform = (db, config, options) => {
+  const schema = getAuthTables(options);
+  function getField(model, field) {
+    if (field === "id") {
+      return field;
+    }
+    const f = schema[model].fields[field];
+    return f.fieldName || field;
+  }
+  function getSchema(modelName) {
+    const schema2 = config.schema || db._.fullSchema;
+    if (!schema2) {
+      throw new BetterAuthError(
+        "Drizzle adapter failed to initialize. Schema not found. Please provide a schema object in the adapter options object."
+      );
+    }
+    const model = getModelName(modelName);
+    const schemaModel = schema2[model];
+    if (!schemaModel) {
+      throw new BetterAuthError(
+        `[# Drizzle Adapter]: The model "${model}" was not found in the schema object. Please pass the schema directly to the adapter options.`
+      );
+    }
+    return schemaModel;
+  }
+  const getModelName = (model) => {
+    return schema[model].modelName !== model ? schema[model].modelName : config.usePlural ? `${model}s` : model;
+  };
+  const useDatabaseGeneratedId = options?.advanced?.generateId === false;
+  return {
+    getSchema,
+    transformInput(data, model, action) {
+      const transformedData = useDatabaseGeneratedId || action === "update" ? {} : {
+        id: options.advanced?.generateId ? options.advanced.generateId({
+          model
+        }) : data.id || generateId()
+      };
+      const fields = schema[model].fields;
+      for (const field in fields) {
+        const value = data[field];
+        if (value === void 0 && !fields[field].defaultValue) {
+          continue;
+        }
+        transformedData[fields[field].fieldName || field] = withApplyDefault(
+          value,
+          fields[field],
+          action
+        );
+      }
+      return transformedData;
+    },
+    transformOutput(data, model, select = []) {
+      if (!data) return null;
+      const transformedData = data.id || data._id ? select.length === 0 || select.includes("id") ? {
+        id: data.id
+      } : {} : {};
+      const tableSchema = schema[model].fields;
+      for (const key in tableSchema) {
+        if (select.length && !select.includes(key)) {
+          continue;
+        }
+        const field = tableSchema[key];
+        if (field) {
+          transformedData[key] = data[field.fieldName || key];
+        }
+      }
+      return transformedData;
+    },
+    convertWhereClause(where, model) {
+      const schemaModel = getSchema(model);
+      if (!where) return [];
+      if (where.length === 1) {
+        const w = where[0];
+        if (!w) {
+          return [];
+        }
+        const field = getField(model, w.field);
+        if (!schemaModel[field]) {
+          throw new BetterAuthError(
+            `The field "${w.field}" does not exist in the schema for the model "${model}". Please update your schema.`
+          );
+        }
+        if (w.operator === "in") {
+          if (!Array.isArray(w.value)) {
+            throw new BetterAuthError(
+              `The value for the field "${w.field}" must be an array when using the "in" operator.`
+            );
+          }
+          return [inArray(schemaModel[field], w.value)];
+        }
+        if (w.operator === "contains") {
+          return [like(schemaModel[field], `%${w.value}%`)];
+        }
+        if (w.operator === "starts_with") {
+          return [like(schemaModel[field], `${w.value}%`)];
+        }
+        if (w.operator === "ends_with") {
+          return [like(schemaModel[field], `%${w.value}`)];
+        }
+        return [eq(schemaModel[field], w.value)];
+      }
+      const andGroup = where.filter(
+        (w) => w.connector === "AND" || !w.connector
+      );
+      const orGroup = where.filter((w) => w.connector === "OR");
+      const andClause = and(
+        ...andGroup.map((w) => {
+          const field = getField(model, w.field);
+          if (w.operator === "in") {
+            if (!Array.isArray(w.value)) {
+              throw new BetterAuthError(
+                `The value for the field "${w.field}" must be an array when using the "in" operator.`
+              );
+            }
+            return inArray(schemaModel[field], w.value);
+          }
+          return eq(schemaModel[field], w.value);
+        })
+      );
+      const orClause = or(
+        ...orGroup.map((w) => {
+          const field = getField(model, w.field);
+          return eq(schemaModel[field], w.value);
+        })
+      );
+      const clause = [];
+      if (andGroup.length) clause.push(andClause);
+      if (orGroup.length) clause.push(orClause);
+      return clause;
+    },
+    withReturning: async (model, builder, data) => {
+      if (config.provider !== "mysql") {
+        const c = await builder.returning();
+        return c[0];
+      }
+      await builder;
+      const schemaModel = getSchema(getModelName(model));
+      const res = await db.select().from(schemaModel).where(eq(schemaModel.id, data.id));
+      return res[0];
+    },
+    getField,
+    getModelName
+  };
+};
+function checkMissingFields(schema, model, values) {
+  if (!schema) {
+    throw new BetterAuthError(
+      "Drizzle adapter failed to initialize. Schema not found. Please provide a schema object in the adapter options object."
+    );
+  }
+  for (const key in values) {
+    if (!schema[key]) {
+      throw new BetterAuthError(
+        `The field "${key}" does not exist in the "${model}" schema. Please update your drizzle schema or re-generate using "npx @better-auth/cli generate".`
+      );
+    }
+  }
+}
+var drizzleAdapter = (db, config) => (options) => {
+  const {
+    transformInput,
+    transformOutput,
+    convertWhereClause,
+    getSchema,
+    withReturning,
+    getField,
+    getModelName
+  } = createTransform(db, config, options);
+  return {
+    id: "drizzle",
+    async create(data) {
+      const { model, data: values } = data;
+      const transformed = transformInput(values, model, "create");
+      const schemaModel = getSchema(model);
+      checkMissingFields(schemaModel, getModelName(model), transformed);
+      const builder = db.insert(schemaModel).values(transformed);
+      const returned = await withReturning(model, builder, transformed);
+      return transformOutput(returned, model);
+    },
+    async findOne(data) {
+      const { model, where, select } = data;
+      const schemaModel = getSchema(model);
+      const clause = convertWhereClause(where, model);
+      const res = await db.select().from(schemaModel).where(...clause);
+      if (!res.length) return null;
+      return transformOutput(res[0], model, select);
+    },
+    async findMany(data) {
+      const { model, where, sortBy, limit, offset } = data;
+      const schemaModel = getSchema(model);
+      const clause = where ? convertWhereClause(where, model) : [];
+      const sortFn = sortBy?.direction === "desc" ? desc : asc;
+      const builder = db.select().from(schemaModel).limit(limit || 100).offset(offset || 0);
+      if (sortBy?.field) {
+        builder.orderBy(sortFn(schemaModel[getField(model, sortBy?.field)]));
+      }
+      const res = await builder.where(...clause);
+      return res.map((r) => transformOutput(r, model));
+    },
+    async count(data) {
+      const { model, where } = data;
+      const schemaModel = getSchema(model);
+      const clause = where ? convertWhereClause(where, model) : [];
+      const res = await db.select().from(schemaModel).where(...clause);
+      return res.length;
+    },
+    async update(data) {
+      const { model, where, update: values } = data;
+      const schemaModel = getSchema(model);
+      const clause = convertWhereClause(where, model);
+      const transformed = transformInput(values, model, "update");
+      const builder = db.update(schemaModel).set(transformed).where(...clause);
+      const returned = await withReturning(model, builder, transformed);
+      return transformOutput(returned, model);
+    },
+    async updateMany(data) {
+      const { model, where, update: values } = data;
+      const schemaModel = getSchema(model);
+      const clause = convertWhereClause(where, model);
+      const transformed = transformInput(values, model, "update");
+      const builder = db.update(schemaModel).set(transformed).where(...clause);
+      const res = await builder;
+      return res ? res.changes : 0;
+    },
+    async delete(data) {
+      const { model, where } = data;
+      const schemaModel = getSchema(model);
+      const clause = convertWhereClause(where, model);
+      const builder = db.delete(schemaModel).where(...clause);
+      await builder;
+    },
+    async deleteMany(data) {
+      const { model, where } = data;
+      const schemaModel = getSchema(model);
+      const clause = convertWhereClause(where, model);
+      const builder = db.delete(schemaModel).where(...clause);
+      const res = await builder;
+      return res ? res.length : 0;
+    },
+    options: config
+  };
+};
+
+export { drizzleAdapter };

@@ -1,7 +1,7 @@
 import * as better_call from 'better-call';
-import { k as AuthContext, U as User } from '../auth-BbYUexL8.js';
+import { k as AuthContext, U as User } from '../auth-BsEf_Tfi.js';
 import { z } from 'zod';
-import { O as OAuthProvider, a as OAuth2Tokens } from '../index-B0PXeJp8.js';
+import { O as OAuthProvider, a as OAuth2Tokens } from '../index-6-VFhg2N.js';
 import 'kysely';
 import '../helper-Bi8FQwDD.js';
 import 'better-sqlite3';
@@ -92,6 +92,11 @@ interface GenericOAuthConfig {
         emailVerified?: boolean;
         [key: string]: any;
     }>;
+    /**
+     * Additional search-params to add to the authorizationUrl.
+     * Warning: Search-params added here overwrite any default params.
+     */
+    authorizationUrlParams?: Record<string, string>;
 }
 interface GenericOAuthOptions {
     /**
@@ -113,17 +118,6 @@ declare const genericOAuth: (options: GenericOAuthOptions) => {
         signInWithOAuth2: {
             <C extends [better_call.Context<"/sign-in/oauth2", {
                 method: "POST";
-                query: z.ZodOptional<z.ZodObject<{
-                    /**
-                     * Redirect to the current URL after the
-                     * user has signed in.
-                     */
-                    currentURL: z.ZodOptional<z.ZodString>;
-                }, "strip", z.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: z.ZodObject<{
                     providerId: z.ZodString;
                     callbackURL: z.ZodOptional<z.ZodString>;
@@ -174,17 +168,6 @@ declare const genericOAuth: (options: GenericOAuthOptions) => {
             path: "/sign-in/oauth2";
             options: {
                 method: "POST";
-                query: z.ZodOptional<z.ZodObject<{
-                    /**
-                     * Redirect to the current URL after the
-                     * user has signed in.
-                     */
-                    currentURL: z.ZodOptional<z.ZodString>;
-                }, "strip", z.ZodTypeAny, {
-                    currentURL?: string | undefined;
-                }, {
-                    currentURL?: string | undefined;
-                }>>;
                 body: z.ZodObject<{
                     providerId: z.ZodString;
                     callbackURL: z.ZodOptional<z.ZodString>;

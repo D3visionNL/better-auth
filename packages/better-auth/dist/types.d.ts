@@ -1,5 +1,5 @@
-import { d as BetterAuthPlugin, j as Auth, S as Session, U as User, ad as InferFieldsInputClient, ab as InferFieldsOutput } from './auth-BbYUexL8.js';
-export { v as Account, x as Adapter, y as AdapterInstance, s as AdditionalSessionFieldsInput, t as AdditionalSessionFieldsOutput, q as AdditionalUserFieldsInput, r as AdditionalUserFieldsOutput, k as AuthContext, A as AuthPluginSchema, B as BetterAuthOptions, C as FilterActions, F as FilteredAPI, G as GenericEndpointContext, c as HookAfterHandler, b as HookBeforeHandler, H as HookEndpointContext, E as InferAPI, I as InferOptionSchema, e as InferPluginErrorCodes, u as InferPluginTypes, m as InferSession, D as InferSessionAPI, l as InferUser, M as Models, R as RateLimit, z as SecondaryStorage, V as Verification, W as Where, w as init } from './auth-BbYUexL8.js';
+import { d as BetterAuthPlugin, j as Auth, S as Session, U as User, ae as InferFieldsInputClient, ac as InferFieldsOutput } from './auth-BsEf_Tfi.js';
+export { v as Account, x as Adapter, z as AdapterInstance, y as AdapterSchemaCreation, s as AdditionalSessionFieldsInput, t as AdditionalSessionFieldsOutput, q as AdditionalUserFieldsInput, r as AdditionalUserFieldsOutput, k as AuthContext, A as AuthPluginSchema, B as BetterAuthOptions, D as FilterActions, F as FilteredAPI, G as GenericEndpointContext, c as HookAfterHandler, b as HookBeforeHandler, H as HookEndpointContext, J as InferAPI, I as InferOptionSchema, e as InferPluginErrorCodes, u as InferPluginTypes, m as InferSession, E as InferSessionAPI, l as InferUser, M as Models, R as RateLimit, C as SecondaryStorage, V as Verification, W as Where, w as init } from './auth-BsEf_Tfi.js';
 import { U as UnionToIntersection, H as HasRequiredKeys, b as Prettify, L as LiteralString, S as StripEmptyObjects } from './helper-Bi8FQwDD.js';
 export { D as DeepPartial, E as Expand, a as LiteralNumber, d as LiteralUnion, O as OmitId, c as PreserveJSDoc, P as PrettifyDeep, R as RequiredKeysOf, W as WithoutEmpty } from './helper-Bi8FQwDD.js';
 import { BetterFetchOption, BetterFetchResponse, BetterFetch, BetterFetchPlugin } from '@better-fetch/fetch';
@@ -7,7 +7,7 @@ import { WritableAtom, Atom } from 'nanostores';
 import { Endpoint, Context } from 'better-call';
 import 'kysely';
 import 'zod';
-import './index-B0PXeJp8.js';
+import './index-6-VFhg2N.js';
 import 'jose';
 import 'better-sqlite3';
 

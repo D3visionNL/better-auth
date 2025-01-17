@@ -1,84 +1,811 @@
-"use strict";var Ce=Object.defineProperty;var Zt=Object.getOwnPropertyDescriptor;var Yt=Object.getOwnPropertyNames;var Xt=Object.prototype.hasOwnProperty;var er=(e,t)=>{for(var r in t)Ce(e,r,{get:t[r],enumerable:!0})},tr=(e,t,r,o)=>{if(t&&typeof t=="object"||typeof t=="function")for(let n of Yt(t))!Xt.call(e,n)&&n!==r&&Ce(e,n,{get:()=>t[n],enumerable:!(o=Zt(t,n))||o.enumerable});return e};var rr=e=>tr(Ce({},"__esModule",{value:!0}),e);var Oo={};er(Oo,{getPasskeyActions:()=>Jt,passkey:()=>ko,passkeyClient:()=>Eo});module.exports=rr(Oo);var re=require("@simplewebauthn/server"),I=require("better-call");var Ze=require("@better-auth/utils/random"),oe=(0,Ze.createRandomStringGenerator)("a-z","0-9","A-Z","-_");var L=require("zod");var ne=require("better-call"),Ye=(0,ne.createMiddleware)(async()=>({})),ae=(0,ne.createMiddlewareCreator)({use:[Ye,(0,ne.createMiddleware)(async()=>({}))]}),g=(0,ne.createEndpointCreator)({use:[Ye]});var fe=require("better-call");var $e=require("better-call");function Ne(e){return e==="-"||e==="^"||e==="$"||e==="+"||e==="."||e==="("||e===")"||e==="|"||e==="["||e==="]"||e==="{"||e==="}"||e==="*"||e==="?"||e==="\\"?`\\${e}`:e}function or(e){let t="";for(let r=0;r<e.length;r++)t+=Ne(e[r]);return t}function Xe(e,t=!0){if(Array.isArray(e))return`(?:${e.map(l=>`^${Xe(l,t)}$`).join("|")})`;let r="",o="",n=".";t===!0?(r="/",o="[/\\\\]",n="[^/\\\\]"):t&&(r=t,o=or(r),o.length>1?(o=`(?:${o})`,n=`((?!${o}).)`):n=`[^${o}]`);let i=t?`${o}+?`:"",a=t?`${o}*?`:"",c=t?e.split(r):[e],s="";for(let d=0;d<c.length;d++){let l=c[d],p=c[d+1],u="";if(!(!l&&d>0)){if(t&&(d===c.length-1?u=a:p!=="**"?u=i:u=""),t&&l==="**"){u&&(s+=d===0?"":u,s+=`(?:${n}*?${u})*?`);continue}for(let h=0;h<l.length;h++){let m=l[h];m==="\\"?h<l.length-1&&(s+=Ne(l[h+1]),h++):m==="?"?s+=n:m==="*"?s+=`${n}*?`:s+=Ne(m)}s+=u}}return s}function nr(e,t){if(typeof t!="string")throw new TypeError(`Sample must be a string, but ${typeof t} given`);return e.test(t)}function ke(e,t){if(typeof e!="string"&&!Array.isArray(e))throw new TypeError(`The first argument must be a single pattern string or an array of patterns, but ${typeof e} given`);if((typeof t=="string"||typeof t=="boolean")&&(t={separator:t}),arguments.length===2&&!(typeof t>"u"||typeof t=="object"&&t!==null&&!Array.isArray(t)))throw new TypeError(`The second argument must be an options object or a string/boolean separator, but ${typeof t} given`);if(t=t||{},t.separator==="\\")throw new Error("\\ is not a valid separator because it is used for escaping. Try setting the separator to `true` instead");let r=Xe(e,t.separator),o=new RegExp(`^${r}$`,t.flags),n=nr.bind(null,o);return n.options=t,n.pattern=e,n.regexp=o,n}var Te=Object.create(null),he=e=>globalThis.process?.env||globalThis.Deno?.env.toObject()||globalThis.__env__||(e?Te:globalThis),Oe=new Proxy(Te,{get(e,t){return he()[t]??Te[t]},has(e,t){let r=he();return t in r||t in Te},set(e,t,r){let o=he(!0);return o[t]=r,!0},deleteProperty(e,t){if(!t)return!1;let r=he(!0);return delete r[t],!0},ownKeys(){let e=he(!0);return Object.keys(e)}});function sr(e){return e?e!=="false":!1}var je=typeof process<"u"&&process.env&&process.env.NODE_ENV||"";var Be=je==="dev"||je==="development",ir=je==="test"||sr(Oe.TEST);var F=class extends Error{constructor(t,r){super(t),this.name="BetterAuthError",this.message=t,this.cause=r,this.stack=""}};function et(e){try{return new URL(e).origin}catch{return null}}function Ve(e){return e.includes("://")?new URL(e).host:e}var ar=ae(async e=>{if(e.request?.method!=="POST")return;let{body:t,query:r,context:o}=e,n=e.headers?.get("origin")||e.headers?.get("referer")||"",i=t?.callbackURL||r?.callbackURL,a=t?.redirectTo,c=r?.currentURL,s=t?.errorCallbackURL,d=t?.newUserCallbackURL,l=o.trustedOrigins,p=e.headers?.has("cookie"),u=(m,R)=>m.startsWith("/")?!1:R.includes("*")?ke(R)(Ve(m)):m.startsWith(R),h=(m,R)=>{if(!m)return;if(!l.some(C=>u(m,C)||m?.startsWith("/")&&R!=="origin"&&!m.includes(":")))throw e.context.logger.error(`Invalid ${R}: ${m}`),e.context.logger.info(`If it's a valid URL, please add ${m} to trustedOrigins in your auth config
-`,`Current list of trustedOrigins: ${l}`),new $e.APIError("FORBIDDEN",{message:`Invalid ${R}`})};p&&!e.context.options.advanced?.disableCSRFCheck&&h(n,"origin"),i&&h(i,"callbackURL"),a&&h(a,"redirectURL"),c&&h(c,"currentURL"),s&&h(s,"errorCallbackURL"),d&&h(a,"newUserCallbackURL")}),ce=e=>ae(async t=>{let{context:r}=t,o=e(t),n=r.trustedOrigins,i=(c,s)=>c.startsWith("/")?!1:s.includes("*")?ke(s)(Ve(c)):c.startsWith(s);o&&((c,s)=>{if(!c)return;if(!n.some(l=>i(c,l)||c?.startsWith("/")&&s!=="origin"&&!c.includes(":")))throw t.context.logger.error(`Invalid ${s}: ${c}`),t.context.logger.info(`If it's a valid URL, please add ${c} to trustedOrigins in your auth config
-`,`Current list of trustedOrigins: ${n}`),new $e.APIError("FORBIDDEN",{message:`Invalid ${s}`})})(o,"callbackURL")});var S=require("better-call"),T=require("zod");var Y=(e,t="ms")=>new Date(Date.now()+(t==="sec"?e*1e3:e));var tt=require("@better-auth/utils/base64");var rt=require("@better-auth/utils/hmac");async function Fe(e,t){if(e.context.options.session?.cookieCache?.enabled){let o=tt.base64Url.encode(JSON.stringify({session:t,expiresAt:Y(e.context.authCookies.sessionData.options.maxAge||60,"sec").getTime(),signature:await(0,rt.createHMAC)("SHA-256","base64urlnopad").sign(e.context.secret,JSON.stringify(t))}),{padding:!1});if(o.length>4093)throw new F("Session data is too large to store in the cookie. Please disable session cookie caching or reduce the size of the session data");e.setCookie(e.context.authCookies.sessionData.name,o,e.context.authCookies.sessionData.options)}}async function x(e,t,r,o){let n=e.context.authCookies.sessionToken.options,i=r?void 0:e.context.sessionConfig.expiresIn;await e.setSignedCookie(e.context.authCookies.sessionToken.name,t.session.token,e.context.secret,{...n,maxAge:i,...o}),r&&await e.setSignedCookie(e.context.authCookies.dontRememberToken.name,"true",e.context.secret,e.context.authCookies.dontRememberToken.options),await Fe(e,t),e.context.setNewSession(t),e.context.options.secondaryStorage&&await e.context.secondaryStorage?.set(t.session.token,JSON.stringify({user:t.user,session:t.session}),Math.floor((new Date(t.session.expiresAt).getTime()-Date.now())/1e3))}function M(e){e.setCookie(e.context.authCookies.sessionToken.name,"",{...e.context.authCookies.sessionToken.options,maxAge:0}),e.setCookie(e.context.authCookies.sessionData.name,"",{...e.context.authCookies.sessionData.options,maxAge:0}),e.setCookie(e.context.authCookies.dontRememberToken.name,"",{...e.context.authCookies.dontRememberToken.options,maxAge:0})}var cr=Object.defineProperty,dr=Object.defineProperties,lr=Object.getOwnPropertyDescriptors,ot=Object.getOwnPropertySymbols,ur=Object.prototype.hasOwnProperty,pr=Object.prototype.propertyIsEnumerable,nt=(e,t,r)=>t in e?cr(e,t,{enumerable:!0,configurable:!0,writable:!0,value:r}):e[t]=r,se=(e,t)=>{for(var r in t||(t={}))ur.call(t,r)&&nt(e,r,t[r]);if(ot)for(var r of ot(t))pr.call(t,r)&&nt(e,r,t[r]);return e},ie=(e,t)=>dr(e,lr(t)),fr=class extends Error{constructor(e,t,r){super(t||e.toString(),{cause:r}),this.status=e,this.statusText=t,this.error=r}},mr=async(e,t)=>{var r,o,n,i,a,c;let s=t||{},d={onRequest:[t?.onRequest],onResponse:[t?.onResponse],onSuccess:[t?.onSuccess],onError:[t?.onError],onRetry:[t?.onRetry]};if(!t||!t?.plugins)return{url:e,options:s,hooks:d};for(let l of t?.plugins||[]){if(l.init){let p=await((r=l.init)==null?void 0:r.call(l,e.toString(),t));s=p.options||s,e=p.url}d.onRequest.push((o=l.hooks)==null?void 0:o.onRequest),d.onResponse.push((n=l.hooks)==null?void 0:n.onResponse),d.onSuccess.push((i=l.hooks)==null?void 0:i.onSuccess),d.onError.push((a=l.hooks)==null?void 0:a.onError),d.onRetry.push((c=l.hooks)==null?void 0:c.onRetry)}return{url:e,options:s,hooks:d}},st=class{constructor(e){this.options=e}shouldAttemptRetry(e,t){return this.options.shouldRetry?Promise.resolve(e<this.options.attempts&&this.options.shouldRetry(t)):Promise.resolve(e<this.options.attempts)}getDelay(){return this.options.delay}},gr=class{constructor(e){this.options=e}shouldAttemptRetry(e,t){return this.options.shouldRetry?Promise.resolve(e<this.options.attempts&&this.options.shouldRetry(t)):Promise.resolve(e<this.options.attempts)}getDelay(e){return Math.min(this.options.maxDelay,this.options.baseDelay*2**e)}};function hr(e){if(typeof e=="number")return new st({type:"linear",attempts:e,delay:1e3});switch(e.type){case"linear":return new st(e);case"exponential":return new gr(e);default:throw new Error("Invalid retry strategy")}}var yr=e=>{let t={},r=o=>typeof o=="function"?o():o;if(e?.auth){if(e.auth.type==="Bearer"){let o=r(e.auth.token);if(!o)return t;t.authorization=`Bearer ${o}`}else if(e.auth.type==="Basic"){let o=r(e.auth.username),n=r(e.auth.password);if(!o||!n)return t;t.authorization=`Basic ${btoa(`${o}:${n}`)}`}else if(e.auth.type==="Custom"){let o=r(e.auth.value);if(!o)return t;t.authorization=`${r(e.auth.prefix)} ${o}`}}return t},ct=["get","post","put","patch","delete"];var wr=/^application\/(?:[\w!#$%&*.^`~-]*\+)?json(;.+)?$/i;function br(e){let t=e.headers.get("content-type"),r=new Set(["image/svg","application/xml","application/xhtml","application/html"]);if(!t)return"json";let o=t.split(";").shift()||"";return wr.test(o)?"json":r.has(o)||o.startsWith("text/")?"text":"blob"}function Ar(e){try{return JSON.parse(e),!0}catch{return!1}}function dt(e){if(e===void 0)return!1;let t=typeof e;return t==="string"||t==="number"||t==="boolean"||t===null?!0:t!=="object"?!1:Array.isArray(e)?!0:e.buffer?!1:e.constructor&&e.constructor.name==="Object"||typeof e.toJSON=="function"}function it(e){try{return JSON.parse(e)}catch{return e}}function at(e){return typeof e=="function"}function Rr(e){if(e?.customFetchImpl)return e.customFetchImpl;if(typeof globalThis<"u"&&at(globalThis.fetch))return globalThis.fetch;if(typeof window<"u"&&at(window.fetch))return window.fetch;throw new Error("No fetch implementation found")}function Er(e){let t=new Headers(e?.headers),r=yr(e);for(let[o,n]of Object.entries(r||{}))t.set(o,n);if(!t.has("content-type")){let o=kr(e?.body);o&&t.set("content-type",o)}return t}function kr(e){return dt(e)?"application/json":null}function Tr(e){if(!e?.body)return null;let t=new Headers(e?.headers);return dt(e.body)&&!t.has("content-type")?JSON.stringify(e.body):e.body}function Or(e,t){var r;if(t?.method)return t.method.toUpperCase();if(e.startsWith("@")){let o=(r=e.split("@")[1])==null?void 0:r.split("/")[0];return ct.includes(o)?o.toUpperCase():t?.body?"POST":"GET"}return t?.body?"POST":"GET"}function _r(e,t){let r;return!e?.signal&&e?.timeout&&(r=setTimeout(()=>t?.abort(),e?.timeout)),{abortTimeout:r,clearTimeout:()=>{r&&clearTimeout(r)}}}function Ur(e,t){let{baseURL:r,params:o,query:n}=t||{query:{},params:{},baseURL:""},i=e.startsWith("http")?e.split("/").slice(0,3).join("/"):r;if(!i)throw new TypeError(`Invalid URL ${e}. Are you passing in a relative URL but not setting the baseURL?`);if(e.startsWith("@")){let p=e.toString().split("@")[1].split("/")[0];ct.includes(p)&&(e=e.replace(`@${p}/`,"/"))}i.endsWith("/")||(i+="/");let[a,c]=e.replace(i,"").split("?"),s=new URLSearchParams(c);for(let[p,u]of Object.entries(n||{}))s.set(p,String(u));if(o)if(Array.isArray(o)){let p=a.split("/").filter(u=>u.startsWith(":"));for(let[u,h]of p.entries()){let m=o[u];a=a.replace(h,m)}}else for(let[p,u]of Object.entries(o))a=a.replace(`:${p}`,String(u));a=a.split("/").map(encodeURIComponent).join("/"),a.startsWith("/")&&(a=a.slice(1));let d=s.size>0?`?${s}`.replace(/\+/g,"%20"):"";return new URL(`${a}${d}`,i)}var b=async(e,t)=>{var r,o,n,i,a,c,s,d;let{hooks:l,url:p,options:u}=await mr(e,t),h=Rr(u),m=new AbortController,R=(r=u.signal)!=null?r:m.signal,Z=Ur(p,u),C=Tr(u),$=Er(u),U=Or(p,u),w=ie(se({},u),{url:Z,headers:$,body:C,method:U,signal:R});for(let N of l.onRequest)if(N){let v=await N(w);v instanceof Object&&(w=v)}("pipeTo"in w&&typeof w.pipeTo=="function"||typeof((o=t?.body)==null?void 0:o.pipe)=="function")&&("duplex"in w||(w.duplex="half"));let{clearTimeout:xe}=_r(u,m),E=await h(w.url,w);xe();let Ee={response:E,request:w};for(let N of l.onResponse)if(N){let v=await N(ie(se({},Ee),{response:(n=t?.hookOptions)!=null&&n.cloneResponse?E.clone():E}));v instanceof Response?E=v:v instanceof Object&&(E=v.response)}if(E.ok){if(!(w.method!=="HEAD"))return{data:"",error:null};let v=br(E),G={data:"",response:E,request:w};if(v==="json"||v==="text"){let W=await E.text(),Qt=await((i=w.jsonParser)!=null?i:it)(W);G.data=Qt}else G.data=await E[v]();w?.output&&w.output&&!w.disableValidation&&(G.data=w.output.parse(G.data));for(let W of l.onSuccess)W&&await W(ie(se({},G),{response:(a=t?.hookOptions)!=null&&a.cloneResponse?E.clone():E}));return t?.throw?G.data:{data:G.data,error:null}}let Le=(c=t?.jsonParser)!=null?c:it,Qe=await E.text(),De=Ar(Qe)?await Le(Qe):{},Kt={response:E,request:w,error:ie(se({},De),{status:E.status,statusText:E.statusText})};for(let N of l.onError)N&&await N(ie(se({},Kt),{response:(s=t?.hookOptions)!=null&&s.cloneResponse?E.clone():E}));if(t?.retry){let N=hr(t.retry),v=(d=t.retryAttempt)!=null?d:0;if(await N.shouldAttemptRetry(v,E)){for(let W of l.onRetry)W&&await W(Ee);let G=N.getDelay(v);return await new Promise(W=>setTimeout(W,G)),await b(e,ie(se({},t),{retryAttempt:v+1}))}}if(t?.throw)throw new fr(E.status,E.statusText,De);return{data:null,error:ie(se({},De),{status:E.status,statusText:E.statusText})}};var ht=require("better-call"),X=require("jose");var lt=require("@better-auth/utils/hash"),ut=require("@better-auth/utils/base64");async function pt(e){let t=await(0,lt.createHash)("SHA-256").digest(e);return ut.base64Url.encode(new Uint8Array(t),{padding:!1})}function _e(e){return{tokenType:e.token_type,accessToken:e.access_token,refreshToken:e.refresh_token,accessTokenExpiresAt:e.expires_in?Y(e.expires_in,"sec"):void 0,scopes:e?.scope?typeof e.scope=="string"?e.scope.split(" "):e.scope:[],idToken:e.id_token}}async function k({id:e,options:t,authorizationEndpoint:r,state:o,codeVerifier:n,scopes:i,claims:a,redirectURI:c,duration:s}){let d=new URL(r);if(d.searchParams.set("response_type","code"),d.searchParams.set("client_id",t.clientId),d.searchParams.set("state",o),d.searchParams.set("scope",i.join(" ")),d.searchParams.set("redirect_uri",t.redirectURI||c),n){let l=await pt(n);d.searchParams.set("code_challenge_method","S256"),d.searchParams.set("code_challenge",l)}if(a){let l=a.reduce((p,u)=>(p[u]=null,p),{});d.searchParams.set("claims",JSON.stringify({id_token:{email:null,email_verified:null,...l}}))}return s&&d.searchParams.set("duration",s),d}var Sr=require("jose");async function A({code:e,codeVerifier:t,redirectURI:r,options:o,tokenEndpoint:n,authentication:i}){let a=new URLSearchParams,c={"content-type":"application/x-www-form-urlencoded",accept:"application/json","user-agent":"better-auth"};if(a.set("grant_type","authorization_code"),a.set("code",e),t&&a.set("code_verifier",t),a.set("redirect_uri",r),i==="basic"){let p=btoa(`${o.clientId}:${o.clientSecret}`);c.authorization=`Basic ${p}`}else a.set("client_id",o.clientId),a.set("client_secret",o.clientSecret);let{data:s,error:d}=await b(n,{method:"POST",body:a,headers:c});if(d)throw d;return _e(s)}var q=require("zod"),qe=require("better-call");var Dr=require("@better-auth/utils/hash"),Cr=require("@noble/ciphers/chacha"),Me=require("@noble/ciphers/utils"),Nr=require("@noble/ciphers/webcrypto");var Pr=require("@better-auth/utils/hash");var ft=require("jose");async function mt(e,t,r=3600){return await new ft.SignJWT(e).setProtectedHeader({alg:"HS256"}).setIssuedAt().setExpirationTime(Math.floor(Date.now()/1e3)+r).sign(new TextEncoder().encode(t))}var Ir=require("@noble/hashes/scrypt"),xr=require("uncrypto"),Lr=require("@better-auth/utils/hex");async function Ue(e,t){let r=e.body?.callbackURL||(e.query?.currentURL?et(e.query?.currentURL):"")||e.context.options.baseURL;if(!r)throw new qe.APIError("BAD_REQUEST",{message:"callbackURL is required"});let o=oe(128),n=oe(32),i=JSON.stringify({callbackURL:r,codeVerifier:o,errorURL:e.body?.errorCallbackURL||e.query?.currentURL,newUserURL:e.body?.newUserCallbackURL,link:t,expiresAt:Date.now()+10*60*1e3}),a=new Date;a.setMinutes(a.getMinutes()+10);let c=await e.context.internalAdapter.createVerificationValue({value:i,identifier:n,expiresAt:a});if(!c)throw e.context.logger.error("Unable to create verification. Make sure the database adapter is properly working and there is a verification table in the database"),new qe.APIError("INTERNAL_SERVER_ERROR",{message:"Unable to create verification"});return{state:c.identifier,codeVerifier:o}}async function gt(e){let t=e.query.state||e.body.state,r=await e.context.internalAdapter.findVerificationValue(t);if(!r)throw e.context.logger.error("State Mismatch. Verification not found",{state:t}),e.redirect(`${e.context.baseURL}/error?error=please_restart_the_process`);let o=q.z.object({callbackURL:q.z.string(),codeVerifier:q.z.string(),errorURL:q.z.string().optional(),newUserURL:q.z.string().optional(),expiresAt:q.z.number(),link:q.z.object({email:q.z.string(),userId:q.z.string()}).optional()}).parse(JSON.parse(r.value));if(o.errorURL||(o.errorURL=`${e.context.baseURL}/error`),o.expiresAt<Date.now())throw await e.context.internalAdapter.deleteVerificationValue(r.id),e.context.logger.error("State expired.",{state:t}),e.redirect(`${e.context.baseURL}/error?error=please_restart_the_process`);return await e.context.internalAdapter.deleteVerificationValue(r.id),o}var yt=e=>{let t="https://appleid.apple.com/auth/token";return{id:"apple",name:"Apple",createAuthorizationURL({state:r,scopes:o,redirectURI:n}){let i=o||["email","name"];return e.scope&&i.push(...e.scope),new URL(`https://appleid.apple.com/auth/authorize?client_id=${e.clientId}&response_type=code&redirect_uri=${e.redirectURI||n}&scope=${i.join(" ")}&state=${r}&response_mode=form_post`)},validateAuthorizationCode:async({code:r,codeVerifier:o,redirectURI:n})=>A({code:r,codeVerifier:o,redirectURI:e.redirectURI||n,options:e,tokenEndpoint:t}),async verifyIdToken(r,o){if(e.disableIdTokenSignIn)return!1;if(e.verifyIdToken)return e.verifyIdToken(r,o);let n=(0,X.decodeProtectedHeader)(r),{kid:i,alg:a}=n;if(!i||!a)return!1;let c=await jr(i),{payload:s}=await(0,X.jwtVerify)(r,c,{algorithms:[a],issuer:"https://appleid.apple.com",audience:e.appBundleIdentifier||e.clientId,maxTokenAge:"1h"});return["email_verified","is_private_email"].forEach(d=>{s[d]!==void 0&&(s[d]=!!s[d])}),o&&s.nonce!==o?!1:!!s},async getUserInfo(r){if(e.getUserInfo)return e.getUserInfo(r);if(!r.idToken)return null;let o=(0,X.decodeJwt)(r.idToken);if(!o)return null;let n=o.user?`${o.user.name.firstName} ${o.user.name.lastName}`:o.email,i=await e.mapProfileToUser?.(o);return{user:{id:o.sub,name:n,emailVerified:!1,email:o.email,...i},data:o}}}},jr=async e=>{let t="https://appleid.apple.com",r="/auth/keys",{data:o}=await b(`${t}${r}`);if(!o?.keys)throw new ht.APIError("BAD_REQUEST",{message:"Keys not found"});let n=o.keys.find(i=>i.kid===e);if(!n)throw new Error(`JWK with kid ${e} not found`);return await(0,X.importJWK)(n,n.alg)};var wt=e=>({id:"discord",name:"Discord",createAuthorizationURL({state:t,scopes:r,redirectURI:o}){let n=r||["identify","email"];return e.scope&&n.push(...e.scope),new URL(`https://discord.com/api/oauth2/authorize?scope=${n.join("+")}&response_type=code&client_id=${e.clientId}&redirect_uri=${encodeURIComponent(e.redirectURI||o)}&state=${t}&prompt=${e.prompt||"none"}`)},validateAuthorizationCode:async({code:t,redirectURI:r})=>A({code:t,redirectURI:e.redirectURI||r,options:e,tokenEndpoint:"https://discord.com/api/oauth2/token"}),async getUserInfo(t){if(e.getUserInfo)return e.getUserInfo(t);let{data:r,error:o}=await b("https://discord.com/api/users/@me",{headers:{authorization:`Bearer ${t.accessToken}`}});if(o)return null;if(r.avatar===null){let i=r.discriminator==="0"?Number(BigInt(r.id)>>BigInt(22))%6:parseInt(r.discriminator)%5;r.image_url=`https://cdn.discordapp.com/embed/avatars/${i}.png`}else{let i=r.avatar.startsWith("a_")?"gif":"png";r.image_url=`https://cdn.discordapp.com/avatars/${r.id}/${r.avatar}.${i}`}let n=await e.mapProfileToUser?.(r);return{user:{id:r.id,name:r.display_name||r.username||"",email:r.email,emailVerified:r.verified,image:r.image_url,...n},data:r}}});var bt=e=>({id:"facebook",name:"Facebook",async createAuthorizationURL({state:t,scopes:r,redirectURI:o}){let n=r||["email","public_profile"];return e.scope&&n.push(...e.scope),await k({id:"facebook",options:e,authorizationEndpoint:"https://www.facebook.com/v21.0/dialog/oauth",scopes:n,state:t,redirectURI:o})},validateAuthorizationCode:async({code:t,redirectURI:r})=>A({code:t,redirectURI:e.redirectURI||r,options:e,tokenEndpoint:"https://graph.facebook.com/oauth/access_token"}),async getUserInfo(t){if(e.getUserInfo)return e.getUserInfo(t);let{data:r,error:o}=await b("https://graph.facebook.com/me?fields=id,name,email,picture",{auth:{type:"Bearer",token:t.accessToken}});if(o)return null;let n=await e.mapProfileToUser?.(r);return{user:{id:r.id,name:r.name,email:r.email,image:r.picture.data.url,emailVerified:r.email_verified,...n},data:r}}});var At=e=>{let t="https://github.com/login/oauth/access_token";return{id:"github",name:"GitHub",createAuthorizationURL({state:r,scopes:o,codeVerifier:n,redirectURI:i}){let a=o||["user:email"];return e.scope&&a.push(...e.scope),k({id:"github",options:e,authorizationEndpoint:"https://github.com/login/oauth/authorize",scopes:a,state:r,redirectURI:i})},validateAuthorizationCode:async({code:r,redirectURI:o})=>A({code:r,redirectURI:e.redirectURI||o,options:e,tokenEndpoint:t}),async getUserInfo(r){if(e.getUserInfo)return e.getUserInfo(r);let{data:o,error:n}=await b("https://api.github.com/user",{headers:{"User-Agent":"better-auth",authorization:`Bearer ${r.accessToken}`}});if(n)return null;let i=!1,{data:a}=await b("https://api.github.com/user/emails",{headers:{authorization:`Bearer ${r.accessToken}`,"User-Agent":"better-auth"}});a&&(o.email=(a.find(s=>s.primary)??a[0])?.email,i=a.find(s=>s.email===o.email)?.verified??!1);let c=await e.mapProfileToUser?.(o);return{user:{id:o.id.toString(),name:o.name||o.login,email:o.email,image:o.avatar_url,emailVerified:i,...c},data:o}}}};var Rt=require("jose");var ze=["info","success","warn","error","debug"];function Br(e,t){return ze.indexOf(t)<=ze.indexOf(e)}var z={reset:"\x1B[0m",bright:"\x1B[1m",dim:"\x1B[2m",underscore:"\x1B[4m",blink:"\x1B[5m",reverse:"\x1B[7m",hidden:"\x1B[8m",fg:{black:"\x1B[30m",red:"\x1B[31m",green:"\x1B[32m",yellow:"\x1B[33m",blue:"\x1B[34m",magenta:"\x1B[35m",cyan:"\x1B[36m",white:"\x1B[37m"},bg:{black:"\x1B[40m",red:"\x1B[41m",green:"\x1B[42m",yellow:"\x1B[43m",blue:"\x1B[44m",magenta:"\x1B[45m",cyan:"\x1B[46m",white:"\x1B[47m"}},Vr={info:z.fg.blue,success:z.fg.green,warn:z.fg.yellow,error:z.fg.red,debug:z.fg.magenta},$r=(e,t)=>{let r=new Date().toISOString();return`${z.dim}${r}${z.reset} ${Vr[e]}${e.toUpperCase()}${z.reset} ${z.bright}[Better Auth]:${z.reset} ${t}`},Fr=e=>{let t=e?.disabled!==!0,r=e?.level??"error",o=(n,i,a=[])=>{if(!t||!Br(r,n))return;let c=$r(n,i);if(!e||typeof e.log!="function"){n==="error"?console.error(c,...a):n==="warn"?console.warn(c,...a):console.log(c,...a);return}e.log(n==="success"?"info":n,c,...a)};return Object.fromEntries(ze.map(n=>[n,(...[i,...a])=>o(n,i,a)]))},B=Fr();var Et=e=>({id:"google",name:"Google",async createAuthorizationURL({state:t,scopes:r,codeVerifier:o,redirectURI:n}){if(!e.clientId||!e.clientSecret)throw B.error("Client Id and Client Secret is required for Google. Make sure to provide them in the options."),new F("CLIENT_ID_AND_SECRET_REQUIRED");if(!o)throw new F("codeVerifier is required for Google");let i=r||["email","profile","openid"];e.scope&&i.push(...e.scope);let a=await k({id:"google",options:e,authorizationEndpoint:"https://accounts.google.com/o/oauth2/auth",scopes:i,state:t,codeVerifier:o,redirectURI:n});return e.accessType&&a.searchParams.set("access_type",e.accessType),e.prompt&&a.searchParams.set("prompt",e.prompt),e.display&&a.searchParams.set("display",e.display),e.hd&&a.searchParams.set("hd",e.hd),a},validateAuthorizationCode:async({code:t,codeVerifier:r,redirectURI:o})=>A({code:t,codeVerifier:r,redirectURI:e.redirectURI||o,options:e,tokenEndpoint:"https://oauth2.googleapis.com/token"}),async verifyIdToken(t,r){if(e.disableIdTokenSignIn)return!1;if(e.verifyIdToken)return e.verifyIdToken(t,r);let o=`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${t}`,{data:n}=await b(o);return n?n.aud===e.clientId&&n.iss==="https://accounts.google.com":!1},async getUserInfo(t){if(e.getUserInfo)return e.getUserInfo(t);if(!t.idToken)return null;let r=(0,Rt.decodeJwt)(t.idToken),o=await e.mapProfileToUser?.(r);return{user:{id:r.sub,name:r.name,email:r.email,image:r.picture,emailVerified:r.email_verified,...o},data:r}}});var kt=require("jose"),Tt=e=>{let t=e.tenantId||"common",r=`https://login.microsoftonline.com/${t}/oauth2/v2.0/authorize`,o=`https://login.microsoftonline.com/${t}/oauth2/v2.0/token`;return{id:"microsoft",name:"Microsoft EntraID",createAuthorizationURL(n){let i=n.scopes||["openid","profile","email","User.Read"];return e.scope&&i.push(...e.scope),k({id:"microsoft",options:e,authorizationEndpoint:r,state:n.state,codeVerifier:n.codeVerifier,scopes:i,redirectURI:n.redirectURI})},validateAuthorizationCode({code:n,codeVerifier:i,redirectURI:a}){return A({code:n,codeVerifier:i,redirectURI:e.redirectURI||a,options:e,tokenEndpoint:o})},async getUserInfo(n){if(e.getUserInfo)return e.getUserInfo(n);if(!n.idToken)return null;let i=(0,kt.decodeJwt)(n.idToken),a=e.profilePhotoSize||48;await b(`https://graph.microsoft.com/v1.0/me/photos/${a}x${a}/$value`,{headers:{Authorization:`Bearer ${n.accessToken}`},async onResponse(s){if(!(e.disableProfilePhoto||!s.response.ok))try{let l=await s.response.clone().arrayBuffer(),p=Buffer.from(l).toString("base64");i.picture=`data:image/jpeg;base64, ${p}`}catch(d){B.error(d&&typeof d=="object"&&"name"in d?d.name:"",d)}}});let c=await e.mapProfileToUser?.(i);return{user:{id:i.sub,name:i.name,email:i.email,image:i.picture,emailVerified:!0,...c},data:i}}}};var Ot=e=>({id:"spotify",name:"Spotify",createAuthorizationURL({state:t,scopes:r,codeVerifier:o,redirectURI:n}){let i=r||["user-read-email"];return e.scope&&i.push(...e.scope),k({id:"spotify",options:e,authorizationEndpoint:"https://accounts.spotify.com/authorize",scopes:i,state:t,codeVerifier:o,redirectURI:n})},validateAuthorizationCode:async({code:t,codeVerifier:r,redirectURI:o})=>A({code:t,codeVerifier:r,redirectURI:e.redirectURI||o,options:e,tokenEndpoint:"https://accounts.spotify.com/api/token"}),async getUserInfo(t){if(e.getUserInfo)return e.getUserInfo(t);let{data:r,error:o}=await b("https://api.spotify.com/v1/me",{method:"GET",headers:{Authorization:`Bearer ${t.accessToken}`}});if(o)return null;let n=await e.mapProfileToUser?.(r);return{user:{id:r.id,name:r.display_name,email:r.email,image:r.images[0]?.url,emailVerified:!1,...n},data:r}}});var de={isAction:!1};var _t=require("@better-auth/utils/random"),ye=e=>(0,_t.createRandomStringGenerator)("a-z","A-Z","0-9")(e||32);var Ut=require("jose"),St=e=>({id:"twitch",name:"Twitch",createAuthorizationURL({state:t,scopes:r,redirectURI:o}){let n=r||["user:read:email","openid"];return e.scope&&n.push(...e.scope),k({id:"twitch",redirectURI:o,options:e,authorizationEndpoint:"https://id.twitch.tv/oauth2/authorize",scopes:n,state:t,claims:e.claims||["email","email_verified","preferred_username","picture"]})},validateAuthorizationCode:async({code:t,redirectURI:r})=>A({code:t,redirectURI:e.redirectURI||r,options:e,tokenEndpoint:"https://id.twitch.tv/oauth2/token"}),async getUserInfo(t){if(e.getUserInfo)return e.getUserInfo(t);let r=t.idToken;if(!r)return B.error("No idToken found in token"),null;let o=(0,Ut.decodeJwt)(r),n=await e.mapProfileToUser?.(o);return{user:{id:o.sub,name:o.preferred_username,email:o.email,image:o.picture,emailVerified:!1,...n},data:o}}});var vt=e=>({id:"twitter",name:"Twitter",createAuthorizationURL(t){let r=t.scopes||["users.read","tweet.read","offline.access"];return e.scope&&r.push(...e.scope),k({id:"twitter",options:e,authorizationEndpoint:"https://x.com/i/oauth2/authorize",scopes:r,state:t.state,codeVerifier:t.codeVerifier,redirectURI:t.redirectURI})},validateAuthorizationCode:async({code:t,codeVerifier:r,redirectURI:o})=>A({code:t,codeVerifier:r,authentication:"basic",redirectURI:e.redirectURI||o,options:e,tokenEndpoint:"https://api.x.com/2/oauth2/token"}),async getUserInfo(t){if(e.getUserInfo)return e.getUserInfo(t);let{data:r,error:o}=await b("https://api.x.com/2/users/me?user.fields=profile_image_url",{method:"GET",headers:{Authorization:`Bearer ${t.accessToken}`}});if(o)return null;let n=await e.mapProfileToUser?.(r);return{user:{id:r.data.id,name:r.data.name,email:r.data.username||null,image:r.data.profile_image_url,emailVerified:r.data.verified||!1,...n},data:r}}});var Pt=e=>{let t="https://api.dropboxapi.com/oauth2/token";return{id:"dropbox",name:"Dropbox",createAuthorizationURL:async({state:r,scopes:o,codeVerifier:n,redirectURI:i})=>{let a=o||["account_info.read"];return e.scope&&a.push(...e.scope),await k({id:"dropbox",options:e,authorizationEndpoint:"https://www.dropbox.com/oauth2/authorize",scopes:a,state:r,redirectURI:i,codeVerifier:n})},validateAuthorizationCode:async({code:r,codeVerifier:o,redirectURI:n})=>await A({code:r,codeVerifier:o,redirectURI:e.redirectURI||n,options:e,tokenEndpoint:t}),async getUserInfo(r){if(e.getUserInfo)return e.getUserInfo(r);let{data:o,error:n}=await b("https://api.dropboxapi.com/2/users/get_current_account",{method:"POST",headers:{Authorization:`Bearer ${r.accessToken}`}});if(n)return null;let i=await e.mapProfileToUser?.(o);return{user:{id:o.account_id,name:o.name?.display_name,email:o.email,emailVerified:o.email_verified||!1,image:o.profile_photo_url,...i},data:o}}}};var It=e=>{let t="https://www.linkedin.com/oauth/v2/authorization",r="https://www.linkedin.com/oauth/v2/accessToken";return{id:"linkedin",name:"Linkedin",createAuthorizationURL:async({state:o,scopes:n,redirectURI:i})=>{let a=n||["profile","email","openid"];return e.scope&&a.push(...e.scope),await k({id:"linkedin",options:e,authorizationEndpoint:t,scopes:a,state:o,redirectURI:i})},validateAuthorizationCode:async({code:o,redirectURI:n})=>await A({code:o,redirectURI:e.redirectURI||n,options:e,tokenEndpoint:r}),async getUserInfo(o){let{data:n,error:i}=await b("https://api.linkedin.com/v2/userinfo",{method:"GET",headers:{Authorization:`Bearer ${o.accessToken}`}});if(i)return null;let a=await e.mapProfileToUser?.(n);return{user:{id:n.sub,name:n.name,email:n.email,emailVerified:n.email_verified||!1,image:n.picture,...a},data:n}}}};var He=(e="")=>e.split("://").map(t=>t.replace(/\/{2,}/g,"/")).join("://"),Mr=e=>{let t=e||"https://gitlab.com";return{authorizationEndpoint:He(`${t}/oauth/authorize`),tokenEndpoint:He(`${t}/oauth/token`),userinfoEndpoint:He(`${t}/api/v4/user`)}},xt=e=>{let{authorizationEndpoint:t,tokenEndpoint:r,userinfoEndpoint:o}=Mr(e.issuer),n="gitlab";return{id:n,name:"Gitlab",createAuthorizationURL:async({state:a,scopes:c,codeVerifier:s,redirectURI:d})=>{let l=c||["read_user"];return e.scope&&l.push(...e.scope),await k({id:n,options:e,authorizationEndpoint:t,scopes:l,state:a,redirectURI:d,codeVerifier:s})},validateAuthorizationCode:async({code:a,redirectURI:c,codeVerifier:s})=>A({code:a,redirectURI:e.redirectURI||c,options:e,codeVerifier:s,tokenEndpoint:r}),async getUserInfo(a){if(e.getUserInfo)return e.getUserInfo(a);let{data:c,error:s}=await b(o,{headers:{authorization:`Bearer ${a.accessToken}`}});if(s||c.state!=="active"||c.locked)return null;let d=await e.mapProfileToUser?.(c);return{user:{id:c.id.toString(),name:c.name??c.username,email:c.email,image:c.avatar_url,emailVerified:!0,...d},data:c}}}};var Lt=e=>({id:"reddit",name:"Reddit",createAuthorizationURL({state:t,scopes:r,redirectURI:o}){let n=r||["identity"];return e.scope&&n.push(...e.scope),k({id:"reddit",options:e,authorizationEndpoint:"https://www.reddit.com/api/v1/authorize",scopes:n,state:t,redirectURI:o,duration:e.duration})},validateAuthorizationCode:async({code:t,redirectURI:r})=>{let o=new URLSearchParams({grant_type:"authorization_code",code:t,redirect_uri:e.redirectURI||r}),n={"content-type":"application/x-www-form-urlencoded",accept:"text/plain","user-agent":"better-auth",Authorization:`Basic ${Buffer.from(`${e.clientId}:${e.clientSecret}`).toString("base64")}`},{data:i,error:a}=await b("https://www.reddit.com/api/v1/access_token",{method:"POST",headers:n,body:o.toString()});if(a)throw a;return _e(i)},async getUserInfo(t){if(e.getUserInfo)return e.getUserInfo(t);let{data:r,error:o}=await b("https://oauth.reddit.com/api/v1/me",{headers:{Authorization:`Bearer ${t.accessToken}`,"User-Agent":"better-auth"}});if(o)return null;let n=await e.mapProfileToUser?.(r);return{user:{id:r.id,name:r.name,email:r.oauth_client_id,emailVerified:r.has_verified_email,image:r.icon_img?.split("?")[0],...n},data:r}}});var Dt=e=>({id:"roblox",name:"Roblox",createAuthorizationURL({state:t,scopes:r,redirectURI:o}){let n=r||["openid","profile"];return e.scope&&n.push(...e.scope),new URL(`https://apis.roblox.com/oauth/v1/authorize?scope=${n.join("+")}&response_type=code&client_id=${e.clientId}&redirect_uri=${encodeURIComponent(e.redirectURI||o)}&state=${t}&prompt=${e.prompt||"select_account+consent"}`)},validateAuthorizationCode:async({code:t,redirectURI:r})=>A({code:t,redirectURI:e.redirectURI||r,options:e,tokenEndpoint:"https://apis.roblox.com/oauth/v1/token",authentication:"post"}),async getUserInfo(t){if(e.getUserInfo)return e.getUserInfo(t);let{data:r,error:o}=await b("https://apis.roblox.com/oauth/v1/userinfo",{headers:{authorization:`Bearer ${t.accessToken}`}});return o?null:{user:{id:r.sub,name:r.nickname||r.preferred_username||"",image:r.picture,email:"",emailVerified:!0},data:{...r}}}});var Ct=require("zod"),qr={apple:yt,discord:wt,facebook:bt,github:At,microsoft:Tt,google:Et,spotify:Ot,twitch:St,twitter:vt,dropbox:Pt,linkedin:It,gitlab:xt,reddit:Lt,roblox:Dt},Ge=Object.keys(qr),Nt=Ct.z.enum(Ge,{description:"OAuth2 provider to use"});var j=require("zod");var le=require("better-call");var H=require("better-call");var ee=require("zod");function jt(e){try{return JSON.parse(e)}catch{return null}}var f={USER_NOT_FOUND:"User not found",FAILED_TO_CREATE_USER:"Failed to create user",FAILED_TO_CREATE_SESSION:"Failed to create session",FAILED_TO_UPDATE_USER:"Failed to update user",FAILED_TO_GET_SESSION:"Failed to get session",INVALID_PASSWORD:"Invalid password",INVALID_EMAIL:"Invalid email",INVALID_EMAIL_OR_PASSWORD:"Invalid email or password",SOCIAL_ACCOUNT_ALREADY_LINKED:"Social account already linked",PROVIDER_NOT_FOUND:"Provider not found",INVALID_TOKEN:"invalid token",ID_TOKEN_NOT_SUPPORTED:"id_token not supported",FAILED_TO_GET_USER_INFO:"Failed to get user info",USER_EMAIL_NOT_FOUND:"User email not found",EMAIL_NOT_VERIFIED:"Email not verified",PASSWORD_TOO_SHORT:"Password too short",PASSWORD_TOO_LONG:"Password too long",USER_ALREADY_EXISTS:"User already exists",EMAIL_CAN_NOT_BE_UPDATED:"Email can not be updated",CREDENTIAL_ACCOUNT_NOT_FOUND:"Credential account not found",SESSION_EXPIRED:"Session expired. Re-authenticate to perform this action.",FAILED_TO_UNLINK_LAST_ACCOUNT:"You can't unlink your last account",ACCOUNT_NOT_FOUND:"Account not found"};var Bt=require("@better-auth/utils/hmac"),Vt=require("@better-auth/utils/base64"),$t=require("@better-auth/utils/binary"),Ft=()=>g("/get-session",{method:"GET",query:ee.z.optional(ee.z.object({disableCookieCache:ee.z.boolean({description:"Disable cookie cache and fetch session from database"}).or(ee.z.string().transform(e=>e==="true")).optional(),disableRefresh:ee.z.boolean({description:"Disable session refresh. Useful for checking session status, without updating the session"}).optional()})),requireHeaders:!0,metadata:{openapi:{description:"Get the current session",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{session:{type:"object",properties:{token:{type:"string"},userId:{type:"string"},expiresAt:{type:"string"}}},user:{type:"object",$ref:"#/components/schemas/User"}}}}}}}}}},async e=>{try{let t=await e.getSignedCookie(e.context.authCookies.sessionToken.name,e.context.secret);if(!t)return e.json(null);let r=e.getCookie(e.context.authCookies.sessionData.name),o=r?jt($t.binary.decode(Vt.base64.decode(r))):null;if(o&&!await(0,Bt.createHMAC)("SHA-256","base64urlnopad").verify(e.context.secret,JSON.stringify(o.session),o.signature))return M(e),e.json(null);let n=await e.getSignedCookie(e.context.authCookies.dontRememberToken.name,e.context.secret);if(o?.session&&e.context.options.session?.cookieCache?.enabled&&!e.query?.disableCookieCache){let l=o.session;if(o.expiresAt<Date.now()||l.session.expiresAt<new Date){let u=e.context.authCookies.sessionData.name;e.setCookie(u,"",{maxAge:0})}else return e.json(l)}let i=await e.context.internalAdapter.findSession(t);if(e.context.session=i,!i||i.session.expiresAt<new Date)return M(e),i&&await e.context.internalAdapter.deleteSession(i.session.token),e.json(null);if(n||e.query?.disableRefresh)return e.json(i);let a=e.context.sessionConfig.expiresIn,c=e.context.sessionConfig.updateAge;if(i.session.expiresAt.valueOf()-a*1e3+c*1e3<=Date.now()){let l=await e.context.internalAdapter.updateSession(i.session.token,{expiresAt:Y(e.context.sessionConfig.expiresIn,"sec")});if(!l)return M(e),e.json(null,{status:401});let p=(l.expiresAt.valueOf()-Date.now())/1e3;return await x(e,{session:l,user:i.user},!1,{maxAge:p}),e.json({session:l,user:i.user})}return await Fe(e,i),e.json(i)}catch(t){throw e.context.logger.error("INTERNAL_SERVER_ERROR",t),new H.APIError("INTERNAL_SERVER_ERROR",{message:f.FAILED_TO_GET_SESSION})}}),J=async(e,t)=>{if(e.context.session)return e.context.session;let r=await Ft()({...e,_flag:"json",headers:e.headers,query:t}).catch(o=>null);return e.context.session=r,r},P=ae(async e=>{let t=await J(e);if(!t?.session)throw new H.APIError("UNAUTHORIZED");return{session:t}}),we=ae(async e=>{let t=await J(e);if(!t?.session)throw new H.APIError("UNAUTHORIZED");if(e.context.sessionConfig.freshAge===0)return{session:t};let r=e.context.sessionConfig.freshAge,o=t.session.updatedAt?.valueOf()||t.session.createdAt.valueOf();if(!(Date.now()-o<r*1e3))throw new H.APIError("FORBIDDEN",{message:"Session is not fresh"});return{session:t}});var zr=g("/revoke-session",{method:"POST",body:ee.z.object({token:ee.z.string({description:"The token to revoke"})}),use:[P],requireHeaders:!0,metadata:{openapi:{description:"Revoke a single session",requestBody:{content:{"application/json":{schema:{type:"object",properties:{token:{type:"string"}},required:["token"]}}}}}}},async e=>{let t=e.body.token,r=await e.context.internalAdapter.findSession(t);if(!r)throw new H.APIError("BAD_REQUEST",{message:"Session not found"});if(r.session.userId!==e.context.session.user.id)throw new H.APIError("UNAUTHORIZED");try{await e.context.internalAdapter.deleteSession(t)}catch(o){throw e.context.logger.error(o&&typeof o=="object"&&"name"in o?o.name:"",o),new H.APIError("INTERNAL_SERVER_ERROR")}return e.json({status:!0})}),Hr=g("/revoke-sessions",{method:"POST",use:[P],requireHeaders:!0,metadata:{openapi:{description:"Revoke all sessions for the user",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{status:{type:"boolean"}},required:["status"]}}}}}}}},async e=>{try{await e.context.internalAdapter.deleteSessions(e.context.session.user.id)}catch(t){throw e.context.logger.error(t&&typeof t=="object"&&"name"in t?t.name:"",t),new H.APIError("INTERNAL_SERVER_ERROR")}return e.json({status:!0})}),Gr=g("/revoke-other-sessions",{method:"POST",requireHeaders:!0,use:[P],metadata:{openapi:{description:"Revoke all other sessions for the user except the current one",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{status:{type:"boolean"}}}}}}}}}},async e=>{let t=e.context.session;if(!t.user)throw new H.APIError("UNAUTHORIZED");let n=(await e.context.internalAdapter.listSessions(t.user.id)).filter(i=>i.expiresAt>new Date).filter(i=>i.token!==e.context.session.session.token);return await Promise.all(n.map(i=>e.context.internalAdapter.deleteSession(i.token))),e.json({status:!0})});var Mt=require("jose");async function K(e,t,r){return await mt({email:t.toLowerCase(),updateTo:r},e)}async function Wr(e,t){if(!e.context.options.emailVerification?.sendVerificationEmail)throw e.context.logger.error("Verification email isn't enabled."),new le.APIError("BAD_REQUEST",{message:"Verification email isn't enabled"});let r=await K(e.context.secret,t.email),o=`${e.context.baseURL}/verify-email?token=${r}&callbackURL=${e.body.callbackURL||e.query?.currentURL||"/"}`;await e.context.options.emailVerification.sendVerificationEmail({user:t,url:o,token:r},e.request)}var Jr=g("/send-verification-email",{method:"POST",query:j.z.object({currentURL:j.z.string({description:"The URL to use for email verification callback"}).optional()}).optional(),body:j.z.object({email:j.z.string({description:"The email to send the verification email to"}).email(),callbackURL:j.z.string({description:"The URL to use for email verification callback"}).optional()}),metadata:{openapi:{description:"Send a verification email to the user",requestBody:{content:{"application/json":{schema:{type:"object",properties:{email:{type:"string",description:"The email to send the verification email to"},callbackURL:{type:"string",description:"The URL to use for email verification callback"}},required:["email"]}}}},responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{status:{type:"boolean"}}}}}}}}}},async e=>{if(!e.context.options.emailVerification?.sendVerificationEmail)throw e.context.logger.error("Verification email isn't enabled."),new le.APIError("BAD_REQUEST",{message:"Verification email isn't enabled"});let{email:t}=e.body,r=await e.context.internalAdapter.findUserByEmail(t);if(!r)throw new le.APIError("BAD_REQUEST",{message:f.USER_NOT_FOUND});return await Wr(e,r.user),e.json({status:!0})}),Kr=g("/verify-email",{method:"GET",query:j.z.object({token:j.z.string({description:"The token to verify the email"}),callbackURL:j.z.string({description:"The URL to redirect to after email verification"}).optional()}),use:[ce(e=>e.query.callbackURL)],metadata:{openapi:{description:"Verify the email of the user",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{user:{type:"object"},status:{type:"boolean"}},required:["user","status"]}}}}}}}},async e=>{function t(c){throw e.query.callbackURL?e.query.callbackURL.includes("?")?e.redirect(`${e.query.callbackURL}&error=${c}`):e.redirect(`${e.query.callbackURL}?error=${c}`):new le.APIError("UNAUTHORIZED",{message:c})}let{token:r}=e.query,o;try{o=await(0,Mt.jwtVerify)(r,new TextEncoder().encode(e.context.secret),{algorithms:["HS256"]})}catch(c){return e.context.logger.error("Failed to verify email",c),t("invalid_token")}let i=j.z.object({email:j.z.string().email(),updateTo:j.z.string().optional()}).parse(o.payload),a=await e.context.internalAdapter.findUserByEmail(i.email);if(!a)return t("user_not_found");if(i.updateTo){let c=await J(e);if(!c){if(e.query.callbackURL)throw e.redirect(`${e.query.callbackURL}?error=unauthorized`);return t("unauthorized")}if(c.user.email!==i.email){if(e.query.callbackURL)throw e.redirect(`${e.query.callbackURL}?error=unauthorized`);return t("unauthorized")}let s=await e.context.internalAdapter.updateUserByEmail(i.email,{email:i.updateTo,emailVerified:!1}),d=await K(e.context.secret,i.updateTo);if(await e.context.options.emailVerification?.sendVerificationEmail?.({user:s,url:`${e.context.baseURL}/verify-email?token=${d}`,token:d},e.request),e.query.callbackURL)throw e.redirect(e.query.callbackURL);return e.json({status:!0,user:{id:s.id,email:s.email,name:s.name,image:s.image,emailVerified:s.emailVerified,createdAt:s.createdAt,updatedAt:s.updatedAt}})}if(await e.context.internalAdapter.updateUserByEmail(i.email,{emailVerified:!0}),e.context.options.emailVerification?.autoSignInAfterVerification){let c=await J(e);if(!c||c.user.email!==i.email){let s=await e.context.internalAdapter.createSession(a.user.id,e.request);if(!s)throw new le.APIError("INTERNAL_SERVER_ERROR",{message:"Failed to create session"});await x(e,{session:s,user:a.user})}}if(e.query.callbackURL)throw e.redirect(e.query.callbackURL);return e.json({status:!0,user:null})});async function Se(e,{userInfo:t,account:r,callbackURL:o}){let n=await e.context.internalAdapter.findOAuthUser(t.email.toLowerCase(),r.accountId,r.providerId).catch(s=>{throw B.error(`Better auth was unable to query your database.
-Error: `,s),e.redirect(`${e.context.baseURL}/error?error=internal_server_error`)}),i=n?.user,a=!i;if(n){let s=n.accounts.find(d=>d.providerId===r.providerId);if(s){let d=Object.fromEntries(Object.entries({accessToken:r.accessToken,idToken:r.idToken,refreshToken:r.refreshToken,accessTokenExpiresAt:r.accessTokenExpiresAt,refreshTokenExpiresAt:r.refreshTokenExpiresAt}).filter(([l,p])=>p!==void 0));Object.keys(d).length>0&&await e.context.internalAdapter.updateAccount(s.id,d)}else{if(!e.context.options.account?.accountLinking?.trustedProviders?.includes(r.providerId)&&!t.emailVerified||e.context.options.account?.accountLinking?.enabled===!1)return Be&&B.warn(`User already exist but account isn't linked to ${r.providerId}. To read more about how account linking works in Better Auth see https://www.better-auth.com/docs/concepts/users-accounts#account-linking.`),{error:"account not linked",data:null};try{await e.context.internalAdapter.linkAccount({providerId:r.providerId,accountId:t.id.toString(),userId:n.user.id,accessToken:r.accessToken,idToken:r.idToken,refreshToken:r.refreshToken,accessTokenExpiresAt:r.accessTokenExpiresAt,refreshTokenExpiresAt:r.refreshTokenExpiresAt,scope:r.scope})}catch(p){return B.error("Unable to link account",p),{error:"unable to link account",data:null}}}}else try{if(i=await e.context.internalAdapter.createOAuthUser({...t,email:t.email.toLowerCase(),id:void 0},{accessToken:r.accessToken,idToken:r.idToken,refreshToken:r.refreshToken,accessTokenExpiresAt:r.accessTokenExpiresAt,refreshTokenExpiresAt:r.refreshTokenExpiresAt,scope:r.scope,providerId:r.providerId,accountId:t.id.toString()}).then(s=>s?.user),!t.emailVerified&&i&&e.context.options.emailVerification?.sendOnSignUp){let s=await K(e.context.secret,i.email),d=`${e.context.baseURL}/verify-email?token=${s}&callbackURL=${o}`;await e.context.options.emailVerification?.sendVerificationEmail?.({user:i,url:d,token:s},e.request)}}catch(s){return s instanceof We.APIError?{error:s.message,data:null,isRegister:!1}:{error:"unable to create user",data:null,isRegister:!1}}if(!i)return{error:"unable to create user",data:null,isRegister:!1};if(i?.banned)return{error:`user is banned&reason=${i.banReason}`,data:null,isRegister:!1};let c=await e.context.internalAdapter.createSession(i.id,e.request);return c?{data:{session:c,user:i},error:null,isRegister:a}:{error:"unable to create session",data:null,isRegister:!1}}var Qr=g("/sign-in/social",{method:"POST",query:T.z.object({currentURL:T.z.string().optional()}).optional(),body:T.z.object({callbackURL:T.z.string({description:"Callback URL to redirect to after the user has signed in"}).optional(),newUserCallbackURL:T.z.string().optional(),errorCallbackURL:T.z.string({description:"Callback URL to redirect to if an error happens"}).optional(),provider:Nt,disableRedirect:T.z.boolean({description:"Disable automatic redirection to the provider. Useful for handling the redirection yourself"}).optional(),idToken:T.z.optional(T.z.object({token:T.z.string({description:"ID token from the provider"}),nonce:T.z.string({description:"Nonce used to generate the token"}).optional(),accessToken:T.z.string({description:"Access token from the provider"}).optional(),refreshToken:T.z.string({description:"Refresh token from the provider"}).optional(),expiresAt:T.z.number({description:"Expiry date of the token"}).optional()}),{description:"ID token from the provider to sign in the user with id token"})}),metadata:{openapi:{description:"Sign in with a social provider",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{session:{type:"string"},user:{type:"object"},url:{type:"string"},redirect:{type:"boolean"}},required:["session","user","url","redirect"]}}}}}}}},async e=>{let t=e.context.socialProviders.find(i=>i.id===e.body.provider);if(!t)throw e.context.logger.error("Provider not found. Make sure to add the provider in your auth config",{provider:e.body.provider}),new S.APIError("NOT_FOUND",{message:f.PROVIDER_NOT_FOUND});if(e.body.idToken){if(!t.verifyIdToken)throw e.context.logger.error("Provider does not support id token verification",{provider:e.body.provider}),new S.APIError("NOT_FOUND",{message:f.ID_TOKEN_NOT_SUPPORTED});let{token:i,nonce:a}=e.body.idToken;if(!await t.verifyIdToken(i,a))throw e.context.logger.error("Invalid id token",{provider:e.body.provider}),new S.APIError("UNAUTHORIZED",{message:f.INVALID_TOKEN});let s=await t.getUserInfo({idToken:i,accessToken:e.body.idToken.accessToken,refreshToken:e.body.idToken.refreshToken});if(!s||!s?.user)throw e.context.logger.error("Failed to get user info",{provider:e.body.provider}),new S.APIError("UNAUTHORIZED",{message:f.FAILED_TO_GET_USER_INFO});if(!s.user.email)throw e.context.logger.error("User email not found",{provider:e.body.provider}),new S.APIError("UNAUTHORIZED",{message:f.USER_EMAIL_NOT_FOUND});let d=await Se(e,{userInfo:{email:s.user.email,id:s.user.id,name:s.user.name||"",image:s.user.image,emailVerified:s.user.emailVerified||!1},account:{providerId:t.id,accountId:s.user.id,accessToken:e.body.idToken.accessToken}});if(d.error)throw new S.APIError("UNAUTHORIZED",{message:d.error});return await x(e,d.data),e.json({redirect:!1,token:d.data.session.token,url:void 0,user:{id:d.data.user.id,email:d.data.user.email,name:d.data.user.name,image:d.data.user.image,emailVerified:d.data.user.emailVerified,createdAt:d.data.user.createdAt,updatedAt:d.data.user.updatedAt}})}let{codeVerifier:r,state:o}=await Ue(e),n=await t.createAuthorizationURL({state:o,codeVerifier:r,redirectURI:`${e.context.baseURL}/callback/${t.id}`});return e.json({url:n.toString(),redirect:!e.body.disableRedirect})}),Zr=g("/sign-in/email",{method:"POST",body:T.z.object({email:T.z.string({description:"Email of the user"}),password:T.z.string({description:"Password of the user"}),callbackURL:T.z.string({description:"Callback URL to use as a redirect for email verification"}).optional(),rememberMe:T.z.boolean({description:"If this is false, the session will not be remembered. Default is `true`."}).default(!0).optional()}),metadata:{openapi:{description:"Sign in with email and password",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{user:{type:"object"},url:{type:"string"},redirect:{type:"boolean"}},required:["session","user","url","redirect"]}}}}}}}},async e=>{if(!e.context.options?.emailAndPassword?.enabled)throw e.context.logger.error("Email and password is not enabled. Make sure to enable it in the options on you `auth.ts` file. Check `https://better-auth.com/docs/authentication/email-password` for more!"),new S.APIError("BAD_REQUEST",{message:"Email and password is not enabled"});let{email:t,password:r}=e.body;if(!T.z.string().email().safeParse(t).success)throw new S.APIError("BAD_REQUEST",{message:f.INVALID_EMAIL});let n=await e.context.internalAdapter.findUserByEmail(t,{includeAccounts:!0});if(!n)throw await e.context.password.hash(r),e.context.logger.error("User not found",{email:t}),new S.APIError("UNAUTHORIZED",{message:f.INVALID_EMAIL_OR_PASSWORD});let i=n.accounts.find(d=>d.providerId==="credential");if(!i)throw e.context.logger.error("Credential account not found",{email:t}),new S.APIError("UNAUTHORIZED",{message:f.INVALID_EMAIL_OR_PASSWORD});let a=i?.password;if(!a)throw e.context.logger.error("Password not found",{email:t}),new S.APIError("UNAUTHORIZED",{message:f.INVALID_EMAIL_OR_PASSWORD});if(!await e.context.password.verify({hash:a,password:r}))throw e.context.logger.error("Invalid password"),new S.APIError("UNAUTHORIZED",{message:f.INVALID_EMAIL_OR_PASSWORD});if(e.context.options?.emailAndPassword?.requireEmailVerification&&!n.user.emailVerified){if(!e.context.options?.emailVerification?.sendVerificationEmail)throw new S.APIError("UNAUTHORIZED",{message:f.EMAIL_NOT_VERIFIED});let d=await K(e.context.secret,n.user.email),l=`${e.context.baseURL}/verify-email?token=${d}&callbackURL=${e.body.callbackURL||"/"}`;throw await e.context.options.emailVerification.sendVerificationEmail({user:n.user,url:l,token:d},e.request),new S.APIError("FORBIDDEN",{message:f.EMAIL_NOT_VERIFIED})}let s=await e.context.internalAdapter.createSession(n.user.id,e.headers,e.body.rememberMe===!1);if(!s)throw e.context.logger.error("Failed to create session"),new S.APIError("UNAUTHORIZED",{message:f.FAILED_TO_CREATE_SESSION});return await x(e,{session:s,user:n.user},e.body.rememberMe===!1),e.json({redirect:!!e.body.callbackURL,token:s.token,url:e.body.callbackURL,user:{id:n.user.id,email:n.user.email,name:n.user.name,image:n.user.image,emailVerified:n.user.emailVerified,createdAt:n.user.createdAt,updatedAt:n.user.updatedAt}})});var ue=require("zod");var ve=ue.z.object({code:ue.z.string().optional(),error:ue.z.string().optional(),error_description:ue.z.string().optional(),state:ue.z.string().optional()}),Yr=g("/callback/:id",{method:["GET","POST"],body:ve.optional(),query:ve.optional(),metadata:de},async e=>{let t;try{if(e.method==="GET")t=ve.parse(e.query);else if(e.method==="POST")t=ve.parse(e.body);else throw new Error("Unsupported method")}catch(U){throw e.context.logger.error("INVALID_CALLBACK_REQUEST",U),e.redirect(`${e.context.baseURL}/error?error=invalid_callback_request`)}let{code:r,error:o,state:n,error_description:i}=t;if(!n)throw e.context.logger.error("State not found",o),e.redirect(`${e.context.baseURL}/error?error=state_not_found`);if(!r)throw e.context.logger.error("Code not found"),e.redirect(`${e.context.baseURL}/error?error=${o||"no_code"}&error_description=${i}`);let a=e.context.socialProviders.find(U=>U.id===e.params.id);if(!a)throw e.context.logger.error("Oauth provider with id",e.params.id,"not found"),e.redirect(`${e.context.baseURL}/error?error=oauth_provider_not_found`);let{codeVerifier:c,callbackURL:s,link:d,errorURL:l,newUserURL:p}=await gt(e),u;try{u=await a.validateAuthorizationCode({code:r,codeVerifier:c,redirectURI:`${e.context.baseURL}/callback/${a.id}`})}catch(U){throw e.context.logger.error("",U),e.redirect(`${e.context.baseURL}/error?error=please_restart_the_process`)}let h=await a.getUserInfo(u).then(U=>U?.user);function m(U){let w=l||s||`${e.context.baseURL}/error`;throw w.includes("?")?w=`${w}&error=${U}`:w=`${w}?error=${U}`,e.redirect(w)}if(!h)return e.context.logger.error("Unable to get user info"),m("unable_to_get_user_info");if(!h.email&&a.id!=="roblox")return e.context.logger.error("Provider did not return email. This could be due to misconfiguration in the provider settings."),m("email_not_found");if(!s)throw e.context.logger.error("No callback URL found"),e.redirect(`${e.context.baseURL}/error?error=please_restart_the_process`);if(d){if(d.email!==h?.email?.toLowerCase()&&a.id!=="roblox")return m("email_doesn't_match");if(!await e.context.internalAdapter.createAccount({userId:d.userId,providerId:a.id,accountId:h.id,name:h.name||h.email||"",accessToken:u.accessToken,refreshToken:u.refreshToken,accessTokenExpiresAt:u.accessTokenExpiresAt,scope:u.scopes?.join(","),image:h.image}))return m("unable_to_link_account");let w;try{w=s.toString()}catch{w=s}throw e.redirect(w)}let R=await Se(e,{userInfo:{...h,email:h.email||"",name:h.name||h.email||""},account:{providerId:a.id,accountId:h.id,...u,image:h.image,scope:u.scopes?.join(",")},callbackURL:s});if(R.error)return e.context.logger.error(R.error.split(" ").join("_")),m(R.error.split(" ").join("_"));let{session:Z,user:C}=R.data;await x(e,{session:Z,user:C});let $;try{$=(R.isRegister&&p||s).toString()}catch{$=R.isRegister&&p||s}throw e.redirect($)});var Hi=require("zod");var qt=require("better-call");var Xr=g("/sign-out",{method:"POST",requireHeaders:!0,metadata:{openapi:{description:"Sign out the current user",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{success:{type:"boolean"}}}}}}}}}},async e=>{let t=await e.getSignedCookie(e.context.authCookies.sessionToken.name,e.context.secret);if(!t)throw M(e),new qt.APIError("BAD_REQUEST",{message:f.FAILED_TO_GET_SESSION});return await e.context.internalAdapter.deleteSession(t),M(e),e.json({success:!0})});var D=require("zod");var pe=require("better-call");function zt(e,t,r){let o=t?new URL(t,e.baseURL):new URL(`${e.baseURL}/error`);return r&&Object.entries(r).forEach(([n,i])=>o.searchParams.set(n,i)),o.href}function eo(e,t,r){let o=new URL(t,e.baseURL);return r&&Object.entries(r).forEach(([n,i])=>o.searchParams.set(n,i)),o.href}var to=g("/forget-password",{method:"POST",body:D.z.object({email:D.z.string({description:"The email address of the user to send a password reset email to"}).email(),redirectTo:D.z.string({description:"The URL to redirect the user to reset their password. If the token isn't valid or expired, it'll be redirected with a query parameter `?error=INVALID_TOKEN`. If the token is valid, it'll be redirected with a query parameter `?token=VALID_TOKEN"}).optional()}),metadata:{openapi:{description:"Send a password reset email to the user",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{status:{type:"boolean"}}}}}}}}}},async e=>{if(!e.context.options.emailAndPassword?.sendResetPassword)throw e.context.logger.error("Reset password isn't enabled.Please pass an emailAndPassword.sendResetPasswordToken function in your auth config!"),new pe.APIError("BAD_REQUEST",{message:"Reset password isn't enabled"});let{email:t,redirectTo:r}=e.body,o=await e.context.internalAdapter.findUserByEmail(t,{includeAccounts:!0});if(!o)return e.context.logger.error("Reset Password: User not found",{email:t}),e.json({status:!1},{body:{status:!0}});let n=60*60*1,i=Y(e.context.options.emailAndPassword.resetPasswordTokenExpiresIn||n,"sec"),a=ye(24);await e.context.internalAdapter.createVerificationValue({value:o.user.id.toString(),identifier:`reset-password:${a}`,expiresAt:i});let c=`${e.context.baseURL}/reset-password/${a}?callbackURL=${r}`;return await e.context.options.emailAndPassword.sendResetPassword({user:o.user,url:c,token:a},e.request),e.json({status:!0})}),ro=g("/reset-password/:token",{method:"GET",query:D.z.object({callbackURL:D.z.string({description:"The URL to redirect the user to reset their password"})}),use:[ce(e=>e.query.callbackURL)],metadata:{openapi:{description:"Redirects the user to the callback URL with the token",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{token:{type:"string"}}}}}}}}}},async e=>{let{token:t}=e.params,{callbackURL:r}=e.query;if(!t||!r)throw e.redirect(zt(e.context,r,{error:"INVALID_TOKEN"}));let o=await e.context.internalAdapter.findVerificationValue(`reset-password:${t}`);throw!o||o.expiresAt<new Date?e.redirect(zt(e.context,r,{error:"INVALID_TOKEN"})):e.redirect(eo(e.context,r,{token:t}))}),oo=g("/reset-password",{query:D.z.optional(D.z.object({token:D.z.string().optional(),currentURL:D.z.string().optional()})),method:"POST",body:D.z.object({newPassword:D.z.string({description:"The new password to set"}),token:D.z.string({description:"The token to reset the password"}).optional()}),metadata:{openapi:{description:"Reset the password for a user",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{status:{type:"boolean"}}}}}}}}}},async e=>{let t=e.body.token||e.query?.token||(e.query?.currentURL?new URL(e.query.currentURL).searchParams.get("token"):"");if(!t)throw new pe.APIError("BAD_REQUEST",{message:f.INVALID_TOKEN});let{newPassword:r}=e.body,o=e.context.password?.config.minPasswordLength,n=e.context.password?.config.maxPasswordLength;if(r.length<o)throw new pe.APIError("BAD_REQUEST",{message:f.PASSWORD_TOO_SHORT});if(r.length>n)throw new pe.APIError("BAD_REQUEST",{message:f.PASSWORD_TOO_LONG});let i=`reset-password:${t}`,a=await e.context.internalAdapter.findVerificationValue(i);if(!a||a.expiresAt<new Date)throw new pe.APIError("BAD_REQUEST",{message:f.INVALID_TOKEN});await e.context.internalAdapter.deleteVerificationValue(a.id);let c=a.value,s=await e.context.password.hash(r);return(await e.context.internalAdapter.findAccounts(c)).find(p=>p.providerId==="credential")?(await e.context.internalAdapter.updatePassword(c,s),e.json({status:!0})):(await e.context.internalAdapter.createAccount({userId:c,providerId:"credential",password:s,accountId:c}),e.json({status:!0}))});var _=require("zod");var O=require("better-call");var y=require("zod"),no=require("better-call"),oa=y.z.object({id:y.z.string(),providerId:y.z.string(),accountId:y.z.string(),name:y.z.string().nullish(),userId:y.z.string(),accessToken:y.z.string().nullish(),refreshToken:y.z.string().nullish(),idToken:y.z.string().nullish(),accessTokenExpiresAt:y.z.date().nullish(),refreshTokenExpiresAt:y.z.date().nullish(),scope:y.z.string().nullish(),password:y.z.string().nullish(),image:y.z.string().nullish(),createdAt:y.z.date().default(()=>new Date),updatedAt:y.z.date().default(()=>new Date)}),na=y.z.object({id:y.z.string(),email:y.z.string().transform(e=>e.toLowerCase()),emailVerified:y.z.boolean().default(!1),name:y.z.string(),image:y.z.string().nullish(),createdAt:y.z.date().default(()=>new Date),updatedAt:y.z.date().default(()=>new Date)}),sa=y.z.object({id:y.z.string(),userId:y.z.string(),expiresAt:y.z.date(),createdAt:y.z.date().default(()=>new Date),updatedAt:y.z.date().default(()=>new Date),token:y.z.string(),ipAddress:y.z.string().nullish(),userAgent:y.z.string().nullish()}),ia=y.z.object({id:y.z.string(),value:y.z.string(),createdAt:y.z.date().default(()=>new Date),updatedAt:y.z.date().default(()=>new Date),expiresAt:y.z.date(),identifier:y.z.string()});function Ht(e,t){if(!t)return e;for(let r in t){let o=t[r]?.modelName;o&&(e[r].modelName=o);for(let n in e[r].fields){let i=t[r]?.fields?.[n];i&&(e[r].fields[n].fieldName=i)}}return e}var io=g("/change-password",{method:"POST",body:_.z.object({newPassword:_.z.string({description:"The new password to set"}),currentPassword:_.z.string({description:"The current password"}),revokeOtherSessions:_.z.boolean({description:"Revoke all other sessions"}).optional()}),use:[P],metadata:{openapi:{description:"Change the password of the user",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{user:{description:"The user object",$ref:"#/components/schemas/User"}}}}}}}}}},async e=>{let{newPassword:t,currentPassword:r,revokeOtherSessions:o}=e.body,n=e.context.session,i=e.context.password.config.minPasswordLength;if(t.length<i)throw e.context.logger.error("Password is too short"),new O.APIError("BAD_REQUEST",{message:f.PASSWORD_TOO_SHORT});let a=e.context.password.config.maxPasswordLength;if(t.length>a)throw e.context.logger.error("Password is too long"),new O.APIError("BAD_REQUEST",{message:f.PASSWORD_TOO_LONG});let s=(await e.context.internalAdapter.findAccounts(n.user.id)).find(u=>u.providerId==="credential"&&u.password);if(!s||!s.password)throw new O.APIError("BAD_REQUEST",{message:f.CREDENTIAL_ACCOUNT_NOT_FOUND});let d=await e.context.password.hash(t);if(!await e.context.password.verify({hash:s.password,password:r}))throw new O.APIError("BAD_REQUEST",{message:f.INVALID_PASSWORD});await e.context.internalAdapter.updateAccount(s.id,{password:d});let p=null;if(o){await e.context.internalAdapter.deleteSessions(n.user.id);let u=await e.context.internalAdapter.createSession(n.user.id,e.headers);if(!u)throw new O.APIError("INTERNAL_SERVER_ERROR",{message:f.FAILED_TO_GET_SESSION});await x(e,{session:u,user:n.user}),p=u.token}return e.json({token:p,user:{id:n.user.id,email:n.user.email,name:n.user.name,image:n.user.image,emailVerified:n.user.emailVerified,createdAt:n.user.createdAt,updatedAt:n.user.updatedAt}})}),ao=g("/set-password",{method:"POST",body:_.z.object({newPassword:_.z.string()}),metadata:{SERVER_ONLY:!0},use:[P]},async e=>{let{newPassword:t}=e.body,r=e.context.session,o=e.context.password.config.minPasswordLength;if(t.length<o)throw e.context.logger.error("Password is too short"),new O.APIError("BAD_REQUEST",{message:f.PASSWORD_TOO_SHORT});let n=e.context.password.config.maxPasswordLength;if(t.length>n)throw e.context.logger.error("Password is too long"),new O.APIError("BAD_REQUEST",{message:f.PASSWORD_TOO_LONG});let a=(await e.context.internalAdapter.findAccounts(r.user.id)).find(s=>s.providerId==="credential"&&s.password),c=await e.context.password.hash(t);if(!a)return await e.context.internalAdapter.linkAccount({userId:r.user.id,providerId:"credential",accountId:r.user.id,password:c}),e.json({status:!0});throw new O.APIError("BAD_REQUEST",{message:"user already has a password"})}),co=g("/delete-user",{method:"POST",use:[P],body:_.z.object({callbackURL:_.z.string().optional(),password:_.z.string().optional(),token:_.z.string().optional()}),metadata:{openapi:{description:"Delete the user",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object"}}}}}}}},async e=>{if(!e.context.options.user?.deleteUser?.enabled)throw e.context.logger.error("Delete user is disabled. Enable it in the options",{session:e.context.session}),new O.APIError("NOT_FOUND");let t=e.context.session;if(e.body.password){let i=(await e.context.internalAdapter.findAccounts(t.user.id)).find(c=>c.providerId==="credential"&&c.password);if(!i||!i.password)throw new O.APIError("BAD_REQUEST",{message:f.CREDENTIAL_ACCOUNT_NOT_FOUND});if(!await e.context.password.verify({hash:i.password,password:e.body.password}))throw new O.APIError("BAD_REQUEST",{message:f.INVALID_PASSWORD})}else if(e.context.options.session?.freshAge){let n=t.session.createdAt.getTime(),i=e.context.options.session.freshAge;if(Date.now()-n>i)throw new O.APIError("BAD_REQUEST",{message:f.SESSION_EXPIRED})}if(e.body.token)return await Gt({...e,query:{token:e.body.token}}),e.json({success:!0,message:"User deleted"});if(e.context.options.user.deleteUser?.sendDeleteAccountVerification){let n=oe(32,"0-9","a-z");await e.context.internalAdapter.createVerificationValue({value:t.user.id,identifier:`delete-account-${n}`,expiresAt:new Date(Date.now()+1e3*60*60*24)});let i=`${e.context.baseURL}/delete-user/callback?token=${n}&callbackURL=${e.body.callbackURL||"/"}`;return await e.context.options.user.deleteUser.sendDeleteAccountVerification({user:t.user,url:i,token:n},e.request),e.json({success:!0,message:"Verification email sent"})}let r=e.context.options.user.deleteUser?.beforeDelete;r&&await r(t.user,e.request),await e.context.internalAdapter.deleteUser(t.user.id),await e.context.internalAdapter.deleteSessions(t.user.id),await e.context.internalAdapter.deleteAccounts(t.user.id),M(e);let o=e.context.options.user.deleteUser?.afterDelete;return o&&await o(t.user,e.request),e.json({success:!0,message:"User deleted"})}),Gt=g("/delete-user/callback",{method:"GET",query:_.z.object({token:_.z.string(),callbackURL:_.z.string().optional()}),use:[ce(e=>e.query.callbackURL)]},async e=>{if(!e.context.options.user?.deleteUser?.enabled)throw e.context.logger.error("Delete user is disabled. Enable it in the options"),new O.APIError("NOT_FOUND");let t=await J(e);if(!t)throw new O.APIError("NOT_FOUND",{message:f.FAILED_TO_GET_USER_INFO});let r=await e.context.internalAdapter.findVerificationValue(`delete-account-${e.query.token}`);if(!r||r.expiresAt<new Date)throw r&&await e.context.internalAdapter.deleteVerificationValue(r.id),new O.APIError("NOT_FOUND",{message:f.INVALID_TOKEN});if(r.value!==t.user.id)throw new O.APIError("NOT_FOUND",{message:f.INVALID_TOKEN});let o=e.context.options.user.deleteUser?.beforeDelete;o&&await o(t.user,e.request),await e.context.internalAdapter.deleteUser(t.user.id),await e.context.internalAdapter.deleteSessions(t.user.id),await e.context.internalAdapter.deleteAccounts(t.user.id),await e.context.internalAdapter.deleteVerificationValue(r.id),M(e);let n=e.context.options.user.deleteUser?.afterDelete;if(n&&await n(t.user,e.request),e.query.callbackURL)throw e.redirect(e.query.callbackURL||"/");return e.json({success:!0,message:"User deleted"})}),lo=g("/change-email",{method:"POST",query:_.z.object({currentURL:_.z.string().optional()}).optional(),body:_.z.object({newEmail:_.z.string({description:"The new email to set"}).email(),callbackURL:_.z.string({description:"The URL to redirect to after email verification"}).optional()}),use:[P],metadata:{openapi:{responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{user:{type:"object"},status:{type:"boolean"}}}}}}}}}},async e=>{if(!e.context.options.user?.changeEmail?.enabled)throw e.context.logger.error("Change email is disabled."),new O.APIError("BAD_REQUEST",{message:"Change email is disabled"});if(e.body.newEmail===e.context.session.user.email)throw e.context.logger.error("Email is the same"),new O.APIError("BAD_REQUEST",{message:"Email is the same"});if(await e.context.internalAdapter.findUserByEmail(e.body.newEmail))throw e.context.logger.error("Email already exists"),new O.APIError("BAD_REQUEST",{message:"Couldn't update your email"});if(e.context.session.user.emailVerified!==!0){let n=await e.context.internalAdapter.updateUserByEmail(e.context.session.user.email,{email:e.body.newEmail});return e.json({status:!0})}if(!e.context.options.user.changeEmail.sendChangeEmailVerification)throw e.context.logger.error("Verification email isn't enabled."),new O.APIError("BAD_REQUEST",{message:"Verification email isn't enabled"});let r=await K(e.context.secret,e.context.session.user.email,e.body.newEmail),o=`${e.context.baseURL}/verify-email?token=${r}&callbackURL=${e.body.callbackURL||e.query?.currentURL||"/"}`;return await e.context.options.user.changeEmail.sendChangeEmailVerification({user:e.context.session.user,newEmail:e.body.newEmail,url:o,token:r},e.request),e.json({status:!0})});var uo=(e="Unknown")=>`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication Error</title>
-    <style>
-        :root {
-            --bg-color: #f8f9fa;
-            --text-color: #212529;
-            --accent-color: #000000;
-            --error-color: #dc3545;
-            --border-color: #e9ecef;
+'use strict';
+
+var chunkYLFV4SQL_cjs = require('../chunk-YLFV4SQL.cjs');
+var chunkVADINYB6_cjs = require('../chunk-VADINYB6.cjs');
+require('../chunk-2OGHGURS.cjs');
+require('../chunk-H2JFIDVT.cjs');
+require('../chunk-RBN34WVC.cjs');
+require('../chunk-CXGP5FNG.cjs');
+require('../chunk-U4I57HJ4.cjs');
+require('../chunk-S5UORXJH.cjs');
+var chunkOJX3P352_cjs = require('../chunk-OJX3P352.cjs');
+var chunkWRPAFI4I_cjs = require('../chunk-WRPAFI4I.cjs');
+var chunkH74YRRNV_cjs = require('../chunk-H74YRRNV.cjs');
+require('../chunk-LB4ZM24Q.cjs');
+require('../chunk-CCKQSGIR.cjs');
+var chunkXJGHQ3F6_cjs = require('../chunk-XJGHQ3F6.cjs');
+require('../chunk-2HPSCSV7.cjs');
+require('../chunk-VXYIYABQ.cjs');
+require('../chunk-PEZRSDZS.cjs');
+var server = require('@simplewebauthn/server');
+var betterCall = require('better-call');
+var zod = require('zod');
+
+function getRpID(options, baseURL) {
+  return options.rpID || baseURL?.replace("http://", "").replace("https://", "").split(":")[0] || "localhost";
+}
+var passkey = (options) => {
+  const opts = {
+    origin: null,
+    ...options,
+    advanced: {
+      webAuthnChallengeCookie: "better-auth-passkey",
+      ...options?.advanced
+    }
+  };
+  const expirationTime = new Date(Date.now() + 1e3 * 60 * 5);
+  const currentTime = /* @__PURE__ */ new Date();
+  const maxAgeInSeconds = Math.floor(
+    (expirationTime.getTime() - currentTime.getTime()) / 1e3
+  );
+  const ERROR_CODES = {
+    CHALLENGE_NOT_FOUND: "Challenge not found",
+    YOU_ARE_NOT_ALLOWED_TO_REGISTER_THIS_PASSKEY: "You are not allowed to register this passkey",
+    FAILED_TO_VERIFY_REGISTRATION: "Failed to verify registration",
+    PASSKEY_NOT_FOUND: "Passkey not found",
+    AUTHENTICATION_FAILED: "Authentication failed",
+    UNABLE_TO_CREATE_SESSION: "Unable to create session",
+    FAILED_TO_UPDATE_PASSKEY: "Failed to update passkey"
+  };
+  return {
+    id: "passkey",
+    endpoints: {
+      generatePasskeyRegistrationOptions: chunkVADINYB6_cjs.createAuthEndpoint(
+        "/passkey/generate-register-options",
+        {
+          method: "GET",
+          use: [chunkVADINYB6_cjs.freshSessionMiddleware],
+          metadata: {
+            client: false,
+            openapi: {
+              description: "Generate registration options for a new passkey",
+              responses: {
+                200: {
+                  description: "Success",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          challenge: {
+                            type: "string"
+                          },
+                          rp: {
+                            type: "object",
+                            properties: {
+                              name: {
+                                type: "string"
+                              },
+                              id: {
+                                type: "string"
+                              }
+                            }
+                          },
+                          user: {
+                            type: "object",
+                            properties: {
+                              id: {
+                                type: "string"
+                              },
+                              name: {
+                                type: "string"
+                              },
+                              displayName: {
+                                type: "string"
+                              }
+                            }
+                          },
+                          pubKeyCredParams: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                type: {
+                                  type: "string"
+                                },
+                                alg: {
+                                  type: "number"
+                                }
+                              }
+                            }
+                          },
+                          timeout: {
+                            type: "number"
+                          },
+                          excludeCredentials: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                id: {
+                                  type: "string"
+                                },
+                                type: {
+                                  type: "string"
+                                },
+                                transports: {
+                                  type: "array",
+                                  items: {
+                                    type: "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          authenticatorSelection: {
+                            type: "object",
+                            properties: {
+                              authenticatorAttachment: {
+                                type: "string"
+                              },
+                              requireResidentKey: {
+                                type: "boolean"
+                              },
+                              userVerification: {
+                                type: "string"
+                              }
+                            }
+                          },
+                          attestation: {
+                            type: "string"
+                          },
+                          extensions: {
+                            type: "object"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        async (ctx) => {
+          const session = ctx.context.session;
+          const userPasskeys = await ctx.context.adapter.findMany({
+            model: "passkey",
+            where: [
+              {
+                field: "userId",
+                value: session.user.id
+              }
+            ]
+          });
+          const userID = new Uint8Array(
+            Buffer.from(chunkXJGHQ3F6_cjs.generateRandomString(32, "a-z", "0-9"))
+          );
+          let options2;
+          options2 = await server.generateRegistrationOptions({
+            rpName: opts.rpName || ctx.context.appName,
+            rpID: getRpID(opts, ctx.context.baseURL),
+            userID,
+            userName: session.user.email || session.user.id,
+            attestationType: "none",
+            excludeCredentials: userPasskeys.map((passkey2) => ({
+              id: passkey2.credentialID,
+              transports: passkey2.transports?.split(
+                ","
+              )
+            })),
+            authenticatorSelection: {
+              residentKey: "preferred",
+              userVerification: "preferred",
+              authenticatorAttachment: "platform"
+            }
+          });
+          const id = chunkH74YRRNV_cjs.generateId(32);
+          const webAuthnCookie = ctx.context.createAuthCookie(
+            opts.advanced.webAuthnChallengeCookie
+          );
+          await ctx.setSignedCookie(
+            webAuthnCookie.name,
+            id,
+            ctx.context.secret,
+            {
+              ...webAuthnCookie.attributes,
+              maxAge: maxAgeInSeconds
+            }
+          );
+          await ctx.context.internalAdapter.createVerificationValue({
+            identifier: id,
+            value: JSON.stringify({
+              expectedChallenge: options2.challenge,
+              userData: {
+                id: session.user.id
+              }
+            }),
+            expiresAt: expirationTime
+          });
+          return ctx.json(options2, {
+            status: 200
+          });
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            line-height: 1.5;
+      ),
+      generatePasskeyAuthenticationOptions: chunkVADINYB6_cjs.createAuthEndpoint(
+        "/passkey/generate-authenticate-options",
+        {
+          method: "POST",
+          body: zod.z.object({
+            email: zod.z.string({
+              description: "The email address of the user"
+            }).optional()
+          }).optional(),
+          metadata: {
+            openapi: {
+              description: "Generate authentication options for a passkey",
+              responses: {
+                200: {
+                  description: "Success",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          challenge: {
+                            type: "string"
+                          },
+                          rp: {
+                            type: "object",
+                            properties: {
+                              name: {
+                                type: "string"
+                              },
+                              id: {
+                                type: "string"
+                              }
+                            }
+                          },
+                          user: {
+                            type: "object",
+                            properties: {
+                              id: {
+                                type: "string"
+                              },
+                              name: {
+                                type: "string"
+                              },
+                              displayName: {
+                                type: "string"
+                              }
+                            }
+                          },
+                          timeout: {
+                            type: "number"
+                          },
+                          allowCredentials: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                id: {
+                                  type: "string"
+                                },
+                                type: {
+                                  type: "string"
+                                },
+                                transports: {
+                                  type: "array",
+                                  items: {
+                                    type: "string"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          userVerification: {
+                            type: "string"
+                          },
+                          authenticatorSelection: {
+                            type: "object",
+                            properties: {
+                              authenticatorAttachment: {
+                                type: "string"
+                              },
+                              requireResidentKey: {
+                                type: "boolean"
+                              },
+                              userVerification: {
+                                type: "string"
+                              }
+                            }
+                          },
+                          extensions: {
+                            type: "object"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        async (ctx) => {
+          const session = await chunkVADINYB6_cjs.getSessionFromCtx(ctx);
+          let userPasskeys = [];
+          if (session) {
+            userPasskeys = await ctx.context.adapter.findMany({
+              model: "passkey",
+              where: [
+                {
+                  field: "userId",
+                  value: session.user.id
+                }
+              ]
+            });
+          }
+          const options2 = await server.generateAuthenticationOptions({
+            rpID: getRpID(opts, ctx.context.baseURL),
+            userVerification: "preferred",
+            ...userPasskeys.length ? {
+              allowCredentials: userPasskeys.map((passkey2) => ({
+                id: passkey2.credentialID,
+                transports: passkey2.transports?.split(
+                  ","
+                )
+              }))
+            } : {}
+          });
+          const data = {
+            expectedChallenge: options2.challenge,
+            userData: {
+              id: session?.user.id || ""
+            }
+          };
+          const id = chunkH74YRRNV_cjs.generateId(32);
+          const webAuthnCookie = ctx.context.createAuthCookie(
+            opts.advanced.webAuthnChallengeCookie
+          );
+          await ctx.setSignedCookie(
+            webAuthnCookie.name,
+            id,
+            ctx.context.secret,
+            {
+              ...webAuthnCookie.attributes,
+              maxAge: maxAgeInSeconds
+            }
+          );
+          await ctx.context.internalAdapter.createVerificationValue({
+            identifier: id,
+            value: JSON.stringify(data),
+            expiresAt: expirationTime
+          });
+          return ctx.json(options2, {
+            status: 200
+          });
         }
-        .error-container {
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            padding: 2.5rem;
-            text-align: center;
-            max-width: 90%;
-            width: 400px;
+      ),
+      verifyPasskeyRegistration: chunkVADINYB6_cjs.createAuthEndpoint(
+        "/passkey/verify-registration",
+        {
+          method: "POST",
+          body: zod.z.object({
+            response: zod.z.any({
+              description: "The response from the authenticator"
+            }),
+            name: zod.z.string({
+              description: "Name of the passkey"
+            }).optional()
+          }),
+          use: [chunkVADINYB6_cjs.freshSessionMiddleware],
+          metadata: {
+            openapi: {
+              description: "Verify registration of a new passkey",
+              responses: {
+                200: {
+                  description: "Success",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/Passkey"
+                      }
+                    }
+                  }
+                },
+                400: {
+                  description: "Bad request"
+                }
+              }
+            }
+          }
+        },
+        async (ctx) => {
+          const origin = options?.origin || ctx.headers?.get("origin") || "";
+          if (!origin) {
+            return ctx.json(null, {
+              status: 400
+            });
+          }
+          const resp = ctx.body.response;
+          const webAuthnCookie = ctx.context.createAuthCookie(
+            opts.advanced.webAuthnChallengeCookie
+          );
+          const challengeId = await ctx.getSignedCookie(
+            webAuthnCookie.name,
+            ctx.context.secret
+          );
+          if (!challengeId) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              message: ERROR_CODES.CHALLENGE_NOT_FOUND
+            });
+          }
+          const data = await ctx.context.internalAdapter.findVerificationValue(
+            challengeId
+          );
+          if (!data) {
+            return ctx.json(null, {
+              status: 400
+            });
+          }
+          const { expectedChallenge, userData } = JSON.parse(
+            data.value
+          );
+          if (userData.id !== ctx.context.session.user.id) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              message: ERROR_CODES.YOU_ARE_NOT_ALLOWED_TO_REGISTER_THIS_PASSKEY
+            });
+          }
+          try {
+            const verification = await server.verifyRegistrationResponse({
+              response: resp,
+              expectedChallenge,
+              expectedOrigin: origin,
+              expectedRPID: getRpID(opts, ctx.context.baseURL),
+              requireUserVerification: false
+            });
+            const { verified, registrationInfo } = verification;
+            if (!verified || !registrationInfo) {
+              return ctx.json(null, {
+                status: 400
+              });
+            }
+            const {
+              // credentialID,
+              // credentialPublicKey,
+              // counter,
+              credentialDeviceType,
+              credentialBackedUp,
+              credential,
+              credentialType
+            } = registrationInfo;
+            const pubKey = Buffer.from(credential.publicKey).toString("base64");
+            const newPasskey = {
+              name: ctx.body.name,
+              userId: userData.id,
+              id: ctx.context.generateId({ model: "passkey" }),
+              credentialID: credential.id,
+              publicKey: pubKey,
+              counter: credential.counter,
+              deviceType: credentialDeviceType,
+              transports: resp.response.transports.join(","),
+              backedUp: credentialBackedUp,
+              createdAt: /* @__PURE__ */ new Date()
+            };
+            const newPasskeyRes = await ctx.context.adapter.create({
+              model: "passkey",
+              data: newPasskey
+            });
+            return ctx.json(newPasskeyRes, {
+              status: 200
+            });
+          } catch (e) {
+            console.log(e);
+            throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
+              message: ERROR_CODES.FAILED_TO_VERIFY_REGISTRATION
+            });
+          }
         }
-        h1 {
-            color: var(--error-color);
-            font-size: 1.75rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
+      ),
+      verifyPasskeyAuthentication: chunkVADINYB6_cjs.createAuthEndpoint(
+        "/passkey/verify-authentication",
+        {
+          method: "POST",
+          body: zod.z.object({
+            response: zod.z.record(zod.z.any())
+          }),
+          metadata: {
+            openapi: {
+              description: "Verify authentication of a passkey",
+              responses: {
+                200: {
+                  description: "Success",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          session: {
+                            $ref: "#/components/schemas/Session"
+                          },
+                          user: {
+                            $ref: "#/components/schemas/User"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            $Infer: {
+              body: {}
+            }
+          }
+        },
+        async (ctx) => {
+          const origin = options?.origin || ctx.headers?.get("origin") || "";
+          if (!origin) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              message: "origin missing"
+            });
+          }
+          const resp = ctx.body.response;
+          const webAuthnCookie = ctx.context.createAuthCookie(
+            opts.advanced.webAuthnChallengeCookie
+          );
+          const challengeId = await ctx.getSignedCookie(
+            webAuthnCookie.name,
+            ctx.context.secret
+          );
+          if (!challengeId) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              message: ERROR_CODES.CHALLENGE_NOT_FOUND
+            });
+          }
+          const data = await ctx.context.internalAdapter.findVerificationValue(
+            challengeId
+          );
+          if (!data) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              message: ERROR_CODES.CHALLENGE_NOT_FOUND
+            });
+          }
+          const { expectedChallenge } = JSON.parse(
+            data.value
+          );
+          const passkey2 = await ctx.context.adapter.findOne({
+            model: "passkey",
+            where: [
+              {
+                field: "credentialID",
+                value: resp.id
+              }
+            ]
+          });
+          if (!passkey2) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              message: ERROR_CODES.PASSKEY_NOT_FOUND
+            });
+          }
+          try {
+            const verification = await server.verifyAuthenticationResponse({
+              response: resp,
+              expectedChallenge,
+              expectedOrigin: origin,
+              expectedRPID: getRpID(opts, ctx.context.baseURL),
+              credential: {
+                id: passkey2.credentialID,
+                publicKey: new Uint8Array(
+                  Buffer.from(passkey2.publicKey, "base64")
+                ),
+                counter: passkey2.counter,
+                transports: passkey2.transports?.split(
+                  ","
+                )
+              },
+              requireUserVerification: false
+            });
+            const { verified } = verification;
+            if (!verified)
+              throw new betterCall.APIError("UNAUTHORIZED", {
+                message: ERROR_CODES.AUTHENTICATION_FAILED
+              });
+            await ctx.context.adapter.update({
+              model: "passkey",
+              where: [
+                {
+                  field: "id",
+                  value: passkey2.id
+                }
+              ],
+              update: {
+                counter: verification.authenticationInfo.newCounter
+              }
+            });
+            const s = await ctx.context.internalAdapter.createSession(
+              passkey2.userId,
+              ctx.request
+            );
+            if (!s) {
+              throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
+                message: ERROR_CODES.UNABLE_TO_CREATE_SESSION
+              });
+            }
+            const user = await ctx.context.internalAdapter.findUserById(
+              passkey2.userId
+            );
+            if (!user) {
+              throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
+                message: "User not found"
+              });
+            }
+            await chunkOJX3P352_cjs.setSessionCookie(ctx, {
+              session: s,
+              user
+            });
+            return ctx.json(
+              {
+                session: s
+              },
+              {
+                status: 200
+              }
+            );
+          } catch (e) {
+            ctx.context.logger.error("Failed to verify authentication", e);
+            throw new betterCall.APIError("BAD_REQUEST", {
+              message: ERROR_CODES.AUTHENTICATION_FAILED
+            });
+          }
         }
-        p {
-            margin-bottom: 1.5rem;
-            color: #495057;
+      ),
+      listPasskeys: chunkVADINYB6_cjs.createAuthEndpoint(
+        "/passkey/list-user-passkeys",
+        {
+          method: "GET",
+          use: [chunkVADINYB6_cjs.sessionMiddleware]
+        },
+        async (ctx) => {
+          const passkeys = await ctx.context.adapter.findMany({
+            model: "passkey",
+            where: [{ field: "userId", value: ctx.context.session.user.id }]
+          });
+          return ctx.json(passkeys, {
+            status: 200
+          });
         }
-        .btn {
-            background-color: var(--accent-color);
-            color: #ffffff;
-            text-decoration: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            display: inline-block;
-            font-weight: 500;
-            border: 2px solid var(--accent-color);
+      ),
+      deletePasskey: chunkVADINYB6_cjs.createAuthEndpoint(
+        "/passkey/delete-passkey",
+        {
+          method: "POST",
+          body: zod.z.object({
+            id: zod.z.string()
+          }),
+          use: [chunkVADINYB6_cjs.sessionMiddleware]
+        },
+        async (ctx) => {
+          await ctx.context.adapter.delete({
+            model: "passkey",
+            where: [
+              {
+                field: "id",
+                value: ctx.body.id
+              }
+            ]
+          });
+          return ctx.json(null, {
+            status: 200
+          });
         }
-        .btn:hover {
-            background-color: #131721;
+      ),
+      updatePasskey: chunkVADINYB6_cjs.createAuthEndpoint(
+        "/passkey/update-passkey",
+        {
+          method: "POST",
+          body: zod.z.object({
+            id: zod.z.string(),
+            name: zod.z.string()
+          }),
+          use: [chunkVADINYB6_cjs.sessionMiddleware]
+        },
+        async (ctx) => {
+          const passkey2 = await ctx.context.adapter.findOne({
+            model: "passkey",
+            where: [
+              {
+                field: "id",
+                value: ctx.body.id
+              }
+            ]
+          });
+          if (!passkey2) {
+            throw new betterCall.APIError("NOT_FOUND", {
+              message: ERROR_CODES.PASSKEY_NOT_FOUND
+            });
+          }
+          if (passkey2.userId !== ctx.context.session.user.id) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              message: ERROR_CODES.YOU_ARE_NOT_ALLOWED_TO_REGISTER_THIS_PASSKEY
+            });
+          }
+          const updatedPasskey = await ctx.context.adapter.update({
+            model: "passkey",
+            where: [
+              {
+                field: "id",
+                value: ctx.body.id
+              }
+            ],
+            update: {
+              name: ctx.body.name
+            }
+          });
+          if (!updatedPasskey) {
+            throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
+              message: ERROR_CODES.FAILED_TO_UPDATE_PASSKEY
+            });
+          }
+          return ctx.json(
+            {
+              passkey: updatedPasskey
+            },
+            {
+              status: 200
+            }
+          );
         }
-        .error-code {
-            font-size: 0.875rem;
-            color: #6c757d;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border-color);
-        }
-        .icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="error-container">
-        <div class="icon">\u26A0\uFE0F</div>
-        <h1>Better Auth Error</h1>
-        <p>We encountered an issue while processing your request. Please try again or contact the application owner if the problem persists.</p>
-        <a href="/" id="returnLink" class="btn">Return to Application</a>
-        <div class="error-code">Error Code: <span id="errorCode">${e}</span></div>
-    </div>
-</body>
-</html>`,po=g("/error",{method:"GET",metadata:{...de,openapi:{description:"Displays an error page",responses:{200:{description:"Success",content:{"text/html":{schema:{type:"string"}}}}}}}},async e=>{let t=new URL(e.request?.url||"").searchParams.get("error")||"Unknown";return new Response(uo(t),{headers:{"Content-Type":"text/html"}})});var fo=g("/ok",{method:"GET",metadata:{...de,openapi:{description:"Check if the API is working",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{ok:{type:"boolean"}}}}}}}}}},async e=>e.json({ok:!0}));var mo=require("zod");var go=require("better-call");var Q=require("zod");var be=require("better-call");var ho=g("/list-accounts",{method:"GET",use:[P],metadata:{openapi:{description:"List all accounts linked to the user",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"array",items:{type:"object",properties:{id:{type:"string"},provider:{type:"string"}}}}}}}}}}},async e=>{let t=e.context.session,r=await e.context.internalAdapter.findAccounts(t.user.id);return e.json(r.map(o=>({id:o.id,accountId:o.accountId,provider:o.providerId,createdAt:o.createdAt,updatedAt:o.updatedAt,scopes:o.scope?.split(",")||[]})))}),yo=g("/link-social",{method:"POST",requireHeaders:!0,query:Q.z.object({currentURL:Q.z.string().optional()}).optional(),body:Q.z.object({callbackURL:Q.z.string({description:"The URL to redirect to after the user has signed in"}).optional(),provider:Q.z.enum(Ge,{description:"The OAuth2 provider to use"}),disableRedirect:Q.z.boolean({description:"Disable automatic redirection to the provider. Useful for handling the redirection yourself"}).optional()}),use:[P],metadata:{openapi:{description:"Link a social account to the user",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{url:{type:"string"},redirect:{type:"boolean"},disableRedirect:{type:"boolean"}},required:["url","redirect"]}}}}}}}},async e=>{let t=e.context.session;if((await e.context.internalAdapter.findAccounts(t.user.id)).find(c=>c.providerId===e.body.provider))throw new be.APIError("BAD_REQUEST",{message:f.SOCIAL_ACCOUNT_ALREADY_LINKED});let n=e.context.socialProviders.find(c=>c.id===e.body.provider);if(!n)throw e.context.logger.error("Provider not found. Make sure to add the provider in your auth config",{provider:e.body.provider}),new be.APIError("NOT_FOUND",{message:f.PROVIDER_NOT_FOUND});let i=await Ue(e,{userId:t.user.id,email:t.user.email}),a=await n.createAuthorizationURL({state:i.state,codeVerifier:i.codeVerifier,redirectURI:`${e.context.baseURL}/callback/${n.id}`});return e.json({url:a.toString(),redirect:!e.body.disableRedirect})}),wo=g("/unlink-account",{method:"POST",body:Q.z.object({providerId:Q.z.string()}),use:[we]},async e=>{let t=await e.context.internalAdapter.findAccounts(e.context.session.user.id);if(t.length===1)throw new be.APIError("BAD_REQUEST",{message:f.FAILED_TO_UNLINK_LAST_ACCOUNT});if(!t.find(o=>o.providerId===e.body.providerId))throw new be.APIError("BAD_REQUEST",{message:f.ACCOUNT_NOT_FOUND});return await e.context.internalAdapter.deleteAccount(e.body.providerId,e.context.session.user.id),e.json({status:!0})});var yc=require("defu"),We=require("better-call");var ge=require("@simplewebauthn/browser");var Ae=Symbol("clean");var V=[],te=0,Pe=4,bo=0,Re=e=>{let t=[],r={get(){return r.lc||r.listen(()=>{})(),r.value},lc:0,listen(o){return r.lc=t.push(o),()=>{for(let i=te+Pe;i<V.length;)V[i]===o?V.splice(i,Pe):i+=Pe;let n=t.indexOf(o);~n&&(t.splice(n,1),--r.lc||r.off())}},notify(o,n){bo++;let i=!V.length;for(let a of t)V.push(a,r.value,o,n);if(i){for(te=0;te<V.length;te+=Pe)V[te](V[te+1],V[te+2],V[te+3]);V.length=0}},off(){},set(o){let n=r.value;n!==o&&(r.value=o,r.notify(n))},subscribe(o){let n=r.listen(o);return o(r.value),n},value:e};return process.env.NODE_ENV!=="production"&&(r[Ae]=()=>{t=[],r.lc=0,r.off()}),r};var Ao=5,me=6,Ie=10,Ro=(e,t,r,o)=>(e.events=e.events||{},e.events[r+Ie]||(e.events[r+Ie]=o(n=>{e.events[r].reduceRight((i,a)=>(a(i),i),{shared:{},...n})})),e.events[r]=e.events[r]||[],e.events[r].push(t),()=>{let n=e.events[r],i=n.indexOf(t);n.splice(i,1),n.length||(delete e.events[r],e.events[r+Ie](),delete e.events[r+Ie])});var Wt=1e3,Je=(e,t)=>Ro(e,o=>{let n=t(o);n&&e.events[me].push(n)},Ao,o=>{let n=e.listen;e.listen=(...a)=>(!e.lc&&!e.active&&(e.active=!0,o()),n(...a));let i=e.off;if(e.events[me]=[],e.off=()=>{i(),setTimeout(()=>{if(e.active&&!e.lc){e.active=!1;for(let a of e.events[me])a();e.events[me]=[]}},Wt)},process.env.NODE_ENV!=="production"){let a=e[Ae];e[Ae]=()=>{for(let c of e.events[me])c();e.events[me]=[],e.active=!1,a()}}return()=>{e.listen=n,e.off=i}});var Ke=(e,t,r,o)=>{let n=Re({data:null,error:null,isPending:!0,isRefetching:!1}),i=()=>{let c=typeof o=="function"?o({data:n.get().data,error:n.get().error,isPending:n.get().isPending}):o;return r(t,{...c,async onSuccess(s){typeof window<"u"&&n.set({data:s.data,error:null,isPending:!1,isRefetching:!1}),await c?.onSuccess?.(s)},async onError(s){n.set({error:s.error,data:null,isPending:!1,isRefetching:!1}),await c?.onError?.(s)},async onRequest(s){let d=n.get();n.set({isPending:d.data===null,data:d.data,error:null,isRefetching:!0}),await c?.onRequest?.(s)}})};e=Array.isArray(e)?e:[e];let a=!1;for(let c of e)c.subscribe(()=>{a?i():Je(n,()=>(i(),a=!0,()=>{n.off(),c.off()}))});return n};var qc={true:!0,false:!1,null:null,undefined:void 0,nan:Number.NaN,infinity:Number.POSITIVE_INFINITY,"-infinity":Number.NEGATIVE_INFINITY};var Jt=(e,{$listPasskeys:t})=>({signIn:{passkey:async(n,i)=>{let a=await e("/passkey/generate-authenticate-options",{method:"POST",body:{email:n?.email}});if(!a.data)return a;try{let c=await(0,ge.startAuthentication)({optionsJSON:a.data,useBrowserAutofill:n?.autoFill}),s=await e("/passkey/verify-authentication",{body:{response:c},...n?.fetchOptions,...i,method:"POST"});if(!s.data)return s}catch{return{data:null,error:{message:"auth cancelled",status:400,statusText:"BAD_REQUEST"}}}}},passkey:{addPasskey:async(n,i)=>{let a=await e("/passkey/generate-register-options",{method:"GET"});if(!a.data)return a;try{let c=await(0,ge.startRegistration)({optionsJSON:a.data,useAutoRegister:n?.useAutoRegister}),s=await e("/passkey/verify-registration",{...n?.fetchOptions,...i,body:{response:c,name:n?.name},method:"POST"});if(!s.data)return s;t.set(Math.random())}catch(c){return c instanceof ge.WebAuthnError?c.code==="ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED"?{data:null,error:{message:"previously registered",status:400,statusText:"BAD_REQUEST"}}:c.code==="ERROR_CEREMONY_ABORTED"?{data:null,error:{message:"registration cancelled",status:400,statusText:"BAD_REQUEST"}}:{data:null,error:{message:c.message,status:400,statusText:"BAD_REQUEST"}}:{data:null,error:{message:c instanceof Error?c.message:"unknown error",status:500,statusText:"INTERNAL_SERVER_ERROR"}}}}},$Infer:{}}),Eo=()=>{let e=Re();return{id:"passkey",$InferServerPlugin:{},getActions:t=>Jt(t,{$listPasskeys:e}),getAtoms(t){return{listPasskeys:Ke(e,"/passkey/list-user-passkeys",t,{method:"GET"}),$listPasskeys:e}},pathMethods:{"/passkey/register":"POST","/passkey/authenticate":"POST"},atomListeners:[{matcher(t){return t==="/passkey/verify-registration"||t==="/passkey/delete-passkey"||t==="/passkey/update-passkey"},signal:"_listPasskeys"}]}};var ko=e=>{let t=Oe.BETTER_AUTH_URL,r=e?.rpID||t?.replace("http://","").replace("https://","").split(":")[0]||"localhost";if(!r)throw new F("passkey rpID not found. Please provide a rpID in the options or set the BETTER_AUTH_URL environment variable.");let o={origin:null,...e,rpID:r,advanced:{webAuthnChallengeCookie:"better-auth-passkey",...e?.advanced}},n=new Date(Date.now()+1e3*60*5),i=new Date,a=Math.floor((n.getTime()-i.getTime())/1e3),c={CHALLENGE_NOT_FOUND:"Challenge not found",YOU_ARE_NOT_ALLOWED_TO_REGISTER_THIS_PASSKEY:"You are not allowed to register this passkey",FAILED_TO_VERIFY_REGISTRATION:"Failed to verify registration",PASSKEY_NOT_FOUND:"Passkey not found",AUTHENTICATION_FAILED:"Authentication failed",UNABLE_TO_CREATE_SESSION:"Unable to create session",FAILED_TO_UPDATE_PASSKEY:"Failed to update passkey"};return{id:"passkey",endpoints:{generatePasskeyRegistrationOptions:g("/passkey/generate-register-options",{method:"GET",use:[we],metadata:{client:!1,openapi:{description:"Generate registration options for a new passkey",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{challenge:{type:"string"},rp:{type:"object",properties:{name:{type:"string"},id:{type:"string"}}},user:{type:"object",properties:{id:{type:"string"},name:{type:"string"},displayName:{type:"string"}}},pubKeyCredParams:{type:"array",items:{type:"object",properties:{type:{type:"string"},alg:{type:"number"}}}},timeout:{type:"number"},excludeCredentials:{type:"array",items:{type:"object",properties:{id:{type:"string"},type:{type:"string"},transports:{type:"array",items:{type:"string"}}}}},authenticatorSelection:{type:"object",properties:{authenticatorAttachment:{type:"string"},requireResidentKey:{type:"boolean"},userVerification:{type:"string"}}},attestation:{type:"string"},extensions:{type:"object"}}}}}}}}}},async s=>{let d=s.context.session,l=await s.context.adapter.findMany({model:"passkey",where:[{field:"userId",value:d.user.id}]}),p=new Uint8Array(Buffer.from(oe(32,"a-z","0-9"))),u;u=await(0,re.generateRegistrationOptions)({rpName:o.rpName||s.context.appName,rpID:o.rpID,userID:p,userName:d.user.email||d.user.id,attestationType:"none",excludeCredentials:l.map(m=>({id:m.credentialID,transports:m.transports?.split(",")})),authenticatorSelection:{residentKey:"preferred",userVerification:"preferred",authenticatorAttachment:"platform"}});let h=ye(32);return await s.setSignedCookie(o.advanced.webAuthnChallengeCookie,h,s.context.secret,{secure:!0,httpOnly:!0,sameSite:"lax",maxAge:a}),await s.context.internalAdapter.createVerificationValue({identifier:h,value:JSON.stringify({expectedChallenge:u.challenge,userData:{id:d.user.id}}),expiresAt:n}),s.json(u,{status:200})}),generatePasskeyAuthenticationOptions:g("/passkey/generate-authenticate-options",{method:"POST",body:L.z.object({email:L.z.string({description:"The email address of the user"}).optional()}).optional(),metadata:{openapi:{description:"Generate authentication options for a passkey",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{challenge:{type:"string"},rp:{type:"object",properties:{name:{type:"string"},id:{type:"string"}}},user:{type:"object",properties:{id:{type:"string"},name:{type:"string"},displayName:{type:"string"}}},timeout:{type:"number"},allowCredentials:{type:"array",items:{type:"object",properties:{id:{type:"string"},type:{type:"string"},transports:{type:"array",items:{type:"string"}}}}},userVerification:{type:"string"},authenticatorSelection:{type:"object",properties:{authenticatorAttachment:{type:"string"},requireResidentKey:{type:"boolean"},userVerification:{type:"string"}}},extensions:{type:"object"}}}}}}}}}},async s=>{let d=await J(s),l=[];d&&(l=await s.context.adapter.findMany({model:"passkey",where:[{field:"userId",value:d.user.id}]}));let p=await(0,re.generateAuthenticationOptions)({rpID:o.rpID,userVerification:"preferred",...l.length?{allowCredentials:l.map(m=>({id:m.credentialID,transports:m.transports?.split(",")}))}:{}}),u={expectedChallenge:p.challenge,userData:{id:d?.user.id||""}},h=ye(32);return await s.setSignedCookie(o.advanced.webAuthnChallengeCookie,h,s.context.secret,{secure:!0,httpOnly:!0,sameSite:"lax",maxAge:a}),await s.context.internalAdapter.createVerificationValue({identifier:h,value:JSON.stringify(u),expiresAt:n}),s.json(p,{status:200})}),verifyPasskeyRegistration:g("/passkey/verify-registration",{method:"POST",body:L.z.object({response:L.z.any({description:"The response from the authenticator"}),name:L.z.string({description:"Name of the passkey"}).optional()}),use:[we],metadata:{openapi:{description:"Verify registration of a new passkey",responses:{200:{description:"Success",content:{"application/json":{schema:{$ref:"#/components/schemas/Passkey"}}}},400:{description:"Bad request"}}}}},async s=>{let d=e?.origin||s.headers?.get("origin")||"";if(!d)return s.json(null,{status:400});let l=s.body.response,p=await s.getSignedCookie(o.advanced.webAuthnChallengeCookie,s.context.secret);if(!p)throw new I.APIError("BAD_REQUEST",{message:c.CHALLENGE_NOT_FOUND});let u=await s.context.internalAdapter.findVerificationValue(p);if(!u)return s.json(null,{status:400});let{expectedChallenge:h,userData:m}=JSON.parse(u.value);if(m.id!==s.context.session.user.id)throw new I.APIError("UNAUTHORIZED",{message:c.YOU_ARE_NOT_ALLOWED_TO_REGISTER_THIS_PASSKEY});try{let R=await(0,re.verifyRegistrationResponse)({response:l,expectedChallenge:h,expectedOrigin:d,expectedRPID:e?.rpID,requireUserVerification:!1}),{verified:Z,registrationInfo:C}=R;if(!Z||!C)return s.json(null,{status:400});let{credentialDeviceType:$,credentialBackedUp:U,credential:w,credentialType:xe}=C,E=Buffer.from(w.publicKey).toString("base64"),Ee={name:s.body.name,userId:m.id,id:s.context.generateId({model:"passkey"}),credentialID:w.id,publicKey:E,counter:w.counter,deviceType:$,transports:l.response.transports.join(","),backedUp:U,createdAt:new Date},Le=await s.context.adapter.create({model:"passkey",data:Ee});return s.json(Le,{status:200})}catch(R){throw console.log(R),new I.APIError("INTERNAL_SERVER_ERROR",{message:c.FAILED_TO_VERIFY_REGISTRATION})}}),verifyPasskeyAuthentication:g("/passkey/verify-authentication",{method:"POST",body:L.z.object({response:L.z.record(L.z.any())}),metadata:{openapi:{description:"Verify authentication of a passkey",responses:{200:{description:"Success",content:{"application/json":{schema:{type:"object",properties:{session:{$ref:"#/components/schemas/Session"},user:{$ref:"#/components/schemas/User"}}}}}}}},$Infer:{body:{}}}},async s=>{let d=e?.origin||s.headers?.get("origin")||"";if(!d)throw new I.APIError("BAD_REQUEST",{message:"origin missing"});let l=s.body.response,p=await s.getSignedCookie(o.advanced.webAuthnChallengeCookie,s.context.secret);if(!p)throw new I.APIError("BAD_REQUEST",{message:c.CHALLENGE_NOT_FOUND});let u=await s.context.internalAdapter.findVerificationValue(p);if(!u)throw new I.APIError("BAD_REQUEST",{message:c.CHALLENGE_NOT_FOUND});let{expectedChallenge:h}=JSON.parse(u.value),m=await s.context.adapter.findOne({model:"passkey",where:[{field:"credentialID",value:l.id}]});if(!m)throw new I.APIError("UNAUTHORIZED",{message:c.PASSKEY_NOT_FOUND});try{let R=await(0,re.verifyAuthenticationResponse)({response:l,expectedChallenge:h,expectedOrigin:d,expectedRPID:o.rpID,credential:{id:m.credentialID,publicKey:new Uint8Array(Buffer.from(m.publicKey,"base64")),counter:m.counter,transports:m.transports?.split(",")},requireUserVerification:!1}),{verified:Z}=R;if(!Z)throw new I.APIError("UNAUTHORIZED",{message:c.AUTHENTICATION_FAILED});await s.context.adapter.update({model:"passkey",where:[{field:"id",value:m.id}],update:{counter:R.authenticationInfo.newCounter}});let C=await s.context.internalAdapter.createSession(m.userId,s.request);if(!C)throw new I.APIError("INTERNAL_SERVER_ERROR",{message:c.UNABLE_TO_CREATE_SESSION});let $=await s.context.internalAdapter.findUserById(m.userId);if(!$)throw new I.APIError("INTERNAL_SERVER_ERROR",{message:"User not found"});return await x(s,{session:C,user:$}),s.json({session:C},{status:200})}catch(R){throw s.context.logger.error("Failed to verify authentication",R),new I.APIError("BAD_REQUEST",{message:c.AUTHENTICATION_FAILED})}}),listPasskeys:g("/passkey/list-user-passkeys",{method:"GET",use:[P]},async s=>{let d=await s.context.adapter.findMany({model:"passkey",where:[{field:"userId",value:s.context.session.user.id}]});return s.json(d,{status:200})}),deletePasskey:g("/passkey/delete-passkey",{method:"POST",body:L.z.object({id:L.z.string()}),use:[P]},async s=>(await s.context.adapter.delete({model:"passkey",where:[{field:"id",value:s.body.id}]}),s.json(null,{status:200}))),updatePasskey:g("/passkey/update-passkey",{method:"POST",body:L.z.object({id:L.z.string(),name:L.z.string()}),use:[P]},async s=>{let d=await s.context.adapter.findOne({model:"passkey",where:[{field:"id",value:s.body.id}]});if(!d)throw new I.APIError("NOT_FOUND",{message:c.PASSKEY_NOT_FOUND});if(d.userId!==s.context.session.user.id)throw new I.APIError("UNAUTHORIZED",{message:c.YOU_ARE_NOT_ALLOWED_TO_REGISTER_THIS_PASSKEY});let l=await s.context.adapter.update({model:"passkey",where:[{field:"id",value:s.body.id}],update:{name:s.body.name}});if(!l)throw new I.APIError("INTERNAL_SERVER_ERROR",{message:c.FAILED_TO_UPDATE_PASSKEY});return s.json({passkey:l},{status:200})})},schema:Ht(To,e?.schema),$ERROR_CODES:c}},To={passkey:{fields:{name:{type:"string",required:!1},publicKey:{type:"string",required:!0},userId:{type:"string",references:{model:"user",field:"id"},required:!0},credentialID:{type:"string",required:!0},counter:{type:"number",required:!0},deviceType:{type:"string",required:!0},backedUp:{type:"boolean",required:!0},transports:{type:"string",required:!1},createdAt:{type:"date",required:!1}}}};0&&(module.exports={getPasskeyActions,passkey,passkeyClient});
+      )
+    },
+    schema: chunkWRPAFI4I_cjs.mergeSchema(schema, options?.schema),
+    $ERROR_CODES: ERROR_CODES
+  };
+};
+var schema = {
+  passkey: {
+    fields: {
+      name: {
+        type: "string",
+        required: false
+      },
+      publicKey: {
+        type: "string",
+        required: true
+      },
+      userId: {
+        type: "string",
+        references: {
+          model: "user",
+          field: "id"
+        },
+        required: true
+      },
+      credentialID: {
+        type: "string",
+        required: true
+      },
+      counter: {
+        type: "number",
+        required: true
+      },
+      deviceType: {
+        type: "string",
+        required: true
+      },
+      backedUp: {
+        type: "boolean",
+        required: true
+      },
+      transports: {
+        type: "string",
+        required: false
+      },
+      createdAt: {
+        type: "date",
+        required: false
+      }
+    }
+  }
+};
+
+Object.defineProperty(exports, "getPasskeyActions", {
+  enumerable: true,
+  get: function () { return chunkYLFV4SQL_cjs.getPasskeyActions; }
+});
+Object.defineProperty(exports, "passkeyClient", {
+  enumerable: true,
+  get: function () { return chunkYLFV4SQL_cjs.passkeyClient; }
+});
+exports.passkey = passkey;

@@ -1,13 +1,6 @@
-import { j as Auth } from './auth-BISvpQdc.cjs';
-import 'kysely';
-import 'better-call';
-import 'zod';
-import './helper-Bi8FQwDD.cjs';
-import './index-KR6jI2X2.cjs';
-import 'jose';
-import 'better-sqlite3';
-
-declare function toSolidStartHandler(auth: Auth | Auth["handler"]): {
+declare function toSolidStartHandler(auth: {
+    handler: (request: Request) => Promise<Response>;
+} | ((request: Request) => Promise<Response>)): {
     GET: (event: {
         request: Request;
     }) => Promise<Response>;

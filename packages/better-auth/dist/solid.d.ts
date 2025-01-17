@@ -4,11 +4,11 @@ import { BetterFetchError } from '@better-fetch/fetch';
 import { ClientOptions, InferClientAPI, InferActions, InferErrorCodes, BetterAuthClientPlugin, IsSignal } from './types.js';
 import { Accessor } from 'solid-js';
 import { U as UnionToIntersection, P as PrettifyDeep } from './helper-Bi8FQwDD.js';
-import { a as BASE_ERROR_CODES } from './auth-BbYUexL8.js';
+import { a as BASE_ERROR_CODES } from './auth-BsEf_Tfi.js';
 import 'nanostores';
 import 'better-call';
 import 'kysely';
-import './index-B0PXeJp8.js';
+import './index-6-VFhg2N.js';
 import 'jose';
 import 'better-sqlite3';
 
@@ -55,12 +55,6 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
             name: string;
             hooks: {
                 onSuccess(context: _better_fetch_fetch.SuccessContext<any>): void;
-            };
-        } | {
-            id: string;
-            name: string;
-            hooks: {
-                onRequest<T extends Record<string, any>>(context: _better_fetch_fetch.RequestContext<T>): _better_fetch_fetch.RequestContext<T>;
             };
         })[];
         cache?: RequestCache;
