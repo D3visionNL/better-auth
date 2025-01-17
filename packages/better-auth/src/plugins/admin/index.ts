@@ -446,7 +446,6 @@ export const admin = <O extends AdminOptions>(options?: O) => {
 							offset: Number(ctx.query?.offset) || undefined,
 						});
 					} catch (e) {
-						console.log(e);
 						return ctx.json({
 							users: [],
 							total: 0,
