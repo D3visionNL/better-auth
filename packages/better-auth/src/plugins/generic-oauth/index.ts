@@ -274,6 +274,12 @@ export const genericOAuth = (options: GenericOAuthOptions) => {
 								description: "The URL to redirect to if an error occurs",
 							})
 							.optional(),
+						newUserCallbackURL: z
+							.string({
+								description:
+									"The URL to redirect to after login if the user is new",
+							})
+							.optional(),
 						disableRedirect: z
 							.boolean({
 								description: "Disable redirect",
@@ -460,7 +466,8 @@ export const genericOAuth = (options: GenericOAuthOptions) => {
 					let tokens: OAuth2Tokens | undefined = undefined;
 					const parsedState = await parseState(ctx);
 
-					const { callbackURL, codeVerifier, errorURL } = parsedState;
+					const { callbackURL, codeVerifier, errorURL, newUserURL } =
+						parsedState;
 					const code = ctx.query.code;
 
 					let finalTokenUrl = provider.tokenUrl;
@@ -485,7 +492,7 @@ export const genericOAuth = (options: GenericOAuthOptions) => {
 						}
 						tokens = await validateAuthorizationCode({
 							code,
-							codeVerifier,
+							codeVerifier: provider.pkce ? codeVerifier : undefined,
 							redirectURI: `${ctx.context.baseURL}/oauth2/callback/${provider.providerId}`,
 							options: {
 								clientId: provider.clientId,
@@ -557,10 +564,14 @@ export const genericOAuth = (options: GenericOAuthOptions) => {
 					});
 					let toRedirectTo: string;
 					try {
-						const url = new URL(callbackURL);
+						const url = result.isRegister
+							? newUserURL || callbackURL
+							: callbackURL;
 						toRedirectTo = url.toString();
 					} catch {
-						toRedirectTo = callbackURL;
+						toRedirectTo = result.isRegister
+							? newUserURL || callbackURL
+							: callbackURL;
 					}
 					throw ctx.redirect(toRedirectTo);
 				},
