@@ -1,15 +1,15 @@
-import { P as ProviderOptions, a as OAuth2Tokens } from './index-6-VFhg2N.js';
-export { O as OAuthProvider } from './index-6-VFhg2N.js';
+import { P as ProviderOptions, a as OAuth2Tokens } from './index-l5SennZN.js';
+export { O as OAuthProvider } from './index-l5SennZN.js';
 import * as jose from 'jose';
-export { g as generateState, p as parseState } from './state-RTsxkr-a.js';
+export { g as generateState, p as parseState } from './state-Bs7DNlfJ.js';
 import './helper-Bi8FQwDD.js';
 import 'zod';
-import './auth-BsEf_Tfi.js';
+import './auth-BA0Kj1M6.js';
 import 'kysely';
 import 'better-call';
 import 'better-sqlite3';
 
-declare function createAuthorizationURL({ id, options, authorizationEndpoint, state, codeVerifier, scopes, claims, redirectURI, duration, }: {
+declare function createAuthorizationURL({ id, options, authorizationEndpoint, state, codeVerifier, scopes, claims, redirectURI, duration, prompt, }: {
     id: string;
     options: ProviderOptions;
     redirectURI: string;
@@ -19,6 +19,7 @@ declare function createAuthorizationURL({ id, options, authorizationEndpoint, st
     scopes: string[];
     claims?: string[];
     duration?: string;
+    prompt?: boolean;
 }): Promise<URL>;
 
 declare function validateAuthorizationCode({ code, codeVerifier, redirectURI, options, tokenEndpoint, authentication, }: {

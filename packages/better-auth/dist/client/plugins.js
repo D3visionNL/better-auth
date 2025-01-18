@@ -86,7 +86,7 @@ var organizationClient = (options) => {
     atomListeners: [
       {
         matcher(path) {
-          return path === "/organization/create" || path === "/organization/delete";
+          return path === "/organization/create" || path === "/organization/delete" || path === "/organization/update";
         },
         signal: "$listOrg"
       },

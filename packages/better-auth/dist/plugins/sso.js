@@ -1,13 +1,13 @@
-import { createAuthEndpoint, sessionMiddleware, APIError, handleOAuthUserInfo } from '../chunk-BTIGCS3E.js';
-import '../chunk-USVA5AOK.js';
-import { createAuthorizationURL, validateAuthorizationCode, validateToken } from '../chunk-EQHSHTP2.js';
+import { createAuthEndpoint, sessionMiddleware, APIError, handleOAuthUserInfo } from '../chunk-VQTVRGXC.js';
+import '../chunk-YIRG4NC2.js';
+import { createAuthorizationURL, validateAuthorizationCode, validateToken } from '../chunk-M2JCNZEP.js';
 import '../chunk-XFCIANZX.js';
 import { setSessionCookie } from '../chunk-IWEXZ2ES.js';
-import '../chunk-BO77WNCJ.js';
+import '../chunk-MEZ6VLJL.js';
 import '../chunk-KLDFBLYL.js';
-import { generateState, parseState } from '../chunk-6YL5J5JY.js';
+import { generateState, parseState } from '../chunk-NPO64SVN.js';
 import '../chunk-3XTQSPPA.js';
-import '../chunk-WN2RDYR6.js';
+import '../chunk-DBPOZRMS.js';
 import '../chunk-FURNA6HY.js';
 import '../chunk-TQQSPPNA.js';
 import '../chunk-UNWCXKMP.js';
@@ -499,10 +499,10 @@ var sso = (options) => {
           });
           let toRedirectTo;
           try {
-            const url = new URL(callbackURL);
+            const url = linked.isRegister ? newUserURL || callbackURL : callbackURL;
             toRedirectTo = url.toString();
           } catch {
-            toRedirectTo = callbackURL;
+            toRedirectTo = linked.isRegister ? newUserURL || callbackURL : callbackURL;
           }
           throw ctx.redirect(toRedirectTo);
         }

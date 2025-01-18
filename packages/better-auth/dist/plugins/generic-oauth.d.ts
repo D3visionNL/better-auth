@@ -1,7 +1,7 @@
 import * as better_call from 'better-call';
-import { k as AuthContext, U as User } from '../auth-BsEf_Tfi.js';
+import { l as AuthContext, U as User } from '../auth-BA0Kj1M6.js';
 import { z } from 'zod';
-import { O as OAuthProvider, a as OAuth2Tokens } from '../index-6-VFhg2N.js';
+import { O as OAuthProvider, a as OAuth2Tokens } from '../index-l5SennZN.js';
 import 'kysely';
 import '../helper-Bi8FQwDD.js';
 import 'better-sqlite3';
@@ -122,15 +122,18 @@ declare const genericOAuth: (options: GenericOAuthOptions) => {
                     providerId: z.ZodString;
                     callbackURL: z.ZodOptional<z.ZodString>;
                     errorCallbackURL: z.ZodOptional<z.ZodString>;
+                    newUserCallbackURL: z.ZodOptional<z.ZodString>;
                     disableRedirect: z.ZodOptional<z.ZodBoolean>;
                 }, "strip", z.ZodTypeAny, {
                     providerId: string;
                     callbackURL?: string | undefined;
+                    newUserCallbackURL?: string | undefined;
                     errorCallbackURL?: string | undefined;
                     disableRedirect?: boolean | undefined;
                 }, {
                     providerId: string;
                     callbackURL?: string | undefined;
+                    newUserCallbackURL?: string | undefined;
                     errorCallbackURL?: string | undefined;
                     disableRedirect?: boolean | undefined;
                 }>;
@@ -172,15 +175,18 @@ declare const genericOAuth: (options: GenericOAuthOptions) => {
                     providerId: z.ZodString;
                     callbackURL: z.ZodOptional<z.ZodString>;
                     errorCallbackURL: z.ZodOptional<z.ZodString>;
+                    newUserCallbackURL: z.ZodOptional<z.ZodString>;
                     disableRedirect: z.ZodOptional<z.ZodBoolean>;
                 }, "strip", z.ZodTypeAny, {
                     providerId: string;
                     callbackURL?: string | undefined;
+                    newUserCallbackURL?: string | undefined;
                     errorCallbackURL?: string | undefined;
                     disableRedirect?: boolean | undefined;
                 }, {
                     providerId: string;
                     callbackURL?: string | undefined;
+                    newUserCallbackURL?: string | undefined;
                     errorCallbackURL?: string | undefined;
                     disableRedirect?: boolean | undefined;
                 }>;

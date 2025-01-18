@@ -1,18 +1,18 @@
 'use strict';
 
 var chunkEHFDU6IF_cjs = require('./chunk-EHFDU6IF.cjs');
-var chunkVADINYB6_cjs = require('./chunk-VADINYB6.cjs');
-var chunk2OGHGURS_cjs = require('./chunk-2OGHGURS.cjs');
-require('./chunk-H2JFIDVT.cjs');
+var chunkDYWEYR5R_cjs = require('./chunk-DYWEYR5R.cjs');
+var chunkJ7OQS4OO_cjs = require('./chunk-J7OQS4OO.cjs');
+require('./chunk-2D7VGWTP.cjs');
 var chunkS5UORXJH_cjs = require('./chunk-S5UORXJH.cjs');
 var chunkOJX3P352_cjs = require('./chunk-OJX3P352.cjs');
-var chunkP65Q6LR5_cjs = require('./chunk-P65Q6LR5.cjs');
-require('./chunk-WRPAFI4I.cjs');
+var chunkHH5YHQO2_cjs = require('./chunk-HH5YHQO2.cjs');
+require('./chunk-ME4Q5ZEC.cjs');
 var chunkH74YRRNV_cjs = require('./chunk-H74YRRNV.cjs');
-var chunkLB4ZM24Q_cjs = require('./chunk-LB4ZM24Q.cjs');
+var chunk5E75URIA_cjs = require('./chunk-5E75URIA.cjs');
 require('./chunk-NIMYOIVU.cjs');
 var chunkCCKQSGIR_cjs = require('./chunk-CCKQSGIR.cjs');
-var chunkXJGHQ3F6_cjs = require('./chunk-XJGHQ3F6.cjs');
+var chunkG2LZ73E2_cjs = require('./chunk-G2LZ73E2.cjs');
 require('./chunk-2HPSCSV7.cjs');
 var chunkVXYIYABQ_cjs = require('./chunk-VXYIYABQ.cjs');
 var chunkPEZRSDZS_cjs = require('./chunk-PEZRSDZS.cjs');
@@ -23,7 +23,7 @@ var DEFAULT_SECRET = "better-auth-secret-123456789";
 
 // src/init.ts
 var init = async (options) => {
-  const adapter = await chunkP65Q6LR5_cjs.getAdapter(options);
+  const adapter = await chunkHH5YHQO2_cjs.getAdapter(options);
   const plugins = options.plugins || [];
   const internalPlugins = getInternalPlugins(options);
   const logger2 = chunkH74YRRNV_cjs.createLogger(options.logger);
@@ -49,7 +49,7 @@ var init = async (options) => {
     }
   };
   const cookies = chunkOJX3P352_cjs.getCookies(options);
-  const tables = chunkP65Q6LR5_cjs.getAuthTables(options);
+  const tables = chunkHH5YHQO2_cjs.getAuthTables(options);
   const providers = Object.keys(options.socialProviders || {}).map((key) => {
     const value = options.socialProviders?.[key];
     if (value.enabled === false) {
@@ -60,7 +60,7 @@ var init = async (options) => {
         `Social provider ${key} is missing clientId or clientSecret`
       );
     }
-    return chunk2OGHGURS_cjs.socialProviders[key](
+    return chunkJ7OQS4OO_cjs.socialProviders[key](
       value
       // TODO: fix this
     );
@@ -99,8 +99,8 @@ var init = async (options) => {
     session: null,
     secondaryStorage: options.secondaryStorage,
     password: {
-      hash: options.emailAndPassword?.password?.hash || chunkXJGHQ3F6_cjs.hashPassword,
-      verify: options.emailAndPassword?.password?.verify || chunkXJGHQ3F6_cjs.verifyPassword,
+      hash: options.emailAndPassword?.password?.hash || chunkG2LZ73E2_cjs.hashPassword,
+      verify: options.emailAndPassword?.password?.verify || chunkG2LZ73E2_cjs.verifyPassword,
       config: {
         minPasswordLength: options.emailAndPassword?.minPasswordLength || 8,
         maxPasswordLength: options.emailAndPassword?.maxPasswordLength || 128
@@ -112,7 +112,7 @@ var init = async (options) => {
     },
     newSession: null,
     adapter,
-    internalAdapter: chunkP65Q6LR5_cjs.createInternalAdapter(adapter, {
+    internalAdapter: chunkHH5YHQO2_cjs.createInternalAdapter(adapter, {
       options,
       hooks: options.databaseHooks ? [options.databaseHooks] : [],
       generateId: generateIdFunc
@@ -132,10 +132,11 @@ function runPluginInit(ctx) {
       const result = plugin.init(ctx);
       if (typeof result === "object") {
         if (result.options) {
-          if (result.options.databaseHooks) {
-            dbHooks.push(result.options.databaseHooks);
+          const { databaseHooks, ...restOpts } = result.options;
+          if (databaseHooks) {
+            dbHooks.push(databaseHooks);
           }
-          options = defu.defu(options, result.options);
+          options = defu.defu(options, restOpts);
         }
         if (result.context) {
           context = {
@@ -147,7 +148,7 @@ function runPluginInit(ctx) {
     }
   }
   dbHooks.push(options.databaseHooks);
-  context.internalAdapter = chunkP65Q6LR5_cjs.createInternalAdapter(ctx.adapter, {
+  context.internalAdapter = chunkHH5YHQO2_cjs.createInternalAdapter(ctx.adapter, {
     options,
     hooks: dbHooks.filter((u) => u !== void 0),
     generateId: ctx.generateId
@@ -179,7 +180,7 @@ function getTrustedOrigins(options) {
 // src/auth.ts
 var betterAuth = (options) => {
   const authContext = init(options);
-  const { api } = chunkVADINYB6_cjs.getEndpoints(authContext, options);
+  const { api } = chunkDYWEYR5R_cjs.getEndpoints(authContext, options);
   const errorCodes = options.plugins?.reduce((acc, plugin) => {
     if (plugin.$ERROR_CODES) {
       return {
@@ -204,7 +205,7 @@ var betterAuth = (options) => {
         ctx.baseURL,
         url.origin
       ];
-      const { handler } = chunkVADINYB6_cjs.router(ctx, options);
+      const { handler } = chunkDYWEYR5R_cjs.router(ctx, options);
       return handler(request);
     },
     api,
@@ -213,7 +214,7 @@ var betterAuth = (options) => {
     $Infer: {},
     $ERROR_CODES: {
       ...errorCodes,
-      ...chunkVADINYB6_cjs.BASE_ERROR_CODES
+      ...chunkDYWEYR5R_cjs.BASE_ERROR_CODES
     }
   };
 };
@@ -272,11 +273,11 @@ Object.defineProperty(exports, "shouldPublishLog", {
 });
 Object.defineProperty(exports, "generateState", {
   enumerable: true,
-  get: function () { return chunkLB4ZM24Q_cjs.generateState; }
+  get: function () { return chunk5E75URIA_cjs.generateState; }
 });
 Object.defineProperty(exports, "parseState", {
   enumerable: true,
-  get: function () { return chunkLB4ZM24Q_cjs.parseState; }
+  get: function () { return chunk5E75URIA_cjs.parseState; }
 });
 Object.defineProperty(exports, "capitalizeFirstLetter", {
   enumerable: true,

@@ -1,19 +1,19 @@
 'use strict';
 
-var chunkP65Q6LR5_cjs = require('../chunk-P65Q6LR5.cjs');
-require('../chunk-WRPAFI4I.cjs');
+var chunkHH5YHQO2_cjs = require('../chunk-HH5YHQO2.cjs');
+require('../chunk-ME4Q5ZEC.cjs');
 require('../chunk-H74YRRNV.cjs');
-require('../chunk-LB4ZM24Q.cjs');
+require('../chunk-5E75URIA.cjs');
 require('../chunk-NIMYOIVU.cjs');
 require('../chunk-CCKQSGIR.cjs');
-require('../chunk-XJGHQ3F6.cjs');
+require('../chunk-G2LZ73E2.cjs');
 require('../chunk-2HPSCSV7.cjs');
 require('../chunk-VXYIYABQ.cjs');
 require('../chunk-PEZRSDZS.cjs');
 var mongodb = require('mongodb');
 
 var createTransform = (options) => {
-  const schema = chunkP65Q6LR5_cjs.getAuthTables(options);
+  const schema = chunkHH5YHQO2_cjs.getAuthTables(options);
   function serializeID(field, value, model) {
     if (field === "id" || field === "_id" || schema[model].fields[field].references?.field === "id") {
       if (typeof value !== "string") {
@@ -80,7 +80,7 @@ var createTransform = (options) => {
         if (value === void 0 && (!fields[field].defaultValue || action === "update")) {
           continue;
         }
-        transformedData[fields[field].fieldName || field] = chunkP65Q6LR5_cjs.withApplyDefault(
+        transformedData[fields[field].fieldName || field] = chunkHH5YHQO2_cjs.withApplyDefault(
           serializeID(field, value, model),
           fields[field],
           action

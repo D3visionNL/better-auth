@@ -1,15 +1,15 @@
 'use strict';
 
-var chunkVADINYB6_cjs = require('../chunk-VADINYB6.cjs');
-require('../chunk-2OGHGURS.cjs');
-var chunkH2JFIDVT_cjs = require('../chunk-H2JFIDVT.cjs');
+var chunkDYWEYR5R_cjs = require('../chunk-DYWEYR5R.cjs');
+require('../chunk-J7OQS4OO.cjs');
+var chunk2D7VGWTP_cjs = require('../chunk-2D7VGWTP.cjs');
 require('../chunk-S5UORXJH.cjs');
 var chunkOJX3P352_cjs = require('../chunk-OJX3P352.cjs');
-require('../chunk-WRPAFI4I.cjs');
+require('../chunk-ME4Q5ZEC.cjs');
 require('../chunk-H74YRRNV.cjs');
-var chunkLB4ZM24Q_cjs = require('../chunk-LB4ZM24Q.cjs');
+var chunk5E75URIA_cjs = require('../chunk-5E75URIA.cjs');
 require('../chunk-CCKQSGIR.cjs');
-require('../chunk-XJGHQ3F6.cjs');
+require('../chunk-G2LZ73E2.cjs');
 require('../chunk-2HPSCSV7.cjs');
 require('../chunk-VXYIYABQ.cjs');
 require('../chunk-PEZRSDZS.cjs');
@@ -21,7 +21,7 @@ var sso = (options) => {
   return {
     id: "sso",
     endpoints: {
-      createOIDCProvider: chunkVADINYB6_cjs.createAuthEndpoint(
+      createOIDCProvider: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/sso/register",
         {
           method: "POST",
@@ -83,7 +83,7 @@ var sso = (options) => {
               description: "If organization plugin is enabled, the organization id to link the provider to"
             }).optional()
           }),
-          use: [chunkVADINYB6_cjs.sessionMiddleware],
+          use: [chunkDYWEYR5R_cjs.sessionMiddleware],
           metadata: {
             openapi: {
               summary: "Register an OIDC provider",
@@ -100,7 +100,7 @@ var sso = (options) => {
           const body = ctx.body;
           const issuerValidator = zod.z.string().url();
           if (issuerValidator.safeParse(body.issuer).error) {
-            throw new chunkVADINYB6_cjs.APIError("BAD_REQUEST", {
+            throw new chunkDYWEYR5R_cjs.APIError("BAD_REQUEST", {
               message: "Invalid issuer. Must be a valid URL"
             });
           }
@@ -135,7 +135,7 @@ var sso = (options) => {
           });
         }
       ),
-      signInSSO: chunkVADINYB6_cjs.createAuthEndpoint(
+      signInSSO: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/sign-in/sso",
         {
           method: "POST",
@@ -206,7 +206,7 @@ var sso = (options) => {
           const body = ctx.body;
           let { email, organizationSlug, domain } = body;
           if (!email && !organizationSlug && !domain) {
-            throw new chunkVADINYB6_cjs.APIError("BAD_REQUEST", {
+            throw new chunkDYWEYR5R_cjs.APIError("BAD_REQUEST", {
               message: "email, organizationSlug or domain is required"
             });
           }
@@ -246,13 +246,13 @@ var sso = (options) => {
             };
           });
           if (!provider) {
-            throw new chunkVADINYB6_cjs.APIError("NOT_FOUND", {
+            throw new chunkDYWEYR5R_cjs.APIError("NOT_FOUND", {
               message: "No provider found for the issuer"
             });
           }
-          const state = await chunkLB4ZM24Q_cjs.generateState(ctx);
+          const state = await chunk5E75URIA_cjs.generateState(ctx);
           const redirectURI = `${ctx.context.baseURL}/sso/callback/${provider.providerId}`;
-          const authorizationURL = await chunkH2JFIDVT_cjs.createAuthorizationURL({
+          const authorizationURL = await chunk2D7VGWTP_cjs.createAuthorizationURL({
             id: provider.issuer,
             options: {
               clientId: provider.oidcConfig.clientId,
@@ -270,7 +270,7 @@ var sso = (options) => {
           });
         }
       ),
-      callbackSSO: chunkVADINYB6_cjs.createAuthEndpoint(
+      callbackSSO: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/sso/callback/:providerId",
         {
           method: "GET",
@@ -295,7 +295,7 @@ var sso = (options) => {
         },
         async (ctx) => {
           const { code, state, error, error_description } = ctx.query;
-          const stateData = await chunkLB4ZM24Q_cjs.parseState(ctx);
+          const stateData = await chunk5E75URIA_cjs.parseState(ctx);
           if (!stateData) {
             throw ctx.redirect(
               `${ctx.context.baseURL}/error?error=invalid_state`
@@ -345,7 +345,7 @@ var sso = (options) => {
               `${errorURL || callbackURL}/error?error=invalid_provider&error_description=token_endpoint_not_found`
             );
           }
-          const tokenResponse = await chunkH2JFIDVT_cjs.validateAuthorizationCode({
+          const tokenResponse = await chunk2D7VGWTP_cjs.validateAuthorizationCode({
             code,
             codeVerifier: provider.oidcConfig.pkce ? stateData.codeVerifier : void 0,
             redirectURI: `${ctx.context.baseURL}/sso/callback/${provider.providerId}`,
@@ -376,7 +376,7 @@ var sso = (options) => {
                 `${errorURL || callbackURL}/error?error=invalid_provider&error_description=jwks_endpoint_not_found`
               );
             }
-            const verified = await chunkH2JFIDVT_cjs.validateToken(
+            const verified = await chunk2D7VGWTP_cjs.validateToken(
               tokenResponse.idToken,
               config.jwksEndpoint
             ).catch((e) => {
@@ -430,7 +430,7 @@ var sso = (options) => {
               `${errorURL || callbackURL}/error?error=invalid_provider&error_description=missing_user_info`
             );
           }
-          const linked = await chunkVADINYB6_cjs.handleOAuthUserInfo(ctx, {
+          const linked = await chunkDYWEYR5R_cjs.handleOAuthUserInfo(ctx, {
             userInfo: {
               email: userInfo.email,
               name: userInfo.name || userInfo.email,
@@ -501,10 +501,10 @@ var sso = (options) => {
           });
           let toRedirectTo;
           try {
-            const url = new URL(callbackURL);
+            const url = linked.isRegister ? newUserURL || callbackURL : callbackURL;
             toRedirectTo = url.toString();
           } catch {
-            toRedirectTo = callbackURL;
+            toRedirectTo = linked.isRegister ? newUserURL || callbackURL : callbackURL;
           }
           throw ctx.redirect(toRedirectTo);
         }

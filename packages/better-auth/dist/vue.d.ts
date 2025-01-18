@@ -5,15 +5,15 @@ import { BetterFetchError } from '@better-fetch/fetch';
 import { DeepReadonly, Ref } from 'vue';
 import { ClientOptions, InferClientAPI, InferActions, InferErrorCodes, BetterAuthClientPlugin, IsSignal } from './types.js';
 import { U as UnionToIntersection, P as PrettifyDeep } from './helper-Bi8FQwDD.js';
-import { a as BASE_ERROR_CODES } from './auth-BsEf_Tfi.js';
+import { a as BASE_ERROR_CODES } from './auth-BA0Kj1M6.js';
 import 'better-call';
 import 'kysely';
-import './index-6-VFhg2N.js';
+import './index-l5SennZN.js';
 import 'jose';
 import 'better-sqlite3';
 
 type InferResolvedHooks<O extends ClientOptions> = O["plugins"] extends Array<infer Plugin> ? Plugin extends BetterAuthClientPlugin ? Plugin["getAtoms"] extends (fetch: any) => infer Atoms ? Atoms extends Record<string, any> ? {
-    [key in keyof Atoms as IsSignal<key> extends true ? never : key extends string ? `use${Capitalize<key>}` : never]: DeepReadonly<Ref<ReturnType<Atoms[key]["get"]>>>;
+    [key in keyof Atoms as IsSignal<key> extends true ? never : key extends string ? `use${Capitalize<key>}` : never]: () => DeepReadonly<Ref<ReturnType<Atoms[key]["get"]>>>;
 } : {} : {} : {} : {};
 declare function createAuthClient<Option extends ClientOptions>(options?: Option): UnionToIntersection<InferResolvedHooks<Option>> & InferClientAPI<Option> & InferActions<Option> & {
     useSession: {

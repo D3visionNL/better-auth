@@ -1,18 +1,18 @@
 import { checkPassword } from './chunk-TOKZL3ZI.js';
-import { getEndpoints, router, BASE_ERROR_CODES } from './chunk-BTIGCS3E.js';
-import { socialProviders } from './chunk-USVA5AOK.js';
-import './chunk-EQHSHTP2.js';
+import { getEndpoints, router, BASE_ERROR_CODES } from './chunk-VQTVRGXC.js';
+import { socialProviders } from './chunk-YIRG4NC2.js';
+import './chunk-M2JCNZEP.js';
 import { getBaseURL } from './chunk-XFCIANZX.js';
 import { getCookies, createCookieGetter } from './chunk-IWEXZ2ES.js';
 export { createCookieGetter, deleteSessionCookie, getCookies, parseCookies, parseSetCookieHeader, setCookieCache, setSessionCookie } from './chunk-IWEXZ2ES.js';
-import { getAdapter, getAuthTables, createInternalAdapter } from './chunk-WMXORMNQ.js';
-import './chunk-BO77WNCJ.js';
+import { getAdapter, getAuthTables, createInternalAdapter } from './chunk-LV37BO5S.js';
+import './chunk-MEZ6VLJL.js';
 import { createLogger, generateId } from './chunk-KLDFBLYL.js';
 export { HIDE_METADATA, createLogger, generateId, levels, logger, shouldPublishLog } from './chunk-KLDFBLYL.js';
-export { generateState, parseState } from './chunk-6YL5J5JY.js';
+export { generateState, parseState } from './chunk-NPO64SVN.js';
 import './chunk-SK6Y2YH6.js';
 export { capitalizeFirstLetter } from './chunk-3XTQSPPA.js';
-import { hashPassword, verifyPassword } from './chunk-WN2RDYR6.js';
+import { hashPassword, verifyPassword } from './chunk-DBPOZRMS.js';
 import './chunk-FURNA6HY.js';
 import { env, isProduction } from './chunk-TQQSPPNA.js';
 export { BetterAuthError, MissingDependencyError } from './chunk-UNWCXKMP.js';
@@ -132,10 +132,11 @@ function runPluginInit(ctx) {
       const result = plugin.init(ctx);
       if (typeof result === "object") {
         if (result.options) {
-          if (result.options.databaseHooks) {
-            dbHooks.push(result.options.databaseHooks);
+          const { databaseHooks, ...restOpts } = result.options;
+          if (databaseHooks) {
+            dbHooks.push(databaseHooks);
           }
-          options = defu(options, result.options);
+          options = defu(options, restOpts);
         }
         if (result.context) {
           context = {

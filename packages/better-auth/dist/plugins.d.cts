@@ -1,9 +1,9 @@
-export { O as OrganizationOptions, o as organization } from './index-CItkqx1B.cjs';
+export { O as OrganizationOptions, o as organization } from './index-SnNIOtoX.cjs';
 export { TwoFactorOptions, TwoFactorProvider, TwoFactorTable, UserWithTwoFactor, twoFactor, twoFactorClient } from './plugins/two-factor.cjs';
 export { UsernameOptions, username } from './plugins/username.cjs';
 export { bearer } from './plugins/bearer.cjs';
-import { H as HookEndpointContext } from './auth-Wqh-EswE.cjs';
-export { h as AuthEndpoint, i as AuthMiddleware, A as AuthPluginSchema, d as BetterAuthPlugin, c as HookAfterHandler, b as HookBeforeHandler, I as InferOptionSchema, e as InferPluginErrorCodes, g as createAuthEndpoint, f as createAuthMiddleware, o as optionsMiddleware } from './auth-Wqh-EswE.cjs';
+import { H as HookEndpointContext } from './auth-xST9BYWZ.cjs';
+export { i as AuthEndpoint, j as AuthMiddleware, b as AuthPluginSchema, e as BetterAuthPlugin, d as HookAfterHandler, c as HookBeforeHandler, I as InferOptionSchema, f as InferPluginErrorCodes, h as createAuthEndpoint, g as createAuthMiddleware, o as optionsMiddleware } from './auth-xST9BYWZ.cjs';
 export { H as HIDE_METADATA } from './hide-metadata-DEHJp1rk.cjs';
 export { magicLink } from './plugins/magic-link.cjs';
 export { UserWithPhoneNumber, phoneNumber } from './plugins/phone-number.cjs';
@@ -24,7 +24,7 @@ import './helper-Bi8FQwDD.cjs';
 import './plugins/access.cjs';
 import '@better-fetch/fetch';
 import 'kysely';
-import './index-q7pIlaCQ.cjs';
+import './index-D0tmmb_V.cjs';
 import 'jose';
 import 'better-sqlite3';
 

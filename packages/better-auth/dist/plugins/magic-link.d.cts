@@ -43,12 +43,15 @@ declare const magicLink: (options: MagicLinkOptions) => {
                 requireHeaders: true;
                 body: z.ZodObject<{
                     email: z.ZodString;
+                    name: z.ZodOptional<z.ZodString>;
                     callbackURL: z.ZodOptional<z.ZodString>;
                 }, "strip", z.ZodTypeAny, {
                     email: string;
+                    name?: string | undefined;
                     callbackURL?: string | undefined;
                 }, {
                     email: string;
+                    name?: string | undefined;
                     callbackURL?: string | undefined;
                 }>;
                 metadata: {
@@ -84,12 +87,15 @@ declare const magicLink: (options: MagicLinkOptions) => {
                 requireHeaders: true;
                 body: z.ZodObject<{
                     email: z.ZodString;
+                    name: z.ZodOptional<z.ZodString>;
                     callbackURL: z.ZodOptional<z.ZodString>;
                 }, "strip", z.ZodTypeAny, {
                     email: string;
+                    name?: string | undefined;
                     callbackURL?: string | undefined;
                 }, {
                     email: string;
+                    name?: string | undefined;
                     callbackURL?: string | undefined;
                 }>;
                 metadata: {

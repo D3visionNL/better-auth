@@ -1,19 +1,19 @@
 'use strict';
 
 var chunkYLFV4SQL_cjs = require('../chunk-YLFV4SQL.cjs');
-var chunkVADINYB6_cjs = require('../chunk-VADINYB6.cjs');
-require('../chunk-2OGHGURS.cjs');
-require('../chunk-H2JFIDVT.cjs');
+var chunkDYWEYR5R_cjs = require('../chunk-DYWEYR5R.cjs');
+require('../chunk-J7OQS4OO.cjs');
+require('../chunk-2D7VGWTP.cjs');
 require('../chunk-RBN34WVC.cjs');
 require('../chunk-CXGP5FNG.cjs');
 require('../chunk-U4I57HJ4.cjs');
 require('../chunk-S5UORXJH.cjs');
 var chunkOJX3P352_cjs = require('../chunk-OJX3P352.cjs');
-var chunkWRPAFI4I_cjs = require('../chunk-WRPAFI4I.cjs');
+var chunkME4Q5ZEC_cjs = require('../chunk-ME4Q5ZEC.cjs');
 var chunkH74YRRNV_cjs = require('../chunk-H74YRRNV.cjs');
-require('../chunk-LB4ZM24Q.cjs');
+require('../chunk-5E75URIA.cjs');
 require('../chunk-CCKQSGIR.cjs');
-var chunkXJGHQ3F6_cjs = require('../chunk-XJGHQ3F6.cjs');
+var chunkG2LZ73E2_cjs = require('../chunk-G2LZ73E2.cjs');
 require('../chunk-2HPSCSV7.cjs');
 require('../chunk-VXYIYABQ.cjs');
 require('../chunk-PEZRSDZS.cjs');
@@ -50,11 +50,11 @@ var passkey = (options) => {
   return {
     id: "passkey",
     endpoints: {
-      generatePasskeyRegistrationOptions: chunkVADINYB6_cjs.createAuthEndpoint(
+      generatePasskeyRegistrationOptions: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/passkey/generate-register-options",
         {
           method: "GET",
-          use: [chunkVADINYB6_cjs.freshSessionMiddleware],
+          use: [chunkDYWEYR5R_cjs.freshSessionMiddleware],
           metadata: {
             client: false,
             openapi: {
@@ -173,7 +173,7 @@ var passkey = (options) => {
             ]
           });
           const userID = new Uint8Array(
-            Buffer.from(chunkXJGHQ3F6_cjs.generateRandomString(32, "a-z", "0-9"))
+            Buffer.from(chunkG2LZ73E2_cjs.generateRandomString(32, "a-z", "0-9"))
           );
           let options2;
           options2 = await server.generateRegistrationOptions({
@@ -222,7 +222,7 @@ var passkey = (options) => {
           });
         }
       ),
-      generatePasskeyAuthenticationOptions: chunkVADINYB6_cjs.createAuthEndpoint(
+      generatePasskeyAuthenticationOptions: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/passkey/generate-authenticate-options",
         {
           method: "POST",
@@ -323,7 +323,7 @@ var passkey = (options) => {
           }
         },
         async (ctx) => {
-          const session = await chunkVADINYB6_cjs.getSessionFromCtx(ctx);
+          const session = await chunkDYWEYR5R_cjs.getSessionFromCtx(ctx);
           let userPasskeys = [];
           if (session) {
             userPasskeys = await ctx.context.adapter.findMany({
@@ -377,7 +377,7 @@ var passkey = (options) => {
           });
         }
       ),
-      verifyPasskeyRegistration: chunkVADINYB6_cjs.createAuthEndpoint(
+      verifyPasskeyRegistration: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/passkey/verify-registration",
         {
           method: "POST",
@@ -389,7 +389,7 @@ var passkey = (options) => {
               description: "Name of the passkey"
             }).optional()
           }),
-          use: [chunkVADINYB6_cjs.freshSessionMiddleware],
+          use: [chunkDYWEYR5R_cjs.freshSessionMiddleware],
           metadata: {
             openapi: {
               description: "Verify registration of a new passkey",
@@ -498,7 +498,7 @@ var passkey = (options) => {
           }
         }
       ),
-      verifyPasskeyAuthentication: chunkVADINYB6_cjs.createAuthEndpoint(
+      verifyPasskeyAuthentication: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/passkey/verify-authentication",
         {
           method: "POST",
@@ -651,11 +651,11 @@ var passkey = (options) => {
           }
         }
       ),
-      listPasskeys: chunkVADINYB6_cjs.createAuthEndpoint(
+      listPasskeys: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/passkey/list-user-passkeys",
         {
           method: "GET",
-          use: [chunkVADINYB6_cjs.sessionMiddleware]
+          use: [chunkDYWEYR5R_cjs.sessionMiddleware]
         },
         async (ctx) => {
           const passkeys = await ctx.context.adapter.findMany({
@@ -667,14 +667,14 @@ var passkey = (options) => {
           });
         }
       ),
-      deletePasskey: chunkVADINYB6_cjs.createAuthEndpoint(
+      deletePasskey: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/passkey/delete-passkey",
         {
           method: "POST",
           body: zod.z.object({
             id: zod.z.string()
           }),
-          use: [chunkVADINYB6_cjs.sessionMiddleware]
+          use: [chunkDYWEYR5R_cjs.sessionMiddleware]
         },
         async (ctx) => {
           await ctx.context.adapter.delete({
@@ -691,7 +691,7 @@ var passkey = (options) => {
           });
         }
       ),
-      updatePasskey: chunkVADINYB6_cjs.createAuthEndpoint(
+      updatePasskey: chunkDYWEYR5R_cjs.createAuthEndpoint(
         "/passkey/update-passkey",
         {
           method: "POST",
@@ -699,7 +699,7 @@ var passkey = (options) => {
             id: zod.z.string(),
             name: zod.z.string()
           }),
-          use: [chunkVADINYB6_cjs.sessionMiddleware]
+          use: [chunkDYWEYR5R_cjs.sessionMiddleware]
         },
         async (ctx) => {
           const passkey2 = await ctx.context.adapter.findOne({
@@ -749,7 +749,7 @@ var passkey = (options) => {
         }
       )
     },
-    schema: chunkWRPAFI4I_cjs.mergeSchema(schema, options?.schema),
+    schema: chunkME4Q5ZEC_cjs.mergeSchema(schema, options?.schema),
     $ERROR_CODES: ERROR_CODES
   };
 };

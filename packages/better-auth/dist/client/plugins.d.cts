@@ -2,7 +2,7 @@ import * as nanostores from 'nanostores';
 import { AccessControl, StatementsPrimitive, Role } from '../plugins/access.cjs';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchOption } from '@better-fetch/fetch';
-import { o as organization, a as Organization, M as Member, I as Invitation } from '../index-CItkqx1B.cjs';
+import { o as organization, a as Organization, M as Member, I as Invitation } from '../index-SnNIOtoX.cjs';
 import { b as Prettify } from '../helper-Bi8FQwDD.cjs';
 import { username } from '../plugins/username.cjs';
 export { getPasskeyActions, passkeyClient } from '../plugins/passkey.cjs';
@@ -10,7 +10,7 @@ export { twoFactorClient } from '../plugins/two-factor.cjs';
 import { magicLink } from '../plugins/magic-link.cjs';
 import { phoneNumber } from '../plugins/phone-number.cjs';
 import { anonymous } from '../plugins/anonymous.cjs';
-import { a5 as FieldAttribute, B as BetterAuthOptions, d as BetterAuthPlugin } from '../auth-Wqh-EswE.cjs';
+import { a5 as FieldAttribute, B as BetterAuthOptions, e as BetterAuthPlugin } from '../auth-xST9BYWZ.cjs';
 import { admin } from '../plugins/admin.cjs';
 import { genericOAuth } from '../plugins/generic-oauth.cjs';
 import { jwt } from '../plugins/jwt.cjs';
@@ -23,7 +23,7 @@ export * from '@simplewebauthn/server';
 import 'zod';
 import 'better-call';
 import 'kysely';
-import '../index-q7pIlaCQ.cjs';
+import '../index-D0tmmb_V.cjs';
 import 'jose';
 import 'better-sqlite3';
 
@@ -154,7 +154,7 @@ declare const organizationClient: <O extends OrganizationClientOptions>(options?
         "/organization/get-full-organization": "GET";
     };
     atomListeners: ({
-        matcher(path: string): path is "/organization/create" | "/organization/delete";
+        matcher(path: string): path is "/organization/create" | "/organization/update" | "/organization/delete";
         signal: "$listOrg";
     } | {
         matcher(path: string): boolean;

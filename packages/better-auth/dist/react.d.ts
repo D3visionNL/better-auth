@@ -8,10 +8,10 @@ export * from '@better-fetch/fetch';
 import { ClientOptions, InferClientAPI, InferActions, InferErrorCodes, BetterAuthClientPlugin, IsSignal } from './types.js';
 import { U as UnionToIntersection, P as PrettifyDeep } from './helper-Bi8FQwDD.js';
 import { DependencyList } from 'react';
-import { a as BASE_ERROR_CODES } from './auth-BsEf_Tfi.js';
+import { a as BASE_ERROR_CODES } from './auth-BA0Kj1M6.js';
 import 'better-call';
 import 'kysely';
-import './index-6-VFhg2N.js';
+import './index-l5SennZN.js';
 import 'jose';
 import 'better-sqlite3';
 
