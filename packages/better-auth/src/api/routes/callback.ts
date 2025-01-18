@@ -101,7 +101,7 @@ export const callbackOAuth = createAuthEndpoint(
 			return redirectOnError("unable_to_get_user_info");
 		}
 
-		if (!userInfo.email) {
+		if (!userInfo.email && provider.id !== "roblox") {
 			c.context.logger.error(
 				"Provider did not return email. This could be due to misconfiguration in the provider settings.",
 			);
@@ -122,6 +122,12 @@ export const callbackOAuth = createAuthEndpoint(
 				userId: link.userId,
 				providerId: provider.id,
 				accountId: userInfo.id,
+				name: userInfo.name || userInfo.email || '',
+				accessToken: tokens.accessToken,
+				refreshToken: tokens.refreshToken,
+				accessTokenExpiresAt: tokens.accessTokenExpiresAt,
+				scope: tokens.scopes?.join(","),
+				image: userInfo.image,
 			});
 			if (!newAccount) {
 				return redirectOnError("unable_to_link_account");
@@ -139,13 +145,14 @@ export const callbackOAuth = createAuthEndpoint(
 		const result = await handleOAuthUserInfo(c, {
 			userInfo: {
 				...userInfo,
-				email: userInfo.email,
-				name: userInfo.name || userInfo.email,
+				email: userInfo.email || "",
+				name: userInfo.name || userInfo.email || '',
 			},
 			account: {
 				providerId: provider.id,
 				accountId: userInfo.id,
 				...tokens,
+				image: userInfo.image,
 				scope: tokens.scopes?.join(","),
 			},
 			callbackURL,

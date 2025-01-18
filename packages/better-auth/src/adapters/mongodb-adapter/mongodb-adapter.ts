@@ -233,6 +233,11 @@ export const mongodbAdapter = (db: Db) => (options: BetterAuthOptions) => {
 			const transformedData = transform.transformOutput(res, model, select);
 			return transformedData;
 		},
+		async count(data) {
+			const { model } = data;
+			const res = await db.collection(transform.getModelName(model)).countDocuments();
+			return res;
+		},
 		async findMany(data) {
 			const { model, where, limit, offset, sortBy } = data;
 			const clause = where ? transform.convertWhereClause(where, model) : {};
