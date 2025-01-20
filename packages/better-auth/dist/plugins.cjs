@@ -1,27 +1,27 @@
 'use strict';
 
-var chunkRENZB7WA_cjs = require('./chunk-RENZB7WA.cjs');
-var chunkCPP7MESR_cjs = require('./chunk-CPP7MESR.cjs');
-var chunkWBYSED27_cjs = require('./chunk-WBYSED27.cjs');
+var chunkWKDNDAQL_cjs = require('./chunk-WKDNDAQL.cjs');
+var chunkPIETOYUJ_cjs = require('./chunk-PIETOYUJ.cjs');
+var chunkDYBVL3QY_cjs = require('./chunk-DYBVL3QY.cjs');
 require('./chunk-ZBKCS3KP.cjs');
-var chunkCVEQFRTQ_cjs = require('./chunk-CVEQFRTQ.cjs');
-var chunkWZWVL4N7_cjs = require('./chunk-WZWVL4N7.cjs');
-var chunk66SVUDXF_cjs = require('./chunk-66SVUDXF.cjs');
-var chunkXRXMJW5T_cjs = require('./chunk-XRXMJW5T.cjs');
-var chunkQ4T7PEKK_cjs = require('./chunk-Q4T7PEKK.cjs');
-var chunkW4Q6RC25_cjs = require('./chunk-W4Q6RC25.cjs');
-var chunkKMAQSSFN_cjs = require('./chunk-KMAQSSFN.cjs');
-var chunkVI6FWNOG_cjs = require('./chunk-VI6FWNOG.cjs');
-var chunk3FRFRPHM_cjs = require('./chunk-3FRFRPHM.cjs');
-var chunkT4EAMLW3_cjs = require('./chunk-T4EAMLW3.cjs');
-var chunkX7NH35H2_cjs = require('./chunk-X7NH35H2.cjs');
-var chunkVS32Z4VX_cjs = require('./chunk-VS32Z4VX.cjs');
-var chunkOPB6JB4F_cjs = require('./chunk-OPB6JB4F.cjs');
+var chunkBSE5DZ63_cjs = require('./chunk-BSE5DZ63.cjs');
+var chunkMBMBJ43P_cjs = require('./chunk-MBMBJ43P.cjs');
+var chunkOXKXXPSG_cjs = require('./chunk-OXKXXPSG.cjs');
+var chunkN7VBZKE2_cjs = require('./chunk-N7VBZKE2.cjs');
+var chunkH5RGYZEY_cjs = require('./chunk-H5RGYZEY.cjs');
+var chunkMQVIE3DC_cjs = require('./chunk-MQVIE3DC.cjs');
+var chunkH5N4W7NY_cjs = require('./chunk-H5N4W7NY.cjs');
+var chunkH4GWR5SW_cjs = require('./chunk-H4GWR5SW.cjs');
+var chunkDUHECX3Y_cjs = require('./chunk-DUHECX3Y.cjs');
+var chunkCP7DTVTA_cjs = require('./chunk-CP7DTVTA.cjs');
+var chunk2JC36KNX_cjs = require('./chunk-2JC36KNX.cjs');
+var chunk3H3QVYMP_cjs = require('./chunk-3H3QVYMP.cjs');
+var chunkFY5E74QP_cjs = require('./chunk-FY5E74QP.cjs');
 var chunkCF7NIEGH_cjs = require('./chunk-CF7NIEGH.cjs');
 require('./chunk-2X5G64P2.cjs');
 require('./chunk-EHFDU6IF.cjs');
-var chunkDUA2LDZ3_cjs = require('./chunk-DUA2LDZ3.cjs');
-require('./chunk-J7OQS4OO.cjs');
+var chunkDRGY4F3Z_cjs = require('./chunk-DRGY4F3Z.cjs');
+require('./chunk-6RC2OKSQ.cjs');
 require('./chunk-2D7VGWTP.cjs');
 require('./chunk-U4I57HJ4.cjs');
 var chunkS5UORXJH_cjs = require('./chunk-S5UORXJH.cjs');
@@ -51,7 +51,7 @@ var oAuthProxy = (opts) => {
   return {
     id: "oauth-proxy",
     endpoints: {
-      oAuthProxy: chunkDUA2LDZ3_cjs.createAuthEndpoint(
+      oAuthProxy: chunkDRGY4F3Z_cjs.createAuthEndpoint(
         "/oauth-proxy-callback",
         {
           method: "GET",
@@ -63,7 +63,7 @@ var oAuthProxy = (opts) => {
               description: "The cookies to set after the proxy"
             })
           }),
-          use: [chunkDUA2LDZ3_cjs.originCheck((ctx) => ctx.query.callbackURL)],
+          use: [chunkDRGY4F3Z_cjs.originCheck((ctx) => ctx.query.callbackURL)],
           metadata: {
             openapi: {
               description: "OAuth Proxy Callback",
@@ -114,9 +114,9 @@ var oAuthProxy = (opts) => {
           matcher(context) {
             return context.path?.startsWith("/callback");
           },
-          handler: chunkDUA2LDZ3_cjs.createAuthMiddleware(async (ctx) => {
+          handler: chunkDRGY4F3Z_cjs.createAuthMiddleware(async (ctx) => {
             const response = ctx.context.returned;
-            const headers = response instanceof chunkDUA2LDZ3_cjs.APIError ? response.headers : null;
+            const headers = response instanceof chunkDRGY4F3Z_cjs.APIError ? response.headers : null;
             const location = headers?.get("location");
             if (location?.includes("/oauth-proxy-callback?callbackURL")) {
               if (!location.startsWith("http")) {
@@ -172,67 +172,67 @@ var oAuthProxy = (opts) => {
 
 Object.defineProperty(exports, "phoneNumber", {
   enumerable: true,
-  get: function () { return chunkRENZB7WA_cjs.phoneNumber; }
+  get: function () { return chunkWKDNDAQL_cjs.phoneNumber; }
 });
 Object.defineProperty(exports, "twoFactor", {
   enumerable: true,
-  get: function () { return chunkCPP7MESR_cjs.twoFactor; }
+  get: function () { return chunkPIETOYUJ_cjs.twoFactor; }
 });
 Object.defineProperty(exports, "username", {
   enumerable: true,
-  get: function () { return chunkWBYSED27_cjs.username; }
+  get: function () { return chunkDYBVL3QY_cjs.username; }
 });
 Object.defineProperty(exports, "jwt", {
   enumerable: true,
-  get: function () { return chunkCVEQFRTQ_cjs.jwt; }
+  get: function () { return chunkBSE5DZ63_cjs.jwt; }
 });
 Object.defineProperty(exports, "magicLink", {
   enumerable: true,
-  get: function () { return chunkWZWVL4N7_cjs.magicLink; }
+  get: function () { return chunkMBMBJ43P_cjs.magicLink; }
 });
 Object.defineProperty(exports, "multiSession", {
   enumerable: true,
-  get: function () { return chunk66SVUDXF_cjs.multiSession; }
+  get: function () { return chunkOXKXXPSG_cjs.multiSession; }
 });
 Object.defineProperty(exports, "oneTap", {
   enumerable: true,
-  get: function () { return chunkXRXMJW5T_cjs.oneTap; }
+  get: function () { return chunkN7VBZKE2_cjs.oneTap; }
 });
 Object.defineProperty(exports, "openAPI", {
   enumerable: true,
-  get: function () { return chunkQ4T7PEKK_cjs.openAPI; }
+  get: function () { return chunkH5RGYZEY_cjs.openAPI; }
 });
 Object.defineProperty(exports, "organization", {
   enumerable: true,
-  get: function () { return chunkW4Q6RC25_cjs.organization; }
+  get: function () { return chunkMQVIE3DC_cjs.organization; }
 });
 Object.defineProperty(exports, "oidcProvider", {
   enumerable: true,
-  get: function () { return chunkKMAQSSFN_cjs.oidcProvider; }
+  get: function () { return chunkH5N4W7NY_cjs.oidcProvider; }
 });
 Object.defineProperty(exports, "admin", {
   enumerable: true,
-  get: function () { return chunkVI6FWNOG_cjs.admin; }
+  get: function () { return chunkH4GWR5SW_cjs.admin; }
 });
 Object.defineProperty(exports, "anonymous", {
   enumerable: true,
-  get: function () { return chunk3FRFRPHM_cjs.anonymous; }
+  get: function () { return chunkDUHECX3Y_cjs.anonymous; }
 });
 Object.defineProperty(exports, "bearer", {
   enumerable: true,
-  get: function () { return chunkT4EAMLW3_cjs.bearer; }
+  get: function () { return chunkCP7DTVTA_cjs.bearer; }
 });
 Object.defineProperty(exports, "customSession", {
   enumerable: true,
-  get: function () { return chunkX7NH35H2_cjs.customSession; }
+  get: function () { return chunk2JC36KNX_cjs.customSession; }
 });
 Object.defineProperty(exports, "emailOTP", {
   enumerable: true,
-  get: function () { return chunkVS32Z4VX_cjs.emailOTP; }
+  get: function () { return chunk3H3QVYMP_cjs.emailOTP; }
 });
 Object.defineProperty(exports, "genericOAuth", {
   enumerable: true,
-  get: function () { return chunkOPB6JB4F_cjs.genericOAuth; }
+  get: function () { return chunkFY5E74QP_cjs.genericOAuth; }
 });
 Object.defineProperty(exports, "twoFactorClient", {
   enumerable: true,
@@ -240,15 +240,15 @@ Object.defineProperty(exports, "twoFactorClient", {
 });
 Object.defineProperty(exports, "createAuthEndpoint", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.createAuthEndpoint; }
+  get: function () { return chunkDRGY4F3Z_cjs.createAuthEndpoint; }
 });
 Object.defineProperty(exports, "createAuthMiddleware", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.createAuthMiddleware; }
+  get: function () { return chunkDRGY4F3Z_cjs.createAuthMiddleware; }
 });
 Object.defineProperty(exports, "optionsMiddleware", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.optionsMiddleware; }
+  get: function () { return chunkDRGY4F3Z_cjs.optionsMiddleware; }
 });
 Object.defineProperty(exports, "HIDE_METADATA", {
   enumerable: true,

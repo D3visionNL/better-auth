@@ -1,7 +1,7 @@
 'use strict';
 
-var chunkDUA2LDZ3_cjs = require('./chunk-DUA2LDZ3.cjs');
-require('./chunk-J7OQS4OO.cjs');
+var chunkDRGY4F3Z_cjs = require('./chunk-DRGY4F3Z.cjs');
+require('./chunk-6RC2OKSQ.cjs');
 require('./chunk-2D7VGWTP.cjs');
 require('./chunk-S5UORXJH.cjs');
 require('./chunk-OJX3P352.cjs');
@@ -18,157 +18,157 @@ require('./chunk-PEZRSDZS.cjs');
 
 Object.defineProperty(exports, "APIError", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.APIError; }
+  get: function () { return chunkDRGY4F3Z_cjs.APIError; }
 });
 Object.defineProperty(exports, "callbackOAuth", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.callbackOAuth; }
+  get: function () { return chunkDRGY4F3Z_cjs.callbackOAuth; }
 });
 Object.defineProperty(exports, "changeEmail", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.changeEmail; }
+  get: function () { return chunkDRGY4F3Z_cjs.changeEmail; }
 });
 Object.defineProperty(exports, "changePassword", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.changePassword; }
+  get: function () { return chunkDRGY4F3Z_cjs.changePassword; }
 });
 Object.defineProperty(exports, "createAuthEndpoint", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.createAuthEndpoint; }
+  get: function () { return chunkDRGY4F3Z_cjs.createAuthEndpoint; }
 });
 Object.defineProperty(exports, "createAuthMiddleware", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.createAuthMiddleware; }
+  get: function () { return chunkDRGY4F3Z_cjs.createAuthMiddleware; }
 });
 Object.defineProperty(exports, "createEmailVerificationToken", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.createEmailVerificationToken; }
+  get: function () { return chunkDRGY4F3Z_cjs.createEmailVerificationToken; }
 });
 Object.defineProperty(exports, "deleteUser", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.deleteUser; }
+  get: function () { return chunkDRGY4F3Z_cjs.deleteUser; }
 });
 Object.defineProperty(exports, "deleteUserCallback", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.deleteUserCallback; }
+  get: function () { return chunkDRGY4F3Z_cjs.deleteUserCallback; }
 });
 Object.defineProperty(exports, "error", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.error; }
+  get: function () { return chunkDRGY4F3Z_cjs.error; }
 });
 Object.defineProperty(exports, "forgetPassword", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.forgetPassword; }
+  get: function () { return chunkDRGY4F3Z_cjs.forgetPassword; }
 });
 Object.defineProperty(exports, "forgetPasswordCallback", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.forgetPasswordCallback; }
+  get: function () { return chunkDRGY4F3Z_cjs.forgetPasswordCallback; }
 });
 Object.defineProperty(exports, "freshSessionMiddleware", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.freshSessionMiddleware; }
+  get: function () { return chunkDRGY4F3Z_cjs.freshSessionMiddleware; }
 });
 Object.defineProperty(exports, "getEndpoints", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.getEndpoints; }
+  get: function () { return chunkDRGY4F3Z_cjs.getEndpoints; }
 });
 Object.defineProperty(exports, "getSession", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.getSession; }
+  get: function () { return chunkDRGY4F3Z_cjs.getSession; }
 });
 Object.defineProperty(exports, "getSessionFromCtx", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.getSessionFromCtx; }
+  get: function () { return chunkDRGY4F3Z_cjs.getSessionFromCtx; }
 });
 Object.defineProperty(exports, "linkSocialAccount", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.linkSocialAccount; }
+  get: function () { return chunkDRGY4F3Z_cjs.linkSocialAccount; }
 });
 Object.defineProperty(exports, "listSessions", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.listSessions; }
+  get: function () { return chunkDRGY4F3Z_cjs.listSessions; }
 });
 Object.defineProperty(exports, "listUserAccounts", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.listUserAccounts; }
+  get: function () { return chunkDRGY4F3Z_cjs.listUserAccounts; }
 });
 Object.defineProperty(exports, "ok", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.ok; }
+  get: function () { return chunkDRGY4F3Z_cjs.ok; }
 });
 Object.defineProperty(exports, "optionsMiddleware", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.optionsMiddleware; }
+  get: function () { return chunkDRGY4F3Z_cjs.optionsMiddleware; }
 });
 Object.defineProperty(exports, "originCheck", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.originCheck; }
+  get: function () { return chunkDRGY4F3Z_cjs.originCheck; }
 });
 Object.defineProperty(exports, "originCheckMiddleware", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.originCheckMiddleware; }
+  get: function () { return chunkDRGY4F3Z_cjs.originCheckMiddleware; }
 });
 Object.defineProperty(exports, "resetPassword", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.resetPassword; }
+  get: function () { return chunkDRGY4F3Z_cjs.resetPassword; }
 });
 Object.defineProperty(exports, "revokeOtherSessions", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.revokeOtherSessions; }
+  get: function () { return chunkDRGY4F3Z_cjs.revokeOtherSessions; }
 });
 Object.defineProperty(exports, "revokeSession", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.revokeSession; }
+  get: function () { return chunkDRGY4F3Z_cjs.revokeSession; }
 });
 Object.defineProperty(exports, "revokeSessions", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.revokeSessions; }
+  get: function () { return chunkDRGY4F3Z_cjs.revokeSessions; }
 });
 Object.defineProperty(exports, "router", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.router; }
+  get: function () { return chunkDRGY4F3Z_cjs.router; }
 });
 Object.defineProperty(exports, "sendVerificationEmail", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.sendVerificationEmail; }
+  get: function () { return chunkDRGY4F3Z_cjs.sendVerificationEmail; }
 });
 Object.defineProperty(exports, "sendVerificationEmailFn", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.sendVerificationEmailFn; }
+  get: function () { return chunkDRGY4F3Z_cjs.sendVerificationEmailFn; }
 });
 Object.defineProperty(exports, "sessionMiddleware", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.sessionMiddleware; }
+  get: function () { return chunkDRGY4F3Z_cjs.sessionMiddleware; }
 });
 Object.defineProperty(exports, "setPassword", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.setPassword; }
+  get: function () { return chunkDRGY4F3Z_cjs.setPassword; }
 });
 Object.defineProperty(exports, "signInEmail", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.signInEmail; }
+  get: function () { return chunkDRGY4F3Z_cjs.signInEmail; }
 });
 Object.defineProperty(exports, "signInSocial", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.signInSocial; }
+  get: function () { return chunkDRGY4F3Z_cjs.signInSocial; }
 });
 Object.defineProperty(exports, "signOut", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.signOut; }
+  get: function () { return chunkDRGY4F3Z_cjs.signOut; }
 });
 Object.defineProperty(exports, "signUpEmail", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.signUpEmail; }
+  get: function () { return chunkDRGY4F3Z_cjs.signUpEmail; }
 });
 Object.defineProperty(exports, "unlinkAccount", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.unlinkAccount; }
+  get: function () { return chunkDRGY4F3Z_cjs.unlinkAccount; }
 });
 Object.defineProperty(exports, "updateUser", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.updateUser; }
+  get: function () { return chunkDRGY4F3Z_cjs.updateUser; }
 });
 Object.defineProperty(exports, "verifyEmail", {
   enumerable: true,
-  get: function () { return chunkDUA2LDZ3_cjs.verifyEmail; }
+  get: function () { return chunkDRGY4F3Z_cjs.verifyEmail; }
 });

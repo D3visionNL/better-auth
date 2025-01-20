@@ -1,5 +1,5 @@
-export { APIError, callbackOAuth, changeEmail, changePassword, createAuthEndpoint, createAuthMiddleware, createEmailVerificationToken, deleteUser, deleteUserCallback, error, forgetPassword, forgetPasswordCallback, freshSessionMiddleware, getEndpoints, getSession, getSessionFromCtx, linkSocialAccount, listSessions, listUserAccounts, ok, optionsMiddleware, originCheck, originCheckMiddleware, resetPassword, revokeOtherSessions, revokeSession, revokeSessions, router, sendVerificationEmail, sendVerificationEmailFn, sessionMiddleware, setPassword, signInEmail, signInSocial, signOut, signUpEmail, unlinkAccount, updateUser, verifyEmail } from './chunk-QNVZ7YEV.js';
-import './chunk-YIRG4NC2.js';
+export { APIError, callbackOAuth, changeEmail, changePassword, createAuthEndpoint, createAuthMiddleware, createEmailVerificationToken, deleteUser, deleteUserCallback, error, forgetPassword, forgetPasswordCallback, freshSessionMiddleware, getEndpoints, getSession, getSessionFromCtx, linkSocialAccount, listSessions, listUserAccounts, ok, optionsMiddleware, originCheck, originCheckMiddleware, resetPassword, revokeOtherSessions, revokeSession, revokeSessions, router, sendVerificationEmail, sendVerificationEmailFn, sessionMiddleware, setPassword, signInEmail, signInSocial, signOut, signUpEmail, unlinkAccount, updateUser, verifyEmail } from './chunk-MEPGWQJJ.js';
+import './chunk-GU6LPETV.js';
 import './chunk-M2JCNZEP.js';
 import './chunk-XFCIANZX.js';
 import './chunk-IWEXZ2ES.js';

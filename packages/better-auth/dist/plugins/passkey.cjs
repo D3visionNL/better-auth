@@ -1,8 +1,8 @@
 'use strict';
 
 var chunkYLFV4SQL_cjs = require('../chunk-YLFV4SQL.cjs');
-var chunkDUA2LDZ3_cjs = require('../chunk-DUA2LDZ3.cjs');
-require('../chunk-J7OQS4OO.cjs');
+var chunkDRGY4F3Z_cjs = require('../chunk-DRGY4F3Z.cjs');
+require('../chunk-6RC2OKSQ.cjs');
 require('../chunk-2D7VGWTP.cjs');
 require('../chunk-RBN34WVC.cjs');
 require('../chunk-CXGP5FNG.cjs');
@@ -50,11 +50,11 @@ var passkey = (options) => {
   return {
     id: "passkey",
     endpoints: {
-      generatePasskeyRegistrationOptions: chunkDUA2LDZ3_cjs.createAuthEndpoint(
+      generatePasskeyRegistrationOptions: chunkDRGY4F3Z_cjs.createAuthEndpoint(
         "/passkey/generate-register-options",
         {
           method: "GET",
-          use: [chunkDUA2LDZ3_cjs.freshSessionMiddleware],
+          use: [chunkDRGY4F3Z_cjs.freshSessionMiddleware],
           metadata: {
             client: false,
             openapi: {
@@ -222,7 +222,7 @@ var passkey = (options) => {
           });
         }
       ),
-      generatePasskeyAuthenticationOptions: chunkDUA2LDZ3_cjs.createAuthEndpoint(
+      generatePasskeyAuthenticationOptions: chunkDRGY4F3Z_cjs.createAuthEndpoint(
         "/passkey/generate-authenticate-options",
         {
           method: "POST",
@@ -323,7 +323,7 @@ var passkey = (options) => {
           }
         },
         async (ctx) => {
-          const session = await chunkDUA2LDZ3_cjs.getSessionFromCtx(ctx);
+          const session = await chunkDRGY4F3Z_cjs.getSessionFromCtx(ctx);
           let userPasskeys = [];
           if (session) {
             userPasskeys = await ctx.context.adapter.findMany({
@@ -377,7 +377,7 @@ var passkey = (options) => {
           });
         }
       ),
-      verifyPasskeyRegistration: chunkDUA2LDZ3_cjs.createAuthEndpoint(
+      verifyPasskeyRegistration: chunkDRGY4F3Z_cjs.createAuthEndpoint(
         "/passkey/verify-registration",
         {
           method: "POST",
@@ -389,7 +389,7 @@ var passkey = (options) => {
               description: "Name of the passkey"
             }).optional()
           }),
-          use: [chunkDUA2LDZ3_cjs.freshSessionMiddleware],
+          use: [chunkDRGY4F3Z_cjs.freshSessionMiddleware],
           metadata: {
             openapi: {
               description: "Verify registration of a new passkey",
@@ -498,7 +498,7 @@ var passkey = (options) => {
           }
         }
       ),
-      verifyPasskeyAuthentication: chunkDUA2LDZ3_cjs.createAuthEndpoint(
+      verifyPasskeyAuthentication: chunkDRGY4F3Z_cjs.createAuthEndpoint(
         "/passkey/verify-authentication",
         {
           method: "POST",
@@ -651,11 +651,11 @@ var passkey = (options) => {
           }
         }
       ),
-      listPasskeys: chunkDUA2LDZ3_cjs.createAuthEndpoint(
+      listPasskeys: chunkDRGY4F3Z_cjs.createAuthEndpoint(
         "/passkey/list-user-passkeys",
         {
           method: "GET",
-          use: [chunkDUA2LDZ3_cjs.sessionMiddleware]
+          use: [chunkDRGY4F3Z_cjs.sessionMiddleware]
         },
         async (ctx) => {
           const passkeys = await ctx.context.adapter.findMany({
@@ -667,14 +667,14 @@ var passkey = (options) => {
           });
         }
       ),
-      deletePasskey: chunkDUA2LDZ3_cjs.createAuthEndpoint(
+      deletePasskey: chunkDRGY4F3Z_cjs.createAuthEndpoint(
         "/passkey/delete-passkey",
         {
           method: "POST",
           body: zod.z.object({
             id: zod.z.string()
           }),
-          use: [chunkDUA2LDZ3_cjs.sessionMiddleware]
+          use: [chunkDRGY4F3Z_cjs.sessionMiddleware]
         },
         async (ctx) => {
           await ctx.context.adapter.delete({
@@ -691,7 +691,7 @@ var passkey = (options) => {
           });
         }
       ),
-      updatePasskey: chunkDUA2LDZ3_cjs.createAuthEndpoint(
+      updatePasskey: chunkDRGY4F3Z_cjs.createAuthEndpoint(
         "/passkey/update-passkey",
         {
           method: "POST",
@@ -699,7 +699,7 @@ var passkey = (options) => {
             id: zod.z.string(),
             name: zod.z.string()
           }),
-          use: [chunkDUA2LDZ3_cjs.sessionMiddleware]
+          use: [chunkDRGY4F3Z_cjs.sessionMiddleware]
         },
         async (ctx) => {
           const passkey2 = await ctx.context.adapter.findOne({
