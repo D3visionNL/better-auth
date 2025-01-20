@@ -1,8 +1,8 @@
 'use strict';
 
 var chunkEHFDU6IF_cjs = require('./chunk-EHFDU6IF.cjs');
-var chunkDRGY4F3Z_cjs = require('./chunk-DRGY4F3Z.cjs');
-var chunk6RC2OKSQ_cjs = require('./chunk-6RC2OKSQ.cjs');
+var chunkK3D45DZU_cjs = require('./chunk-K3D45DZU.cjs');
+var chunkMUVD76IU_cjs = require('./chunk-MUVD76IU.cjs');
 require('./chunk-2D7VGWTP.cjs');
 var chunkS5UORXJH_cjs = require('./chunk-S5UORXJH.cjs');
 var chunkOJX3P352_cjs = require('./chunk-OJX3P352.cjs');
@@ -55,7 +55,7 @@ var init = async (options) => {
         `Social provider ${key} is missing clientId or clientSecret`
       );
     }
-    return chunk6RC2OKSQ_cjs.socialProviders[key](
+    return chunkMUVD76IU_cjs.socialProviders[key](
       value
       // TODO: fix this
     );
@@ -175,7 +175,7 @@ function getTrustedOrigins(options) {
 // src/auth.ts
 var betterAuth = (options) => {
   const authContext = init(options);
-  const { api } = chunkDRGY4F3Z_cjs.getEndpoints(authContext, options);
+  const { api } = chunkK3D45DZU_cjs.getEndpoints(authContext, options);
   const errorCodes = options.plugins?.reduce((acc, plugin) => {
     if (plugin.$ERROR_CODES) {
       return {
@@ -200,7 +200,7 @@ var betterAuth = (options) => {
         ctx.baseURL,
         url.origin
       ];
-      const { handler } = chunkDRGY4F3Z_cjs.router(ctx, options);
+      const { handler } = chunkK3D45DZU_cjs.router(ctx, options);
       return handler(request);
     },
     api,
@@ -209,7 +209,7 @@ var betterAuth = (options) => {
     $Infer: {},
     $ERROR_CODES: {
       ...errorCodes,
-      ...chunkDRGY4F3Z_cjs.BASE_ERROR_CODES
+      ...chunkK3D45DZU_cjs.BASE_ERROR_CODES
     }
   };
 };
