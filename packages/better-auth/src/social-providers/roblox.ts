@@ -70,7 +70,7 @@ export const roblox = (options: RobloxOptions) => {
 					id: profile.sub,
 					name: profile.nickname || profile.preferred_username || "",
 					image: profile.picture,
-					email: '', // Roblox does not provide email
+					email: profile.preferred_username || null, // Roblox does not provide email
 					emailVerified: true,
 				},
 				data: {
