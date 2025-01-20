@@ -1,5 +1,5 @@
 export { getPasskeyActions, passkeyClient } from '../chunk-URPHRM5F.js';
-import { createAuthEndpoint, freshSessionMiddleware, getSessionFromCtx, sessionMiddleware } from '../chunk-VQTVRGXC.js';
+import { createAuthEndpoint, freshSessionMiddleware, getSessionFromCtx, sessionMiddleware } from '../chunk-QNVZ7YEV.js';
 import '../chunk-YIRG4NC2.js';
 import '../chunk-M2JCNZEP.js';
 import '../chunk-KBSS2O5Q.js';

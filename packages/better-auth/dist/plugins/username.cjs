@@ -1,8 +1,8 @@
 'use strict';
 
-var chunk4S2LIYFD_cjs = require('../chunk-4S2LIYFD.cjs');
+var chunkWBYSED27_cjs = require('../chunk-WBYSED27.cjs');
 require('../chunk-ZBKCS3KP.cjs');
-require('../chunk-DYWEYR5R.cjs');
+require('../chunk-DUA2LDZ3.cjs');
 require('../chunk-J7OQS4OO.cjs');
 require('../chunk-2D7VGWTP.cjs');
 require('../chunk-S5UORXJH.cjs');
@@ -20,5 +20,5 @@ require('../chunk-PEZRSDZS.cjs');
 
 Object.defineProperty(exports, "username", {
   enumerable: true,
-  get: function () { return chunk4S2LIYFD_cjs.username; }
+  get: function () { return chunkWBYSED27_cjs.username; }
 });

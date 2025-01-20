@@ -1,8 +1,8 @@
 'use strict';
 
-var chunkIJ5RUQWK_cjs = require('../chunk-IJ5RUQWK.cjs');
+var chunkW4Q6RC25_cjs = require('../chunk-W4Q6RC25.cjs');
 require('../chunk-2X5G64P2.cjs');
-require('../chunk-DYWEYR5R.cjs');
+require('../chunk-DUA2LDZ3.cjs');
 require('../chunk-J7OQS4OO.cjs');
 require('../chunk-2D7VGWTP.cjs');
 require('../chunk-U4I57HJ4.cjs');
@@ -21,5 +21,5 @@ require('../chunk-PEZRSDZS.cjs');
 
 Object.defineProperty(exports, "organization", {
   enumerable: true,
-  get: function () { return chunkIJ5RUQWK_cjs.organization; }
+  get: function () { return chunkW4Q6RC25_cjs.organization; }
 });

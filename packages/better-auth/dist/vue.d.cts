@@ -5,7 +5,7 @@ import { BetterFetchError } from '@better-fetch/fetch';
 import { DeepReadonly, Ref } from 'vue';
 import { ClientOptions, InferClientAPI, InferActions, InferErrorCodes, BetterAuthClientPlugin, IsSignal } from './types.cjs';
 import { U as UnionToIntersection, P as PrettifyDeep } from './helper-Bi8FQwDD.cjs';
-import { a as BASE_ERROR_CODES } from './auth-xST9BYWZ.cjs';
+import { a as BASE_ERROR_CODES } from './auth-ob6nYADI.cjs';
 import 'better-call';
 import 'kysely';
 import './index-D0tmmb_V.cjs';

@@ -1,7 +1,7 @@
 'use strict';
 
 var chunkEHFDU6IF_cjs = require('./chunk-EHFDU6IF.cjs');
-var chunkDYWEYR5R_cjs = require('./chunk-DYWEYR5R.cjs');
+var chunkDUA2LDZ3_cjs = require('./chunk-DUA2LDZ3.cjs');
 var chunkJ7OQS4OO_cjs = require('./chunk-J7OQS4OO.cjs');
 require('./chunk-2D7VGWTP.cjs');
 var chunkS5UORXJH_cjs = require('./chunk-S5UORXJH.cjs');
@@ -41,12 +41,7 @@ var init = async (options) => {
     secret,
     baseURL: baseURL ? new URL(baseURL).origin : "",
     basePath: options.basePath || "/api/auth",
-    plugins: plugins.concat(internalPlugins),
-    emailAndPassword: {
-      ...options.emailAndPassword,
-      enabled: options.emailAndPassword?.enabled ?? false,
-      autoSignIn: options.emailAndPassword?.autoSignIn ?? true
-    }
+    plugins: plugins.concat(internalPlugins)
   };
   const cookies = chunkOJX3P352_cjs.getCookies(options);
   const tables = chunkHH5YHQO2_cjs.getAuthTables(options);
@@ -180,7 +175,7 @@ function getTrustedOrigins(options) {
 // src/auth.ts
 var betterAuth = (options) => {
   const authContext = init(options);
-  const { api } = chunkDYWEYR5R_cjs.getEndpoints(authContext, options);
+  const { api } = chunkDUA2LDZ3_cjs.getEndpoints(authContext, options);
   const errorCodes = options.plugins?.reduce((acc, plugin) => {
     if (plugin.$ERROR_CODES) {
       return {
@@ -205,7 +200,7 @@ var betterAuth = (options) => {
         ctx.baseURL,
         url.origin
       ];
-      const { handler } = chunkDYWEYR5R_cjs.router(ctx, options);
+      const { handler } = chunkDUA2LDZ3_cjs.router(ctx, options);
       return handler(request);
     },
     api,
@@ -214,7 +209,7 @@ var betterAuth = (options) => {
     $Infer: {},
     $ERROR_CODES: {
       ...errorCodes,
-      ...chunkDYWEYR5R_cjs.BASE_ERROR_CODES
+      ...chunkDUA2LDZ3_cjs.BASE_ERROR_CODES
     }
   };
 };

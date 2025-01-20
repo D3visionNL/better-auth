@@ -1,5 +1,5 @@
-export { magicLink } from '../chunk-B2IGZAWX.js';
-import '../chunk-VQTVRGXC.js';
+export { magicLink } from '../chunk-XC6SJJGI.js';
+import '../chunk-QNVZ7YEV.js';
 import '../chunk-YIRG4NC2.js';
 import '../chunk-M2JCNZEP.js';
 import '../chunk-XFCIANZX.js';

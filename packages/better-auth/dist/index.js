@@ -1,5 +1,5 @@
 import { checkPassword } from './chunk-TOKZL3ZI.js';
-import { getEndpoints, router, BASE_ERROR_CODES } from './chunk-VQTVRGXC.js';
+import { getEndpoints, router, BASE_ERROR_CODES } from './chunk-QNVZ7YEV.js';
 import { socialProviders } from './chunk-YIRG4NC2.js';
 import './chunk-M2JCNZEP.js';
 import { getBaseURL } from './chunk-XFCIANZX.js';
@@ -41,12 +41,7 @@ var init = async (options) => {
     secret,
     baseURL: baseURL ? new URL(baseURL).origin : "",
     basePath: options.basePath || "/api/auth",
-    plugins: plugins.concat(internalPlugins),
-    emailAndPassword: {
-      ...options.emailAndPassword,
-      enabled: options.emailAndPassword?.enabled ?? false,
-      autoSignIn: options.emailAndPassword?.autoSignIn ?? true
-    }
+    plugins: plugins.concat(internalPlugins)
   };
   const cookies = getCookies(options);
   const tables = getAuthTables(options);

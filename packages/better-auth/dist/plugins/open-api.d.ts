@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { OpenAPIParameter, OpenAPISchemaType } from 'better-call';
-import { l as AuthContext, B as BetterAuthOptions } from '../auth-BA0Kj1M6.js';
+import { l as AuthContext, B as BetterAuthOptions } from '../auth-8UPh7J8A.js';
 import { L as LiteralString } from '../helper-Bi8FQwDD.js';
 import 'kysely';
 import 'zod';
