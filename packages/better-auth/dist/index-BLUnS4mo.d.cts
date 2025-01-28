@@ -1,7 +1,7 @@
 import { z, ZodLiteral, ZodObject, ZodOptional, ZodArray, ZodString } from 'zod';
 import * as better_call from 'better-call';
 import { b as Prettify } from './helper-Bi8FQwDD.cjs';
-import { U as User, S as Session } from './auth-ob6nYADI.cjs';
+import { U as User, S as Session } from './auth-DHr5af7C.cjs';
 import { AccessControl, Role, StatementsPrimitive, defaultRoles } from './plugins/access.cjs';
 
 declare const organizationSchema: z.ZodObject<{
@@ -57,9 +57,9 @@ declare const invitationSchema: z.ZodObject<{
     inviterId: z.ZodString;
     expiresAt: z.ZodDate;
 }, "strip", z.ZodTypeAny, {
-    status: "pending" | "accepted" | "rejected" | "canceled";
     id: string;
     email: string;
+    status: "pending" | "accepted" | "rejected" | "canceled";
     expiresAt: Date;
     organizationId: string;
     role: string;
@@ -70,8 +70,8 @@ declare const invitationSchema: z.ZodObject<{
     organizationId: string;
     role: string;
     inviterId: string;
-    status?: "pending" | "accepted" | "rejected" | "canceled" | undefined;
     id?: string | undefined;
+    status?: "pending" | "accepted" | "rejected" | "canceled" | undefined;
 }>;
 type Organization = z.infer<typeof organizationSchema>;
 type Member = z.infer<typeof memberSchema>;
@@ -1034,9 +1034,9 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                 asResponse: true;
             }] ? Response : {
                 invitations: {
-                    status: "pending" | "accepted" | "rejected" | "canceled";
                     id: string;
                     email: string;
+                    status: "pending" | "accepted" | "rejected" | "canceled";
                     expiresAt: Date;
                     organizationId: string;
                     role: string;
@@ -1277,9 +1277,9 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                 asResponse: true;
             }] ? Response : {
                 invitations: {
-                    status: "pending" | "accepted" | "rejected" | "canceled";
                     id: string;
                     email: string;
+                    status: "pending" | "accepted" | "rejected" | "canceled";
                     expiresAt: Date;
                     organizationId: string;
                     role: string;
@@ -1759,9 +1759,9 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
             }>]>(...ctx: C): Promise<C extends [{
                 asResponse: true;
             }] ? Response : {
-                status: "pending" | "accepted" | "rejected" | "canceled";
                 id: string;
                 email: string;
+                status: "pending" | "accepted" | "rejected" | "canceled";
                 expiresAt: Date;
                 organizationId: string;
                 role: string;
@@ -2016,9 +2016,9 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
             }>]>(...ctx: C): Promise<C extends [{
                 asResponse: true;
             }] ? Response : {
-                status: "pending" | "accepted" | "rejected" | "canceled";
                 id: string;
                 email: string;
+                status: "pending" | "accepted" | "rejected" | "canceled";
                 expiresAt: Date;
                 organizationId: string;
                 role: string;
@@ -2239,9 +2239,9 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                 asResponse: true;
             }] ? Response : {
                 invitation: {
-                    status: "pending" | "accepted" | "rejected" | "canceled";
                     id: string;
                     email: string;
+                    status: "pending" | "accepted" | "rejected" | "canceled";
                     expiresAt: Date;
                     organizationId: string;
                     role: string;
@@ -2444,9 +2444,9 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                 organizationName: string;
                 organizationSlug: string;
                 inviterEmail: string;
-                status: "pending" | "accepted" | "rejected" | "canceled";
                 id: string;
                 email: string;
+                status: "pending" | "accepted" | "rejected" | "canceled";
                 expiresAt: Date;
                 organizationId: string;
                 role: string;
@@ -2639,9 +2639,9 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                 asResponse: true;
             }] ? Response : {
                 invitation: {
-                    status: "pending" | "accepted" | "rejected" | "canceled";
                     id: string;
                     email: string;
+                    status: "pending" | "accepted" | "rejected" | "canceled";
                     expiresAt: Date;
                     organizationId: string;
                     role: string;

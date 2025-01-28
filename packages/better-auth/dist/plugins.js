@@ -9,7 +9,7 @@ export { oneTap } from './chunk-AW2AXO5V.js';
 export { openAPI } from './chunk-7QBC4IRV.js';
 export { organization } from './chunk-53D3ZDB4.js';
 export { oidcProvider } from './chunk-FWZ5RW27.js';
-export { admin } from './chunk-5JQIX7AB.js';
+export { admin } from './chunk-CR7EYXWE.js';
 export { anonymous } from './chunk-LQZVYJNZ.js';
 export { bearer } from './chunk-BHKSFJ4Y.js';
 export { customSession } from './chunk-NB5ABPI2.js';

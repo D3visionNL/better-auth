@@ -1,6 +1,6 @@
 'use strict';
 
-var chunk6WRO6IQP_cjs = require('../chunk-6WRO6IQP.cjs');
+var chunkRAV6PSGL_cjs = require('../chunk-RAV6PSGL.cjs');
 require('../chunk-K3D45DZU.cjs');
 require('../chunk-MUVD76IU.cjs');
 require('../chunk-2D7VGWTP.cjs');
@@ -20,5 +20,5 @@ require('../chunk-PEZRSDZS.cjs');
 
 Object.defineProperty(exports, "admin", {
   enumerable: true,
-  get: function () { return chunk6WRO6IQP_cjs.admin; }
+  get: function () { return chunkRAV6PSGL_cjs.admin; }
 });

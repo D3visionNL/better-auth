@@ -20,7 +20,7 @@ import { APIError } from 'better-call';
 import { z } from 'zod';
 
 function getRpID(options, baseURL) {
-  return options.rpID || baseURL?.replace("http://", "").replace("https://", "").split(":")[0] || "localhost";
+  return options.rpID || (baseURL ? new URL(baseURL).hostname : "localhost");
 }
 var passkey = (options) => {
   const opts = {

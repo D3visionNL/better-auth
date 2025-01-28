@@ -398,6 +398,15 @@ export const admin = <O extends AdminOptions>(options?: O) => {
 															$ref: "#/components/schemas/User",
 														},
 													},
+													total: {
+														type: "number",
+													},
+													limit: {
+														type: ["number", "undefined"],
+													},
+													offset: {
+														type: ["number", "undefined"],
+													},
 												},
 											},
 										},

@@ -1,4 +1,4 @@
-import { G as GenericEndpointContext } from './auth-8UPh7J8A.js';
+import { G as GenericEndpointContext } from './auth-CxnTUVJT.js';
 
 declare function generateState(c: GenericEndpointContext, link?: {
     email: string;

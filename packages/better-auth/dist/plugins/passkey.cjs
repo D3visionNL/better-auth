@@ -22,7 +22,7 @@ var betterCall = require('better-call');
 var zod = require('zod');
 
 function getRpID(options, baseURL) {
-  return options.rpID || baseURL?.replace("http://", "").replace("https://", "").split(":")[0] || "localhost";
+  return options.rpID || (baseURL ? new URL(baseURL).hostname : "localhost");
 }
 var passkey = (options) => {
   const opts = {

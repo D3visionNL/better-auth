@@ -1,9 +1,11 @@
-import { createAuthMiddleware, getSessionFromCtx, APIError, createAuthEndpoint } from './chunk-PZN2DNSD.js';
-import { deleteSessionCookie, setSessionCookie } from './chunk-IWEXZ2ES.js';
-import { mergeSchema } from './chunk-MEZ6VLJL.js';
-import { getDate } from './chunk-FURNA6HY.js';
-import { z } from 'zod';
-import { APIError as APIError$1 } from 'better-call';
+'use strict';
+
+var chunkK3D45DZU_cjs = require('./chunk-K3D45DZU.cjs');
+var chunkOJX3P352_cjs = require('./chunk-OJX3P352.cjs');
+var chunkME4Q5ZEC_cjs = require('./chunk-ME4Q5ZEC.cjs');
+var chunk2HPSCSV7_cjs = require('./chunk-2HPSCSV7.cjs');
+var zod = require('zod');
+var betterCall = require('better-call');
 
 var getEndpointResponse = async (ctx) => {
   const returned = ctx.context.returned;
@@ -16,7 +18,7 @@ var getEndpointResponse = async (ctx) => {
     }
     return await returned.clone().json();
   }
-  if (returned instanceof APIError$1) {
+  if (returned instanceof betterCall.APIError) {
     return null;
   }
   return returned;
@@ -36,14 +38,14 @@ var admin = (options) => {
     YOU_CANNOT_BAN_YOURSELF: "You cannot ban yourself",
     ONLY_ADMINS_CAN_ACCESS_THIS_ENDPOINT: "Only admins can access this endpoint"
   };
-  const adminMiddleware = createAuthMiddleware(async (ctx) => {
-    const session = await getSessionFromCtx(ctx);
+  const adminMiddleware = chunkK3D45DZU_cjs.createAuthMiddleware(async (ctx) => {
+    const session = await chunkK3D45DZU_cjs.getSessionFromCtx(ctx);
     if (!session?.session) {
-      throw new APIError("UNAUTHORIZED");
+      throw new chunkK3D45DZU_cjs.APIError("UNAUTHORIZED");
     }
     const user = session.user;
     if (!user.role || (Array.isArray(opts.adminRole) ? !opts.adminRole.includes(user.role) : user.role !== opts.adminRole)) {
-      throw new APIError("FORBIDDEN", {
+      throw new chunkK3D45DZU_cjs.APIError("FORBIDDEN", {
         message: "Only admins can access this endpoint"
       });
     }
@@ -105,7 +107,7 @@ var admin = (options) => {
           matcher(context) {
             return context.path === "/list-sessions";
           },
-          handler: createAuthMiddleware(async (ctx) => {
+          handler: chunkK3D45DZU_cjs.createAuthMiddleware(async (ctx) => {
             const response = await getEndpointResponse(ctx);
             if (!response) {
               return;
@@ -119,15 +121,15 @@ var admin = (options) => {
       ]
     },
     endpoints: {
-      setRole: createAuthEndpoint(
+      setRole: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/set-role",
         {
           method: "POST",
-          body: z.object({
-            userId: z.string({
+          body: zod.z.object({
+            userId: zod.z.string({
               description: "The user id"
             }),
-            role: z.string({
+            role: zod.z.string({
               description: "The role to set. `admin` or `user` by default"
             })
           }),
@@ -169,28 +171,28 @@ var admin = (options) => {
           });
         }
       ),
-      createUser: createAuthEndpoint(
+      createUser: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/create-user",
         {
           method: "POST",
-          body: z.object({
-            email: z.string({
+          body: zod.z.object({
+            email: zod.z.string({
               description: "The email of the user"
             }),
-            password: z.string({
+            password: zod.z.string({
               description: "The password of the user"
             }),
-            name: z.string({
+            name: zod.z.string({
               description: "The name of the user"
             }),
-            role: z.string({
+            role: zod.z.string({
               description: "The role of the user"
             }),
             /**
              * extra fields for user
              */
-            data: z.optional(
-              z.record(z.any(), {
+            data: zod.z.optional(
+              zod.z.record(zod.z.any(), {
                 description: "Extra fields for the user. Including custom additional fields."
               })
             )
@@ -226,7 +228,7 @@ var admin = (options) => {
             ctx.body.email
           );
           if (existUser) {
-            throw new APIError("BAD_REQUEST", {
+            throw new chunkK3D45DZU_cjs.APIError("BAD_REQUEST", {
               message: ERROR_CODES.USER_ALREADY_EXISTS
             });
           }
@@ -237,7 +239,7 @@ var admin = (options) => {
             ...ctx.body.data
           });
           if (!user) {
-            throw new APIError("INTERNAL_SERVER_ERROR", {
+            throw new chunkK3D45DZU_cjs.APIError("INTERNAL_SERVER_ERROR", {
               message: ERROR_CODES.FAILED_TO_CREATE_USER
             });
           }
@@ -255,40 +257,40 @@ var admin = (options) => {
           });
         }
       ),
-      listUsers: createAuthEndpoint(
+      listUsers: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/list-users",
         {
           method: "GET",
           use: [adminMiddleware],
-          query: z.object({
-            searchValue: z.string({
+          query: zod.z.object({
+            searchValue: zod.z.string({
               description: "The value to search for"
             }).optional(),
-            searchField: z.enum(["email", "name"], {
+            searchField: zod.z.enum(["email", "name"], {
               description: "The field to search in, defaults to email. Can be `email` or `name`"
             }).optional(),
-            searchOperator: z.enum(["contains", "starts_with", "ends_with"], {
+            searchOperator: zod.z.enum(["contains", "starts_with", "ends_with"], {
               description: "The operator to use for the search. Can be `contains`, `starts_with` or `ends_with`"
             }).optional(),
-            limit: z.string({
+            limit: zod.z.string({
               description: "The number of users to return"
-            }).or(z.number()).optional(),
-            offset: z.string({
+            }).or(zod.z.number()).optional(),
+            offset: zod.z.string({
               description: "The offset to start from"
-            }).or(z.number()).optional(),
-            sortBy: z.string({
+            }).or(zod.z.number()).optional(),
+            sortBy: zod.z.string({
               description: "The field to sort by"
             }).optional(),
-            sortDirection: z.enum(["asc", "desc"], {
+            sortDirection: zod.z.enum(["asc", "desc"], {
               description: "The direction to sort by"
             }).optional(),
-            filterField: z.string({
+            filterField: zod.z.string({
               description: "The field to filter by"
             }).optional(),
-            filterValue: z.string({
+            filterValue: zod.z.string({
               description: "The value to filter by"
-            }).or(z.number()).or(z.boolean()).optional(),
-            filterOperator: z.enum(["eq", "ne", "lt", "lte", "gt", "gte"], {
+            }).or(zod.z.number()).or(zod.z.boolean()).optional(),
+            filterOperator: zod.z.enum(["eq", "ne", "lt", "lte", "gt", "gte"], {
               description: "The operator to use for the filter"
             }).optional()
           }),
@@ -310,6 +312,15 @@ var admin = (options) => {
                             items: {
                               $ref: "#/components/schemas/User"
                             }
+                          },
+                          total: {
+                            type: "number"
+                          },
+                          limit: {
+                            type: ["number", "undefined"]
+                          },
+                          offset: {
+                            type: ["number", "undefined"]
                           }
                         }
                       }
@@ -361,13 +372,13 @@ var admin = (options) => {
           }
         }
       ),
-      listUserSessions: createAuthEndpoint(
+      listUserSessions: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/list-user-sessions",
         {
           method: "POST",
           use: [adminMiddleware],
-          body: z.object({
-            userId: z.string({
+          body: zod.z.object({
+            userId: zod.z.string({
               description: "The user id"
             })
           }),
@@ -408,12 +419,12 @@ var admin = (options) => {
           };
         }
       ),
-      unbanUser: createAuthEndpoint(
+      unbanUser: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/unban-user",
         {
           method: "POST",
-          body: z.object({
-            userId: z.string({
+          body: zod.z.object({
+            userId: zod.z.string({
               description: "The user id"
             })
           }),
@@ -455,24 +466,24 @@ var admin = (options) => {
           });
         }
       ),
-      banUser: createAuthEndpoint(
+      banUser: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/ban-user",
         {
           method: "POST",
-          body: z.object({
-            userId: z.string({
+          body: zod.z.object({
+            userId: zod.z.string({
               description: "The user id"
             }),
             /**
              * Reason for the ban
              */
-            banReason: z.string({
+            banReason: zod.z.string({
               description: "The reason for the ban"
             }).optional(),
             /**
              * Number of seconds until the ban expires
              */
-            banExpiresIn: z.number({
+            banExpiresIn: zod.z.number({
               description: "The number of seconds until the ban expires"
             }).optional()
           }),
@@ -504,7 +515,7 @@ var admin = (options) => {
         },
         async (ctx) => {
           if (ctx.body.userId === ctx.context.session.user.id) {
-            throw new APIError("BAD_REQUEST", {
+            throw new chunkK3D45DZU_cjs.APIError("BAD_REQUEST", {
               message: ERROR_CODES.YOU_CANNOT_BAN_YOURSELF
             });
           }
@@ -513,7 +524,7 @@ var admin = (options) => {
             {
               banned: true,
               banReason: ctx.body.banReason || options?.defaultBanReason || "No reason",
-              banExpires: ctx.body.banExpiresIn ? getDate(ctx.body.banExpiresIn, "sec") : options?.defaultBanExpiresIn ? getDate(options.defaultBanExpiresIn, "sec") : void 0
+              banExpires: ctx.body.banExpiresIn ? chunk2HPSCSV7_cjs.getDate(ctx.body.banExpiresIn, "sec") : options?.defaultBanExpiresIn ? chunk2HPSCSV7_cjs.getDate(options.defaultBanExpiresIn, "sec") : void 0
             }
           );
           await ctx.context.internalAdapter.deleteSessions(ctx.body.userId);
@@ -522,12 +533,12 @@ var admin = (options) => {
           });
         }
       ),
-      impersonateUser: createAuthEndpoint(
+      impersonateUser: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/impersonate-user",
         {
           method: "POST",
-          body: z.object({
-            userId: z.string({
+          body: zod.z.object({
+            userId: zod.z.string({
               description: "The user id"
             })
           }),
@@ -565,7 +576,7 @@ var admin = (options) => {
             ctx.body.userId
           );
           if (!targetUser) {
-            throw new APIError("NOT_FOUND", {
+            throw new chunkK3D45DZU_cjs.APIError("NOT_FOUND", {
               message: "User not found"
             });
           }
@@ -575,24 +586,24 @@ var admin = (options) => {
             true,
             {
               impersonatedBy: ctx.context.session.user.id,
-              expiresAt: options?.impersonationSessionDuration ? getDate(options.impersonationSessionDuration, "sec") : getDate(60 * 60, "sec")
+              expiresAt: options?.impersonationSessionDuration ? chunk2HPSCSV7_cjs.getDate(options.impersonationSessionDuration, "sec") : chunk2HPSCSV7_cjs.getDate(60 * 60, "sec")
               // 1 hour
             }
           );
           if (!session) {
-            throw new APIError("INTERNAL_SERVER_ERROR", {
+            throw new chunkK3D45DZU_cjs.APIError("INTERNAL_SERVER_ERROR", {
               message: ERROR_CODES.FAILED_TO_CREATE_USER
             });
           }
           const authCookies = ctx.context.authCookies;
-          deleteSessionCookie(ctx);
+          chunkOJX3P352_cjs.deleteSessionCookie(ctx);
           await ctx.setSignedCookie(
             "admin_session",
             ctx.context.session.session.token,
             ctx.context.secret,
             authCookies.sessionToken.options
           );
-          await setSessionCookie(
+          await chunkOJX3P352_cjs.setSessionCookie(
             ctx,
             {
               session,
@@ -606,18 +617,18 @@ var admin = (options) => {
           });
         }
       ),
-      stopImpersonating: createAuthEndpoint(
+      stopImpersonating: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/stop-impersonating",
         {
           method: "POST"
         },
         async (ctx) => {
-          const session = await getSessionFromCtx(ctx);
+          const session = await chunkK3D45DZU_cjs.getSessionFromCtx(ctx);
           if (!session) {
-            throw new APIError("UNAUTHORIZED");
+            throw new chunkK3D45DZU_cjs.APIError("UNAUTHORIZED");
           }
           if (!session.session.impersonatedBy) {
-            throw new APIError("BAD_REQUEST", {
+            throw new chunkK3D45DZU_cjs.APIError("BAD_REQUEST", {
               message: "You are not impersonating anyone"
             });
           }
@@ -625,7 +636,7 @@ var admin = (options) => {
             session.session.impersonatedBy
           );
           if (!user) {
-            throw new APIError("INTERNAL_SERVER_ERROR", {
+            throw new chunkK3D45DZU_cjs.APIError("INTERNAL_SERVER_ERROR", {
               message: "Failed to find user"
             });
           }
@@ -634,26 +645,26 @@ var admin = (options) => {
             ctx.context.secret
           );
           if (!adminCookie) {
-            throw new APIError("INTERNAL_SERVER_ERROR", {
+            throw new chunkK3D45DZU_cjs.APIError("INTERNAL_SERVER_ERROR", {
               message: "Failed to find admin session"
             });
           }
           const adminSession = await ctx.context.internalAdapter.findSession(adminCookie);
           if (!adminSession || adminSession.session.userId !== user.id) {
-            throw new APIError("INTERNAL_SERVER_ERROR", {
+            throw new chunkK3D45DZU_cjs.APIError("INTERNAL_SERVER_ERROR", {
               message: "Failed to find admin session"
             });
           }
-          await setSessionCookie(ctx, adminSession);
+          await chunkOJX3P352_cjs.setSessionCookie(ctx, adminSession);
           return ctx.json(adminSession);
         }
       ),
-      revokeUserSession: createAuthEndpoint(
+      revokeUserSession: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/revoke-user-session",
         {
           method: "POST",
-          body: z.object({
-            sessionToken: z.string({
+          body: zod.z.object({
+            sessionToken: zod.z.string({
               description: "The session token"
             })
           }),
@@ -697,12 +708,12 @@ var admin = (options) => {
           });
         }
       ),
-      revokeUserSessions: createAuthEndpoint(
+      revokeUserSessions: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/revoke-user-sessions",
         {
           method: "POST",
-          body: z.object({
-            userId: z.string({
+          body: zod.z.object({
+            userId: zod.z.string({
               description: "The user id"
             })
           }),
@@ -739,12 +750,12 @@ var admin = (options) => {
           });
         }
       ),
-      removeUser: createAuthEndpoint(
+      removeUser: chunkK3D45DZU_cjs.createAuthEndpoint(
         "/admin/remove-user",
         {
           method: "POST",
-          body: z.object({
-            userId: z.string({
+          body: zod.z.object({
+            userId: zod.z.string({
               description: "The user id"
             })
           }),
@@ -783,7 +794,7 @@ var admin = (options) => {
       )
     },
     $ERROR_CODES: ERROR_CODES,
-    schema: mergeSchema(schema, opts.schema)
+    schema: chunkME4Q5ZEC_cjs.mergeSchema(schema, opts.schema)
   };
 };
 var schema = {
@@ -822,4 +833,4 @@ var schema = {
   }
 };
 
-export { admin };
+exports.admin = admin;

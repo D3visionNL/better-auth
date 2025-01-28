@@ -1,4 +1,4 @@
-import { I as InferOptionSchema, H as HookEndpointContext } from '../auth-ob6nYADI.cjs';
+import { I as InferOptionSchema, H as HookEndpointContext } from '../auth-DHr5af7C.cjs';
 import { z } from 'zod';
 import * as better_call from 'better-call';
 import 'kysely';
