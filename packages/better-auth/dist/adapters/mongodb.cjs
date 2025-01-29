@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkHH5YHQO2_cjs = require('../chunk-HH5YHQO2.cjs');
+var chunkGJKYLDRQ_cjs = require('../chunk-GJKYLDRQ.cjs');
 require('../chunk-ME4Q5ZEC.cjs');
 require('../chunk-H74YRRNV.cjs');
 require('../chunk-5E75URIA.cjs');
@@ -13,7 +13,7 @@ require('../chunk-PEZRSDZS.cjs');
 var mongodb = require('mongodb');
 
 var createTransform = (options) => {
-  const schema = chunkHH5YHQO2_cjs.getAuthTables(options);
+  const schema = chunkGJKYLDRQ_cjs.getAuthTables(options);
   function serializeID(field, value, model) {
     if (field === "id" || field === "_id" || schema[model].fields[field].references?.field === "id") {
       if (typeof value !== "string") {
@@ -80,7 +80,7 @@ var createTransform = (options) => {
         if (value === void 0 && (!fields[field].defaultValue || action === "update")) {
           continue;
         }
-        transformedData[fields[field].fieldName || field] = chunkHH5YHQO2_cjs.withApplyDefault(
+        transformedData[fields[field].fieldName || field] = chunkGJKYLDRQ_cjs.withApplyDefault(
           serializeID(field, value, model),
           fields[field],
           action

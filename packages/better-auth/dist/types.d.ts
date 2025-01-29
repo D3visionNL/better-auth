@@ -1,5 +1,5 @@
-import { e as BetterAuthPlugin, k as Auth, S as Session, U as User, ae as InferFieldsInputClient, ac as InferFieldsOutput } from './auth-CxnTUVJT.js';
-export { w as Account, A as Adapter, z as AdapterInstance, y as AdapterSchemaCreation, t as AdditionalSessionFieldsInput, u as AdditionalSessionFieldsOutput, r as AdditionalUserFieldsInput, s as AdditionalUserFieldsOutput, l as AuthContext, b as AuthPluginSchema, B as BetterAuthOptions, D as FilterActions, F as FilteredAPI, G as GenericEndpointContext, d as HookAfterHandler, c as HookBeforeHandler, H as HookEndpointContext, J as InferAPI, I as InferOptionSchema, f as InferPluginErrorCodes, v as InferPluginTypes, n as InferSession, E as InferSessionAPI, m as InferUser, M as Models, R as RateLimit, C as SecondaryStorage, V as Verification, W as Where, x as init } from './auth-CxnTUVJT.js';
+import { e as BetterAuthPlugin, k as Auth, S as Session, U as User, ae as InferFieldsInputClient, ac as InferFieldsOutput } from './auth-CVBoNX4Z.js';
+export { w as Account, A as Adapter, z as AdapterInstance, y as AdapterSchemaCreation, t as AdditionalSessionFieldsInput, u as AdditionalSessionFieldsOutput, r as AdditionalUserFieldsInput, s as AdditionalUserFieldsOutput, l as AuthContext, b as AuthPluginSchema, B as BetterAuthOptions, D as FilterActions, F as FilteredAPI, G as GenericEndpointContext, d as HookAfterHandler, c as HookBeforeHandler, H as HookEndpointContext, J as InferAPI, I as InferOptionSchema, f as InferPluginErrorCodes, v as InferPluginTypes, n as InferSession, E as InferSessionAPI, m as InferUser, M as Models, R as RateLimit, C as SecondaryStorage, V as Verification, W as Where, x as init } from './auth-CVBoNX4Z.js';
 import { U as UnionToIntersection, H as HasRequiredKeys, b as Prettify, L as LiteralString, S as StripEmptyObjects } from './helper-Bi8FQwDD.js';
 export { D as DeepPartial, E as Expand, a as LiteralNumber, d as LiteralUnion, O as OmitId, c as PreserveJSDoc, P as PrettifyDeep, R as RequiredKeysOf, W as WithoutEmpty } from './helper-Bi8FQwDD.js';
 import { BetterFetchOption, BetterFetchResponse, BetterFetch, BetterFetchPlugin } from '@better-fetch/fetch';
@@ -46,7 +46,7 @@ type InferRoute<API, COpts extends ClientOptions> = API extends Record<string, i
     isAction: false;
 } | {
     SERVER_ONLY: true;
-} ? {} : PathToObject<T["path"], T extends (ctx: infer C) => infer R ? C extends Context<any, any> ? <FetchOptions extends BetterFetchOption<C["body"], C["query"], C["params"]>>(...data: HasRequiredKeys<InferCtx<C, FetchOptions>> extends true ? [
+} ? {} : PathToObject<T["path"], T extends (ctx: infer C) => infer R ? C extends Context<any, any> ? <FetchOptions extends BetterFetchOption<C["body"] & Record<string, any>, C["query"] & Record<string, any>, C["params"]>>(...data: HasRequiredKeys<InferCtx<C, FetchOptions>> extends true ? [
     Prettify<T["path"] extends `/sign-up/email` ? InferSignUpEmailCtx<COpts, FetchOptions> : InferCtx<C, FetchOptions>>,
     FetchOptions?
 ] : [

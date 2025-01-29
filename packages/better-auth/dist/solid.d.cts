@@ -4,7 +4,7 @@ import { BetterFetchError } from '@better-fetch/fetch';
 import { ClientOptions, InferClientAPI, InferActions, InferErrorCodes, BetterAuthClientPlugin, IsSignal } from './types.cjs';
 import { Accessor } from 'solid-js';
 import { U as UnionToIntersection, P as PrettifyDeep } from './helper-Bi8FQwDD.cjs';
-import { a as BASE_ERROR_CODES } from './auth-DHr5af7C.cjs';
+import { a as BASE_ERROR_CODES } from './auth-LoXag6ZL.cjs';
 import 'nanostores';
 import 'better-call';
 import 'kysely';

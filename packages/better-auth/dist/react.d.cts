@@ -8,7 +8,7 @@ export * from '@better-fetch/fetch';
 import { ClientOptions, InferClientAPI, InferActions, InferErrorCodes, BetterAuthClientPlugin, IsSignal } from './types.cjs';
 import { U as UnionToIntersection, P as PrettifyDeep } from './helper-Bi8FQwDD.cjs';
 import { DependencyList } from 'react';
-import { a as BASE_ERROR_CODES } from './auth-DHr5af7C.cjs';
+import { a as BASE_ERROR_CODES } from './auth-LoXag6ZL.cjs';
 import 'better-call';
 import 'kysely';
 import './index-D0tmmb_V.cjs';

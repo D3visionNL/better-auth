@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { APIError } from 'better-call';
-import { U as User, S as Session, l as AuthContext, H as HookEndpointContext, I as InferOptionSchema } from '../auth-DHr5af7C.cjs';
+import { U as User, S as Session, I as InferOptionSchema, l as AuthContext, H as HookEndpointContext } from '../auth-LoXag6ZL.cjs';
 import { z } from 'zod';
 import 'kysely';
 import '../helper-Bi8FQwDD.cjs';
@@ -1471,4 +1471,4 @@ declare const schema: {
     };
 };
 
-export { type SessionWithImpersonatedBy, type UserWithRole, admin };
+export { type AdminOptions, type SessionWithImpersonatedBy, type UserWithRole, admin };

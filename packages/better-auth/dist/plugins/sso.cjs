@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkK3D45DZU_cjs = require('../chunk-K3D45DZU.cjs');
+var chunkNKDIPVEC_cjs = require('../chunk-NKDIPVEC.cjs');
 require('../chunk-MUVD76IU.cjs');
 var chunk2D7VGWTP_cjs = require('../chunk-2D7VGWTP.cjs');
 require('../chunk-S5UORXJH.cjs');
@@ -21,7 +21,7 @@ var sso = (options) => {
   return {
     id: "sso",
     endpoints: {
-      createOIDCProvider: chunkK3D45DZU_cjs.createAuthEndpoint(
+      createOIDCProvider: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/sso/register",
         {
           method: "POST",
@@ -83,7 +83,7 @@ var sso = (options) => {
               description: "If organization plugin is enabled, the organization id to link the provider to"
             }).optional()
           }),
-          use: [chunkK3D45DZU_cjs.sessionMiddleware],
+          use: [chunkNKDIPVEC_cjs.sessionMiddleware],
           metadata: {
             openapi: {
               summary: "Register an OIDC provider",
@@ -100,7 +100,7 @@ var sso = (options) => {
           const body = ctx.body;
           const issuerValidator = zod.z.string().url();
           if (issuerValidator.safeParse(body.issuer).error) {
-            throw new chunkK3D45DZU_cjs.APIError("BAD_REQUEST", {
+            throw new chunkNKDIPVEC_cjs.APIError("BAD_REQUEST", {
               message: "Invalid issuer. Must be a valid URL"
             });
           }
@@ -135,7 +135,7 @@ var sso = (options) => {
           });
         }
       ),
-      signInSSO: chunkK3D45DZU_cjs.createAuthEndpoint(
+      signInSSO: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/sign-in/sso",
         {
           method: "POST",
@@ -206,7 +206,7 @@ var sso = (options) => {
           const body = ctx.body;
           let { email, organizationSlug, domain } = body;
           if (!email && !organizationSlug && !domain) {
-            throw new chunkK3D45DZU_cjs.APIError("BAD_REQUEST", {
+            throw new chunkNKDIPVEC_cjs.APIError("BAD_REQUEST", {
               message: "email, organizationSlug or domain is required"
             });
           }
@@ -246,7 +246,7 @@ var sso = (options) => {
             };
           });
           if (!provider) {
-            throw new chunkK3D45DZU_cjs.APIError("NOT_FOUND", {
+            throw new chunkNKDIPVEC_cjs.APIError("NOT_FOUND", {
               message: "No provider found for the issuer"
             });
           }
@@ -270,7 +270,7 @@ var sso = (options) => {
           });
         }
       ),
-      callbackSSO: chunkK3D45DZU_cjs.createAuthEndpoint(
+      callbackSSO: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/sso/callback/:providerId",
         {
           method: "GET",
@@ -430,7 +430,7 @@ var sso = (options) => {
               `${errorURL || callbackURL}/error?error=invalid_provider&error_description=missing_user_info`
             );
           }
-          const linked = await chunkK3D45DZU_cjs.handleOAuthUserInfo(ctx, {
+          const linked = await chunkNKDIPVEC_cjs.handleOAuthUserInfo(ctx, {
             userInfo: {
               email: userInfo.email,
               name: userInfo.name || userInfo.email,

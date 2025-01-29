@@ -1,4 +1,4 @@
-import { I as InferOptionSchema, H as HookEndpointContext } from '../auth-DHr5af7C.cjs';
+import { I as InferOptionSchema, H as HookEndpointContext } from '../auth-LoXag6ZL.cjs';
 import { z } from 'zod';
 import * as better_call from 'better-call';
 import 'kysely';
@@ -13,6 +13,7 @@ declare const schema: {
             username: {
                 type: "string";
                 required: false;
+                sortable: true;
                 unique: true;
                 returned: true;
                 transform: {
@@ -138,6 +139,7 @@ declare const username: (options?: UsernameOptions) => {
                 username: {
                     type: "string";
                     required: false;
+                    sortable: true;
                     unique: true;
                     returned: true;
                     transform: {

@@ -1,12 +1,12 @@
 'use strict';
 
 var chunkEHFDU6IF_cjs = require('./chunk-EHFDU6IF.cjs');
-var chunkK3D45DZU_cjs = require('./chunk-K3D45DZU.cjs');
+var chunkNKDIPVEC_cjs = require('./chunk-NKDIPVEC.cjs');
 var chunkMUVD76IU_cjs = require('./chunk-MUVD76IU.cjs');
 require('./chunk-2D7VGWTP.cjs');
 var chunkS5UORXJH_cjs = require('./chunk-S5UORXJH.cjs');
 var chunkOJX3P352_cjs = require('./chunk-OJX3P352.cjs');
-var chunkHH5YHQO2_cjs = require('./chunk-HH5YHQO2.cjs');
+var chunkGJKYLDRQ_cjs = require('./chunk-GJKYLDRQ.cjs');
 require('./chunk-ME4Q5ZEC.cjs');
 var chunkH74YRRNV_cjs = require('./chunk-H74YRRNV.cjs');
 var chunk5E75URIA_cjs = require('./chunk-5E75URIA.cjs');
@@ -23,7 +23,7 @@ var DEFAULT_SECRET = "better-auth-secret-123456789";
 
 // src/init.ts
 var init = async (options) => {
-  const adapter = await chunkHH5YHQO2_cjs.getAdapter(options);
+  const adapter = await chunkGJKYLDRQ_cjs.getAdapter(options);
   const plugins = options.plugins || [];
   const internalPlugins = getInternalPlugins(options);
   const logger2 = chunkH74YRRNV_cjs.createLogger(options.logger);
@@ -44,7 +44,7 @@ var init = async (options) => {
     plugins: plugins.concat(internalPlugins)
   };
   const cookies = chunkOJX3P352_cjs.getCookies(options);
-  const tables = chunkHH5YHQO2_cjs.getAuthTables(options);
+  const tables = chunkGJKYLDRQ_cjs.getAuthTables(options);
   const providers = Object.keys(options.socialProviders || {}).map((key) => {
     const value = options.socialProviders?.[key];
     if (value.enabled === false) {
@@ -107,7 +107,7 @@ var init = async (options) => {
     },
     newSession: null,
     adapter,
-    internalAdapter: chunkHH5YHQO2_cjs.createInternalAdapter(adapter, {
+    internalAdapter: chunkGJKYLDRQ_cjs.createInternalAdapter(adapter, {
       options,
       hooks: options.databaseHooks ? [options.databaseHooks] : [],
       generateId: generateIdFunc
@@ -143,7 +143,7 @@ function runPluginInit(ctx) {
     }
   }
   dbHooks.push(options.databaseHooks);
-  context.internalAdapter = chunkHH5YHQO2_cjs.createInternalAdapter(ctx.adapter, {
+  context.internalAdapter = chunkGJKYLDRQ_cjs.createInternalAdapter(ctx.adapter, {
     options,
     hooks: dbHooks.filter((u) => u !== void 0),
     generateId: ctx.generateId
@@ -175,7 +175,7 @@ function getTrustedOrigins(options) {
 // src/auth.ts
 var betterAuth = (options) => {
   const authContext = init(options);
-  const { api } = chunkK3D45DZU_cjs.getEndpoints(authContext, options);
+  const { api } = chunkNKDIPVEC_cjs.getEndpoints(authContext, options);
   const errorCodes = options.plugins?.reduce((acc, plugin) => {
     if (plugin.$ERROR_CODES) {
       return {
@@ -200,7 +200,7 @@ var betterAuth = (options) => {
         ctx.baseURL,
         url.origin
       ];
-      const { handler } = chunkK3D45DZU_cjs.router(ctx, options);
+      const { handler } = chunkNKDIPVEC_cjs.router(ctx, options);
       return handler(request);
     },
     api,
@@ -209,7 +209,7 @@ var betterAuth = (options) => {
     $Infer: {},
     $ERROR_CODES: {
       ...errorCodes,
-      ...chunkK3D45DZU_cjs.BASE_ERROR_CODES
+      ...chunkNKDIPVEC_cjs.BASE_ERROR_CODES
     }
   };
 };

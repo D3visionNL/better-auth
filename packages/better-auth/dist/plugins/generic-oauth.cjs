@@ -1,7 +1,7 @@
 'use strict';
 
-var chunkKUFFIBUM_cjs = require('../chunk-KUFFIBUM.cjs');
-require('../chunk-K3D45DZU.cjs');
+var chunkFS3S4EA6_cjs = require('../chunk-FS3S4EA6.cjs');
+require('../chunk-NKDIPVEC.cjs');
 require('../chunk-MUVD76IU.cjs');
 require('../chunk-2D7VGWTP.cjs');
 require('../chunk-S5UORXJH.cjs');
@@ -19,5 +19,5 @@ require('../chunk-PEZRSDZS.cjs');
 
 Object.defineProperty(exports, "genericOAuth", {
   enumerable: true,
-  get: function () { return chunkKUFFIBUM_cjs.genericOAuth; }
+  get: function () { return chunkFS3S4EA6_cjs.genericOAuth; }
 });

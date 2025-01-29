@@ -1,7 +1,7 @@
 'use strict';
 
-var chunkVASSJNPE_cjs = require('../chunk-VASSJNPE.cjs');
-require('../chunk-K3D45DZU.cjs');
+var chunkASGYDR3Y_cjs = require('../chunk-ASGYDR3Y.cjs');
+require('../chunk-NKDIPVEC.cjs');
 require('../chunk-MUVD76IU.cjs');
 require('../chunk-2D7VGWTP.cjs');
 require('../chunk-S5UORXJH.cjs');
@@ -19,5 +19,5 @@ require('../chunk-PEZRSDZS.cjs');
 
 Object.defineProperty(exports, "oidcProvider", {
   enumerable: true,
-  get: function () { return chunkVASSJNPE_cjs.oidcProvider; }
+  get: function () { return chunkASGYDR3Y_cjs.oidcProvider; }
 });

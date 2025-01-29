@@ -1,6 +1,6 @@
 'use strict';
 
-var chunkHH5YHQO2_cjs = require('../chunk-HH5YHQO2.cjs');
+var chunkGJKYLDRQ_cjs = require('../chunk-GJKYLDRQ.cjs');
 require('../chunk-ME4Q5ZEC.cjs');
 var chunkH74YRRNV_cjs = require('../chunk-H74YRRNV.cjs');
 require('../chunk-5E75URIA.cjs');
@@ -13,7 +13,7 @@ var chunkPEZRSDZS_cjs = require('../chunk-PEZRSDZS.cjs');
 
 // src/adapters/prisma-adapter/prisma-adapter.ts
 var createTransform = (config, options) => {
-  const schema = chunkHH5YHQO2_cjs.getAuthTables(options);
+  const schema = chunkGJKYLDRQ_cjs.getAuthTables(options);
   function getField(model, field) {
     if (field === "id") {
       return field;
@@ -48,7 +48,7 @@ var createTransform = (config, options) => {
         if (value === void 0 && (!fields[field].defaultValue || action === "update")) {
           continue;
         }
-        transformedData[fields[field].fieldName || field] = chunkHH5YHQO2_cjs.withApplyDefault(
+        transformedData[fields[field].fieldName || field] = chunkGJKYLDRQ_cjs.withApplyDefault(
           value,
           fields[field],
           action

@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { U as User, I as InferOptionSchema } from '../auth-CxnTUVJT.js';
+import { U as User, I as InferOptionSchema } from '../auth-CVBoNX4Z.js';
 import 'kysely';
 import '../helper-Bi8FQwDD.js';
 import '../index-l5SennZN.js';
@@ -11,7 +11,7 @@ interface UserWithPhoneNumber extends User {
     phoneNumber: string;
     phoneNumberVerified: boolean;
 }
-declare const phoneNumber: (options?: {
+interface PhoneNumberOptions {
     /**
      * Length of the OTP code
      * @default 6
@@ -78,7 +78,8 @@ declare const phoneNumber: (options?: {
      * Custom schema for the admin plugin
      */
     schema?: InferOptionSchema<typeof schema>;
-}) => {
+}
+declare const phoneNumber: (options?: PhoneNumberOptions) => {
     id: "phone-number";
     endpoints: {
         signInPhoneNumber: {
@@ -405,6 +406,7 @@ declare const phoneNumber: (options?: {
                     type: "string";
                     required: false;
                     unique: true;
+                    sortable: true;
                     returned: true;
                 };
                 phoneNumberVerified: {
@@ -430,6 +432,7 @@ declare const schema: {
                 type: "string";
                 required: false;
                 unique: true;
+                sortable: true;
                 returned: true;
             };
             phoneNumberVerified: {
@@ -442,4 +445,4 @@ declare const schema: {
     };
 };
 
-export { type UserWithPhoneNumber, phoneNumber };
+export { type PhoneNumberOptions, type UserWithPhoneNumber, phoneNumber };

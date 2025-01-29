@@ -1,7 +1,7 @@
 'use strict';
 
-var chunk6RET5VUN_cjs = require('../chunk-6RET5VUN.cjs');
-require('../chunk-K3D45DZU.cjs');
+var chunkSHIFK5XF_cjs = require('../chunk-SHIFK5XF.cjs');
+require('../chunk-NKDIPVEC.cjs');
 require('../chunk-MUVD76IU.cjs');
 require('../chunk-2D7VGWTP.cjs');
 require('../chunk-S5UORXJH.cjs');
@@ -19,5 +19,5 @@ require('../chunk-PEZRSDZS.cjs');
 
 Object.defineProperty(exports, "oneTap", {
   enumerable: true,
-  get: function () { return chunk6RET5VUN_cjs.oneTap; }
+  get: function () { return chunkSHIFK5XF_cjs.oneTap; }
 });

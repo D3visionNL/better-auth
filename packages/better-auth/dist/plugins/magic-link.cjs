@@ -1,7 +1,7 @@
 'use strict';
 
-var chunkOXNEWDTR_cjs = require('../chunk-OXNEWDTR.cjs');
-require('../chunk-K3D45DZU.cjs');
+var chunkVI2ILVQD_cjs = require('../chunk-VI2ILVQD.cjs');
+require('../chunk-NKDIPVEC.cjs');
 require('../chunk-MUVD76IU.cjs');
 require('../chunk-2D7VGWTP.cjs');
 require('../chunk-S5UORXJH.cjs');
@@ -19,5 +19,5 @@ require('../chunk-PEZRSDZS.cjs');
 
 Object.defineProperty(exports, "magicLink", {
   enumerable: true,
-  get: function () { return chunkOXNEWDTR_cjs.magicLink; }
+  get: function () { return chunkVI2ILVQD_cjs.magicLink; }
 });

@@ -1,7 +1,7 @@
 import * as better_call from 'better-call';
 import { APIError } from 'better-call';
 import { z } from 'zod';
-import { H as HookEndpointContext } from '../auth-DHr5af7C.cjs';
+import { H as HookEndpointContext } from '../auth-LoXag6ZL.cjs';
 import 'kysely';
 import '../helper-Bi8FQwDD.cjs';
 import '../index-D0tmmb_V.cjs';
@@ -661,4 +661,4 @@ declare const emailOTP: (options: EmailOTPOptions) => {
     })[];
 };
 
-export { emailOTP };
+export { type EmailOTPOptions, emailOTP };

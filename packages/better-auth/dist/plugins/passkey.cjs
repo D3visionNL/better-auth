@@ -1,7 +1,7 @@
 'use strict';
 
 var chunkYLFV4SQL_cjs = require('../chunk-YLFV4SQL.cjs');
-var chunkK3D45DZU_cjs = require('../chunk-K3D45DZU.cjs');
+var chunkNKDIPVEC_cjs = require('../chunk-NKDIPVEC.cjs');
 require('../chunk-MUVD76IU.cjs');
 require('../chunk-2D7VGWTP.cjs');
 require('../chunk-RBN34WVC.cjs');
@@ -50,11 +50,11 @@ var passkey = (options) => {
   return {
     id: "passkey",
     endpoints: {
-      generatePasskeyRegistrationOptions: chunkK3D45DZU_cjs.createAuthEndpoint(
+      generatePasskeyRegistrationOptions: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/passkey/generate-register-options",
         {
           method: "GET",
-          use: [chunkK3D45DZU_cjs.freshSessionMiddleware],
+          use: [chunkNKDIPVEC_cjs.freshSessionMiddleware],
           metadata: {
             client: false,
             openapi: {
@@ -222,7 +222,7 @@ var passkey = (options) => {
           });
         }
       ),
-      generatePasskeyAuthenticationOptions: chunkK3D45DZU_cjs.createAuthEndpoint(
+      generatePasskeyAuthenticationOptions: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/passkey/generate-authenticate-options",
         {
           method: "POST",
@@ -323,7 +323,7 @@ var passkey = (options) => {
           }
         },
         async (ctx) => {
-          const session = await chunkK3D45DZU_cjs.getSessionFromCtx(ctx);
+          const session = await chunkNKDIPVEC_cjs.getSessionFromCtx(ctx);
           let userPasskeys = [];
           if (session) {
             userPasskeys = await ctx.context.adapter.findMany({
@@ -377,7 +377,7 @@ var passkey = (options) => {
           });
         }
       ),
-      verifyPasskeyRegistration: chunkK3D45DZU_cjs.createAuthEndpoint(
+      verifyPasskeyRegistration: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/passkey/verify-registration",
         {
           method: "POST",
@@ -389,7 +389,7 @@ var passkey = (options) => {
               description: "Name of the passkey"
             }).optional()
           }),
-          use: [chunkK3D45DZU_cjs.freshSessionMiddleware],
+          use: [chunkNKDIPVEC_cjs.freshSessionMiddleware],
           metadata: {
             openapi: {
               description: "Verify registration of a new passkey",
@@ -498,7 +498,7 @@ var passkey = (options) => {
           }
         }
       ),
-      verifyPasskeyAuthentication: chunkK3D45DZU_cjs.createAuthEndpoint(
+      verifyPasskeyAuthentication: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/passkey/verify-authentication",
         {
           method: "POST",
@@ -651,11 +651,11 @@ var passkey = (options) => {
           }
         }
       ),
-      listPasskeys: chunkK3D45DZU_cjs.createAuthEndpoint(
+      listPasskeys: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/passkey/list-user-passkeys",
         {
           method: "GET",
-          use: [chunkK3D45DZU_cjs.sessionMiddleware]
+          use: [chunkNKDIPVEC_cjs.sessionMiddleware]
         },
         async (ctx) => {
           const passkeys = await ctx.context.adapter.findMany({
@@ -667,14 +667,14 @@ var passkey = (options) => {
           });
         }
       ),
-      deletePasskey: chunkK3D45DZU_cjs.createAuthEndpoint(
+      deletePasskey: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/passkey/delete-passkey",
         {
           method: "POST",
           body: zod.z.object({
             id: zod.z.string()
           }),
-          use: [chunkK3D45DZU_cjs.sessionMiddleware]
+          use: [chunkNKDIPVEC_cjs.sessionMiddleware]
         },
         async (ctx) => {
           await ctx.context.adapter.delete({
@@ -691,7 +691,7 @@ var passkey = (options) => {
           });
         }
       ),
-      updatePasskey: chunkK3D45DZU_cjs.createAuthEndpoint(
+      updatePasskey: chunkNKDIPVEC_cjs.createAuthEndpoint(
         "/passkey/update-passkey",
         {
           method: "POST",
@@ -699,7 +699,7 @@ var passkey = (options) => {
             id: zod.z.string(),
             name: zod.z.string()
           }),
-          use: [chunkK3D45DZU_cjs.sessionMiddleware]
+          use: [chunkNKDIPVEC_cjs.sessionMiddleware]
         },
         async (ctx) => {
           const passkey2 = await ctx.context.adapter.findOne({

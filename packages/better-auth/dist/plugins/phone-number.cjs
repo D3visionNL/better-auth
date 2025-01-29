@@ -1,7 +1,7 @@
 'use strict';
 
-var chunkHYL7FCPZ_cjs = require('../chunk-HYL7FCPZ.cjs');
-require('../chunk-K3D45DZU.cjs');
+var chunkSFRU7XKE_cjs = require('../chunk-SFRU7XKE.cjs');
+require('../chunk-NKDIPVEC.cjs');
 require('../chunk-MUVD76IU.cjs');
 require('../chunk-2D7VGWTP.cjs');
 require('../chunk-S5UORXJH.cjs');
@@ -19,5 +19,5 @@ require('../chunk-PEZRSDZS.cjs');
 
 Object.defineProperty(exports, "phoneNumber", {
   enumerable: true,
-  get: function () { return chunkHYL7FCPZ_cjs.phoneNumber; }
+  get: function () { return chunkSFRU7XKE_cjs.phoneNumber; }
 });
