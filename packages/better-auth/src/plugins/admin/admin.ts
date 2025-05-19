@@ -207,7 +207,7 @@ export const admin = <O extends AdminOptions>(options?: O) => {
 												ctx.context.options.onAPIError?.errorURL ||
 												`${ctx.context.baseURL}/error`;
 											throw ctx.redirect(
-												`${redirectURI}?error=banned&error_description=${opts.bannedUserMessage}`,
+												`${redirectURI}?error=banned&error_description=${opts.bannedUserMessage}&error_data=${encodeURIComponent(JSON.stringify({banReason: user?.banReason ?? '', banExpires: user?.banExpires ?? null}))}`,
 											);
 										}
 
