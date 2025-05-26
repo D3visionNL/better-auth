@@ -1,4 +1,4 @@
-export { d as convertFromDB, b as convertToDB, c as createInternalAdapter, a as getAdapter, e as getMigrations, f as getSchema, g as getWithHooks, m as matchType } from '../shared/better-auth.Bdf76d5Z.mjs';
+export { d as convertFromDB, b as convertToDB, c as createInternalAdapter, a as getAdapter, e as getMigrations, f as getSchema, g as getWithHooks, m as matchType } from '../shared/better-auth.DCB35LVD.mjs';
 export { g as getAuthTables } from '../shared/better-auth.DORkW_Ge.mjs';
 import { z } from 'zod';
 export { a as accountSchema, g as getAllFields, m as mergeSchema, i as parseAccountInput, c as parseAccountOutput, h as parseAdditionalUserInput, e as parseInputData, p as parseOutputData, j as parseSessionInput, d as parseSessionOutput, f as parseUserInput, b as parseUserOutput, s as sessionSchema, u as userSchema, v as verificationSchema } from '../shared/better-auth.Cc72UxUH.mjs';

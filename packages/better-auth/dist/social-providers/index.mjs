@@ -34,7 +34,8 @@ const apple = (options) => {
         scopes: _scope,
         state,
         redirectURI,
-        responseMode: "form_post"
+        responseMode: "form_post",
+        responseType: "code id_token"
       });
       return url;
     },
@@ -97,12 +98,13 @@ const apple = (options) => {
         return null;
       }
       const name = token.user ? `${token.user.name?.firstName} ${token.user.name?.lastName}` : profile.name || profile.email;
+      const emailVerified = typeof profile.email_verified === "boolean" ? profile.email_verified : profile.email_verified === "true";
       const userMap = await options.mapProfileToUser?.(profile);
       return {
         user: {
           id: profile.sub,
           name,
-          emailVerified: false,
+          emailVerified,
           email: profile.email,
           ...userMap
         },
@@ -789,7 +791,7 @@ const twitter = (options) => {
           clientKey: options.clientKey,
           clientSecret: options.clientSecret
         },
-        tokenEndpoint: "https://api.twitter.com/2/oauth2/token"
+        tokenEndpoint: "https://api.x.com/2/oauth2/token"
       });
     },
     async getUserInfo(token) {
@@ -1557,8 +1559,6 @@ const socialProviders = {
   zoom
 };
 const socialProviderList = Object.keys(socialProviders);
-const SocialProviderListEnum = z.enum(socialProviderList, {
-  description: "OAuth2 provider to use"
-});
+const SocialProviderListEnum = z.enum(socialProviderList).or(z.string());
 
 export { LANG, SocialProviderListEnum, apple, discord, dropbox, facebook, getApplePublicKey, github, gitlab, google, kick, linkedin, microsoft, reddit, roblox, socialProviderList, socialProviders, spotify, tiktok, twitch, twitter, vk, zoom };

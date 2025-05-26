@@ -1,7 +1,7 @@
 import { APIError, toResponse, createRouter } from 'better-call';
 export { APIError } from 'better-call';
-import { a as createAuthEndpoint, B as BASE_ERROR_CODES, e as createEmailVerificationToken, w as wildcardMatch, l as listSessions, u as updateUser, b as getSession, i as originCheckMiddleware, j as error, k as ok, m as getAccessToken, r as refreshToken, n as unlinkAccount, p as deleteUserCallback, q as listUserAccounts, t as linkSocialAccount, v as revokeOtherSessions, x as revokeSessions, y as revokeSession, z as forgetPasswordCallback, A as deleteUser, C as setPassword, D as changePassword, E as changeEmail, F as sendVerificationEmail, G as verifyEmail, I as resetPassword, J as forgetPassword, K as signInEmail, L as signOut, M as callbackOAuth, N as signInSocial } from '../shared/better-auth.Dvh-YFwT.mjs';
-export { c as createAuthMiddleware, f as freshSessionMiddleware, g as getSessionFromCtx, P as optionsMiddleware, o as originCheck, O as requestOnlySessionMiddleware, d as sendVerificationEmailFn, s as sessionMiddleware } from '../shared/better-auth.Dvh-YFwT.mjs';
+import { a as createAuthEndpoint, B as BASE_ERROR_CODES, e as createEmailVerificationToken, w as wildcardMatch, l as listSessions, u as updateUser, b as getSession, i as originCheckMiddleware, j as error, k as ok, m as accountInfo, n as getAccessToken, r as refreshToken, p as unlinkAccount, q as deleteUserCallback, t as listUserAccounts, v as linkSocialAccount, x as revokeOtherSessions, y as revokeSessions, z as revokeSession, A as forgetPasswordCallback, C as deleteUser, D as setPassword, E as changePassword, F as changeEmail, G as sendVerificationEmail, I as verifyEmail, J as resetPassword, K as forgetPassword, L as signInEmail, M as signOut, N as callbackOAuth, O as signInSocial } from '../shared/better-auth.Cle5OGPw.mjs';
+export { c as createAuthMiddleware, f as freshSessionMiddleware, g as getSessionFromCtx, Q as optionsMiddleware, o as originCheck, P as requestOnlySessionMiddleware, d as sendVerificationEmailFn, s as sessionMiddleware } from '../shared/better-auth.Cle5OGPw.mjs';
 import { z } from 'zod';
 import { setSessionCookie } from '../cookies/index.mjs';
 import { f as parseUserInput } from '../shared/better-auth.Cc72UxUH.mjs';
@@ -9,24 +9,24 @@ import { b as isDevelopment } from '../shared/better-auth.8zoxzg-F.mjs';
 import { l as logger } from '../shared/better-auth.Cqykj82J.mjs';
 import { g as getIp } from '../shared/better-auth.iKoUsdFE.mjs';
 import defu from 'defu';
-import '../social-providers/index.mjs';
-import '@better-fetch/fetch';
-import 'jose';
-import '../shared/better-auth.DufyW0qf.mjs';
-import '@better-auth/utils/base64';
-import '../shared/better-auth.CW6D9eSx.mjs';
+import '@better-auth/utils/random';
+import '../shared/better-auth.dn8_oqOu.mjs';
 import '@better-auth/utils/hash';
 import '@noble/ciphers/chacha';
 import '@noble/ciphers/utils';
 import '@noble/ciphers/webcrypto';
+import '@better-auth/utils/base64';
+import 'jose';
 import '@noble/hashes/scrypt';
 import '@better-auth/utils';
 import '@better-auth/utils/hex';
 import '@noble/hashes/utils';
 import '../shared/better-auth.B4Qoxdgc.mjs';
-import '@better-auth/utils/random';
+import '../social-providers/index.mjs';
+import '@better-fetch/fetch';
+import '../shared/better-auth.DufyW0qf.mjs';
+import '../shared/better-auth.CW6D9eSx.mjs';
 import '../shared/better-auth.DdzSJf-n.mjs';
-import '../shared/better-auth.dn8_oqOu.mjs';
 import '../shared/better-auth.tB5eU6EY.mjs';
 import '../shared/better-auth.BUPPRXfK.mjs';
 import '@better-auth/utils/hmac';
@@ -698,7 +698,8 @@ function getEndpoints(ctx, options) {
     deleteUserCallback,
     unlinkAccount,
     refreshToken,
-    getAccessToken
+    getAccessToken,
+    accountInfo
   };
   const endpoints = {
     ...baseEndpoints,
@@ -791,4 +792,4 @@ const router = (ctx, options) => {
   });
 };
 
-export { callbackOAuth, changeEmail, changePassword, createAuthEndpoint, createEmailVerificationToken, deleteUser, deleteUserCallback, error, forgetPassword, forgetPasswordCallback, getAccessToken, getEndpoints, getSession, linkSocialAccount, listSessions, listUserAccounts, ok, originCheckMiddleware, refreshToken, resetPassword, revokeOtherSessions, revokeSession, revokeSessions, router, sendVerificationEmail, setPassword, signInEmail, signInSocial, signOut, signUpEmail, unlinkAccount, updateUser, verifyEmail };
+export { accountInfo, callbackOAuth, changeEmail, changePassword, createAuthEndpoint, createEmailVerificationToken, deleteUser, deleteUserCallback, error, forgetPassword, forgetPasswordCallback, getAccessToken, getEndpoints, getSession, linkSocialAccount, listSessions, listUserAccounts, ok, originCheckMiddleware, refreshToken, resetPassword, revokeOtherSessions, revokeSession, revokeSessions, router, sendVerificationEmail, setPassword, signInEmail, signInSocial, signOut, signUpEmail, unlinkAccount, updateUser, verifyEmail };

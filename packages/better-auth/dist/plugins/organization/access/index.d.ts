@@ -1,5 +1,5 @@
-import { Subset, AuthortizeResponse } from '../../access/index.js';
-import '../../../shared/better-auth.CYegVoq1.js';
+import { Subset, AuthorizeResponse } from '../../access/index.js';
+import '../../../shared/better-auth.Bi8FQwDD.js';
 import 'zod';
 
 declare const defaultStatements: {
@@ -33,7 +33,7 @@ declare const defaultAc: {
                 readonly team: readonly ["create", "update", "delete"];
             }>[key];
             connector: "OR" | "AND";
-        } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+        } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
         statements: Subset<K, {
             readonly organization: readonly ["update", "delete"];
             readonly member: readonly ["create", "update", "delete"];
@@ -67,7 +67,7 @@ declare const adminAc: {
             readonly team: readonly ["create", "update", "delete"];
         }>[key];
         connector: "OR" | "AND";
-    } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+    } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
     statements: Subset<"organization" | "member" | "invitation" | "team", {
         readonly organization: readonly ["update", "delete"];
         readonly member: readonly ["create", "update", "delete"];
@@ -94,7 +94,7 @@ declare const ownerAc: {
             readonly team: readonly ["create", "update", "delete"];
         }>[key];
         connector: "OR" | "AND";
-    } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+    } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
     statements: Subset<"organization" | "member" | "invitation" | "team", {
         readonly organization: readonly ["update", "delete"];
         readonly member: readonly ["create", "update", "delete"];
@@ -121,7 +121,7 @@ declare const memberAc: {
             readonly team: readonly ["create", "update", "delete"];
         }>[key];
         connector: "OR" | "AND";
-    } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+    } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
     statements: Subset<"organization" | "member" | "invitation" | "team", {
         readonly organization: readonly ["update", "delete"];
         readonly member: readonly ["create", "update", "delete"];
@@ -149,7 +149,7 @@ declare const defaultRoles: {
                 readonly team: readonly ["create", "update", "delete"];
             }>[key];
             connector: "OR" | "AND";
-        } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+        } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
         statements: Subset<"organization" | "member" | "invitation" | "team", {
             readonly organization: readonly ["update", "delete"];
             readonly member: readonly ["create", "update", "delete"];
@@ -176,7 +176,7 @@ declare const defaultRoles: {
                 readonly team: readonly ["create", "update", "delete"];
             }>[key];
             connector: "OR" | "AND";
-        } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+        } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
         statements: Subset<"organization" | "member" | "invitation" | "team", {
             readonly organization: readonly ["update", "delete"];
             readonly member: readonly ["create", "update", "delete"];
@@ -203,7 +203,7 @@ declare const defaultRoles: {
                 readonly team: readonly ["create", "update", "delete"];
             }>[key];
             connector: "OR" | "AND";
-        } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+        } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
         statements: Subset<"organization" | "member" | "invitation" | "team", {
             readonly organization: readonly ["update", "delete"];
             readonly member: readonly ["create", "update", "delete"];

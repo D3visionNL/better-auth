@@ -1,14 +1,14 @@
 'use strict';
 
-const organization = require('../shared/better-auth.DNzJK3VH.cjs');
+const organization = require('../shared/better-auth.eFhFmJLI.cjs');
 const plugins_twoFactor_index = require('./two-factor/index.cjs');
 const plugins_username_index = require('./username/index.cjs');
 const plugins_bearer_index = require('./bearer/index.cjs');
-const account = require('../shared/better-auth.DxtzDaxH.cjs');
+const account = require('../shared/better-auth.9hFnPqb5.cjs');
 const plugins_magicLink_index = require('./magic-link/index.cjs');
 const plugins_phoneNumber_index = require('./phone-number/index.cjs');
 const plugins_anonymous_index = require('./anonymous/index.cjs');
-const admin = require('../shared/better-auth.DhjBbxfD.cjs');
+const admin = require('../shared/better-auth.CEQ8uuEy.cjs');
 const plugins_genericOauth_index = require('./generic-oauth/index.cjs');
 const plugins_jwt_index = require('./jwt/index.cjs');
 const plugins_multiSession_index = require('./multi-session/index.cjs');
@@ -17,7 +17,7 @@ const plugins_oneTap_index = require('./one-tap/index.cjs');
 const plugins_oauthProxy_index = require('./oauth-proxy/index.cjs');
 const plugins_customSession_index = require('./custom-session/index.cjs');
 const plugins_openApi_index = require('./open-api/index.cjs');
-const plugins_oidcProvider_index = require('./oidc-provider/index.cjs');
+const plugins_oidcProvider_index = require('../shared/better-auth.FRa5w3sv.cjs');
 const plugins_captcha_index = require('./captcha/index.cjs');
 const betterCall = require('better-call');
 const zod = require('zod');
@@ -34,40 +34,40 @@ const hash = require('@better-auth/utils/hash');
 require('@noble/ciphers/chacha');
 require('@noble/ciphers/utils');
 require('@noble/ciphers/webcrypto');
-require('jose');
+const jose = require('jose');
 require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+const utils = require('@better-auth/utils');
 require('@better-auth/utils/hex');
 require('@noble/hashes/utils');
-require('../shared/better-auth.CYeOI8C-.cjs');
+const random = require('../shared/better-auth.CYeOI8C-.cjs');
 require('kysely');
 const parser = require('../shared/better-auth.DhsGZ30Q.cjs');
 const json = require('../shared/better-auth.D3mtHEZg.cjs');
 const plugins_access_index = require('./access/index.cjs');
 const plugins_haveibeenpwned_index = require('./haveibeenpwned/index.cjs');
 const plugins_oneTimeToken_index = require('./one-time-token/index.cjs');
+const cookies_index = require('../cookies/index.cjs');
+require('./organization/access/index.cjs');
+require('@better-auth/utils/otp');
+require('./admin/access/index.cjs');
+require('@better-fetch/fetch');
+require('../shared/better-auth.BG6vHVNT.cjs');
 const client = require('../shared/better-auth.DnER2-iT.cjs');
 require('../shared/better-auth.ANpbi45u.cjs');
 require('../shared/better-auth.DSVbLSt7.cjs');
-require('./organization/access/index.cjs');
-require('../cookies/index.cjs');
-require('../shared/better-auth.C-R0J0n1.cjs');
 require('../shared/better-auth.Bg6iw3ig.cjs');
 require('../crypto/index.cjs');
 require('../shared/better-auth.YUF6P-PB.cjs');
 require('../shared/better-auth.BMYo0QR-.cjs');
-require('@better-auth/utils/otp');
 require('../shared/better-auth.CDXNofOe.cjs');
-require('../social-providers/index.cjs');
-require('@better-fetch/fetch');
-require('../shared/better-auth.6XyKj7DG.cjs');
 require('../shared/better-auth.CWJ7qc0w.cjs');
+require('../social-providers/index.cjs');
+require('../shared/better-auth.6XyKj7DG.cjs');
+require('../shared/better-auth.C-R0J0n1.cjs');
 require('jose/errors');
 require('@better-auth/utils/binary');
 require('../shared/better-auth.DNqtHmvg.cjs');
 require('../shared/better-auth.BW8BpneG.cjs');
-require('./admin/access/index.cjs');
-require('../shared/better-auth.BG6vHVNT.cjs');
 require('../api/index.cjs');
 require('../shared/better-auth.BEphVDyL.cjs');
 
@@ -1949,6 +1949,981 @@ const apiKey = (options) => {
   };
 };
 
+function redirectErrorURL(url, error, description) {
+  return `${url.includes("?") ? "&" : "?"}error=${error}&error_description=${description}`;
+}
+async function authorizeMCPOAuth(ctx, options) {
+  ctx.setHeader("Access-Control-Allow-Origin", "*");
+  ctx.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  ctx.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  ctx.setHeader("Access-Control-Max-Age", "86400");
+  const opts = {
+    codeExpiresIn: 600,
+    defaultScope: "openid",
+    ...options,
+    scopes: [
+      "openid",
+      "profile",
+      "email",
+      "offline_access",
+      ...options?.scopes || []
+    ]
+  };
+  if (!ctx.request) {
+    throw new betterCall.APIError("UNAUTHORIZED", {
+      error_description: "request not found",
+      error: "invalid_request"
+    });
+  }
+  const session = await account.getSessionFromCtx(ctx);
+  if (!session) {
+    await ctx.setSignedCookie(
+      "oidc_login_prompt",
+      JSON.stringify(ctx.query),
+      ctx.context.secret,
+      {
+        maxAge: 600,
+        path: "/",
+        sameSite: "lax"
+      }
+    );
+    const queryFromURL = ctx.request.url?.split("?")[1];
+    throw ctx.redirect(`${options.loginPage}?${queryFromURL}`);
+  }
+  const query = ctx.query;
+  console.log(query);
+  if (!query.client_id) {
+    throw ctx.redirect(`${ctx.context.baseURL}/error?error=invalid_client`);
+  }
+  if (!query.response_type) {
+    throw ctx.redirect(
+      redirectErrorURL(
+        `${ctx.context.baseURL}/error`,
+        "invalid_request",
+        "response_type is required"
+      )
+    );
+  }
+  const client = await ctx.context.adapter.findOne({
+    model: "oauthApplication",
+    where: [
+      {
+        field: "clientId",
+        value: ctx.query.client_id
+      }
+    ]
+  }).then((res) => {
+    if (!res) {
+      return null;
+    }
+    return {
+      ...res,
+      redirectURLs: res.redirectURLs.split(","),
+      metadata: res.metadata ? JSON.parse(res.metadata) : {}
+    };
+  });
+  console.log(client);
+  if (!client) {
+    throw ctx.redirect(`${ctx.context.baseURL}/error?error=invalid_client`);
+  }
+  const redirectURI = client.redirectURLs.find(
+    (url) => url === ctx.query.redirect_uri
+  );
+  if (!redirectURI || !query.redirect_uri) {
+    throw new betterCall.APIError("BAD_REQUEST", {
+      message: "Invalid redirect URI"
+    });
+  }
+  if (client.disabled) {
+    throw ctx.redirect(`${ctx.context.baseURL}/error?error=client_disabled`);
+  }
+  if (query.response_type !== "code") {
+    throw ctx.redirect(
+      `${ctx.context.baseURL}/error?error=unsupported_response_type`
+    );
+  }
+  const requestScope = query.scope?.split(" ").filter((s) => s) || opts.defaultScope.split(" ");
+  const invalidScopes = requestScope.filter((scope) => {
+    const isInvalid = !opts.scopes.includes(scope) || scope === "offline_access" && query.prompt !== "consent";
+    return isInvalid;
+  });
+  if (invalidScopes.length) {
+    throw ctx.redirect(
+      redirectErrorURL(
+        query.redirect_uri,
+        "invalid_scope",
+        `The following scopes are invalid: ${invalidScopes.join(", ")}`
+      )
+    );
+  }
+  if ((!query.code_challenge || !query.code_challenge_method) && options.requirePKCE) {
+    throw ctx.redirect(
+      redirectErrorURL(
+        query.redirect_uri,
+        "invalid_request",
+        "pkce is required"
+      )
+    );
+  }
+  if (!query.code_challenge_method) {
+    query.code_challenge_method = "plain";
+  }
+  if (![
+    "s256",
+    options.allowPlainCodeChallengeMethod ? "plain" : "s256"
+  ].includes(query.code_challenge_method?.toLowerCase() || "")) {
+    throw ctx.redirect(
+      redirectErrorURL(
+        query.redirect_uri,
+        "invalid_request",
+        "invalid code_challenge method"
+      )
+    );
+  }
+  const code = random.generateRandomString(32, "a-z", "A-Z", "0-9");
+  const codeExpiresInMs = opts.codeExpiresIn * 1e3;
+  const expiresAt = new Date(Date.now() + codeExpiresInMs);
+  try {
+    await ctx.context.internalAdapter.createVerificationValue(
+      {
+        value: JSON.stringify({
+          clientId: client.clientId,
+          redirectURI: query.redirect_uri,
+          scope: requestScope,
+          userId: session.user.id,
+          authTime: session.session.createdAt.getTime(),
+          /**
+           * If the prompt is set to `consent`, then we need
+           * to require the user to consent to the scopes.
+           *
+           * This means the code now needs to be treated as a
+           * consent request.
+           *
+           * once the user consents, teh code will be updated
+           * with the actual code. This is to prevent the
+           * client from using the code before the user
+           * consents.
+           */
+          requireConsent: query.prompt === "consent",
+          state: query.prompt === "consent" ? query.state : null,
+          codeChallenge: query.code_challenge,
+          codeChallengeMethod: query.code_challenge_method,
+          nonce: query.nonce
+        }),
+        identifier: code,
+        expiresAt
+      },
+      ctx
+    );
+  } catch (e) {
+    throw ctx.redirect(
+      redirectErrorURL(
+        query.redirect_uri,
+        "server_error",
+        "An error occurred while processing the request"
+      )
+    );
+  }
+  const redirectURIWithCode = new URL(redirectURI);
+  redirectURIWithCode.searchParams.set("code", code);
+  redirectURIWithCode.searchParams.set("state", ctx.query.state);
+  if (query.prompt !== "consent") {
+    throw ctx.redirect(redirectURIWithCode.toString());
+  }
+  throw ctx.redirect(redirectURIWithCode.toString());
+}
+
+const getMCPProviderMetadata = (ctx, options) => {
+  const issuer = ctx.context.options.baseURL;
+  const baseURL = ctx.context.baseURL;
+  if (!issuer || !baseURL) {
+    throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
+      error: "invalid_issuer",
+      error_description: "issuer or baseURL is not set. If you're the app developer, please make sure to set the `baseURL` in your auth config."
+    });
+  }
+  return {
+    issuer,
+    authorization_endpoint: `${baseURL}/mcp/authorize`,
+    token_endpoint: `${baseURL}/mcp/token`,
+    userinfo_endpoint: `${baseURL}/mcp/userinfo`,
+    jwks_uri: `${baseURL}/mcp/jwks`,
+    registration_endpoint: `${baseURL}/mcp/register`,
+    scopes_supported: ["openid", "profile", "email", "offline_access"],
+    response_types_supported: ["code"],
+    response_modes_supported: ["query"],
+    grant_types_supported: ["authorization_code"],
+    acr_values_supported: [
+      "urn:mace:incommon:iap:silver",
+      "urn:mace:incommon:iap:bronze"
+    ],
+    subject_types_supported: ["public"],
+    id_token_signing_alg_values_supported: ["RS256", "none"],
+    token_endpoint_auth_methods_supported: [
+      "client_secret_basic",
+      "client_secret_post"
+    ],
+    code_challenge_methods_supported: ["S256"],
+    claims_supported: [
+      "sub",
+      "iss",
+      "aud",
+      "exp",
+      "nbf",
+      "iat",
+      "jti",
+      "email",
+      "email_verified",
+      "name"
+    ],
+    ...options?.metadata
+  };
+};
+const mcp = (options) => {
+  const opts = {
+    codeExpiresIn: 600,
+    defaultScope: "openid",
+    accessTokenExpiresIn: 3600,
+    refreshTokenExpiresIn: 604800,
+    allowPlainCodeChallengeMethod: true,
+    ...options.oidcConfig,
+    loginPage: options.loginPage,
+    scopes: [
+      "openid",
+      "profile",
+      "email",
+      "offline_access",
+      ...options.oidcConfig?.scopes || []
+    ]
+  };
+  const modelName = {
+    oauthClient: "oauthApplication",
+    oauthAccessToken: "oauthAccessToken"};
+  plugins_oidcProvider_index.oidcProvider(opts);
+  return {
+    id: "mcp",
+    hooks: {
+      after: [
+        {
+          matcher() {
+            return true;
+          },
+          handler: account.createAuthMiddleware(async (ctx) => {
+            const cookie = await ctx.getSignedCookie(
+              "oidc_login_prompt",
+              ctx.context.secret
+            );
+            const cookieName = ctx.context.authCookies.sessionToken.name;
+            const parsedSetCookieHeader = cookies_index.parseSetCookieHeader(
+              ctx.context.responseHeaders?.get("set-cookie") || ""
+            );
+            const hasSessionToken = parsedSetCookieHeader.has(cookieName);
+            if (!cookie || !hasSessionToken) {
+              return;
+            }
+            ctx.setCookie("oidc_login_prompt", "", {
+              maxAge: 0
+            });
+            const sessionCookie = parsedSetCookieHeader.get(cookieName)?.value;
+            const sessionToken = sessionCookie?.split(".")[0];
+            if (!sessionToken) {
+              return;
+            }
+            const session = await ctx.context.internalAdapter.findSession(sessionToken);
+            if (!session) {
+              return;
+            }
+            ctx.query = JSON.parse(cookie);
+            ctx.query.prompt = "consent";
+            ctx.context.session = session;
+            const response = await authorizeMCPOAuth(ctx, opts).catch((e) => {
+              if (e instanceof betterCall.APIError) {
+                if (e.statusCode === 302) {
+                  return ctx.json({
+                    redirect: true,
+                    //@ts-expect-error
+                    url: e.headers.get("location")
+                  });
+                }
+              }
+              throw e;
+            });
+            return response;
+          })
+        }
+      ]
+    },
+    endpoints: {
+      getMcpOAuthConfig: account.createAuthEndpoint(
+        "/.well-known/oauth-authorization-server",
+        {
+          method: "GET",
+          metadata: {
+            client: false
+          }
+        },
+        async (c) => {
+          try {
+            const metadata = getMCPProviderMetadata(c, options);
+            return c.json(metadata);
+          } catch (e) {
+            console.log(e);
+            return c.json(null);
+          }
+        }
+      ),
+      mcpOAuthAuthroize: account.createAuthEndpoint(
+        "/mcp/authorize",
+        {
+          method: "GET",
+          query: zod.z.record(zod.z.string(), zod.z.any()),
+          metadata: {
+            openapi: {
+              description: "Authorize an OAuth2 request using MCP",
+              responses: {
+                "200": {
+                  description: "Authorization response generated successfully",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        additionalProperties: true,
+                        description: "Authorization response, contents depend on the authorize function implementation"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        async (ctx) => {
+          return authorizeMCPOAuth(ctx, opts);
+        }
+      ),
+      mcpOAuthToken: account.createAuthEndpoint(
+        "/mcp/token",
+        {
+          method: "POST",
+          body: zod.z.record(zod.z.any()),
+          metadata: {
+            isAction: false
+          }
+        },
+        async (ctx) => {
+          ctx.setHeader("Access-Control-Allow-Origin", "*");
+          ctx.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+          ctx.setHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization"
+          );
+          ctx.setHeader("Access-Control-Max-Age", "86400");
+          let { body } = ctx;
+          if (!body) {
+            throw ctx.error("BAD_REQUEST", {
+              error_description: "request body not found",
+              error: "invalid_request"
+            });
+          }
+          if (body instanceof FormData) {
+            body = Object.fromEntries(body.entries());
+          }
+          if (!(body instanceof Object)) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              error_description: "request body is not an object",
+              error: "invalid_request"
+            });
+          }
+          let { client_id, client_secret } = body;
+          const authorization = ctx.request?.headers.get("authorization") || null;
+          if (authorization && !client_id && !client_secret && authorization.startsWith("Basic ")) {
+            try {
+              const encoded = authorization.replace("Basic ", "");
+              const decoded = new TextDecoder().decode(base64.base64.decode(encoded));
+              if (!decoded.includes(":")) {
+                throw new betterCall.APIError("UNAUTHORIZED", {
+                  error_description: "invalid authorization header format",
+                  error: "invalid_client"
+                });
+              }
+              const [id, secret] = decoded.split(":");
+              if (!id || !secret) {
+                throw new betterCall.APIError("UNAUTHORIZED", {
+                  error_description: "invalid authorization header format",
+                  error: "invalid_client"
+                });
+              }
+              client_id = id;
+              client_secret = secret;
+            } catch (error) {
+              throw new betterCall.APIError("UNAUTHORIZED", {
+                error_description: "invalid authorization header format",
+                error: "invalid_client"
+              });
+            }
+          }
+          const {
+            grant_type,
+            code,
+            redirect_uri,
+            refresh_token,
+            code_verifier
+          } = body;
+          if (grant_type === "refresh_token") {
+            if (!refresh_token) {
+              throw new betterCall.APIError("BAD_REQUEST", {
+                error_description: "refresh_token is required",
+                error: "invalid_request"
+              });
+            }
+            const token = await ctx.context.adapter.findOne({
+              model: "oauthAccessToken",
+              where: [
+                {
+                  field: "refreshToken",
+                  value: refresh_token.toString()
+                }
+              ]
+            });
+            if (!token) {
+              throw new betterCall.APIError("UNAUTHORIZED", {
+                error_description: "invalid refresh token",
+                error: "invalid_grant"
+              });
+            }
+            if (token.clientId !== client_id?.toString()) {
+              throw new betterCall.APIError("UNAUTHORIZED", {
+                error_description: "invalid client_id",
+                error: "invalid_client"
+              });
+            }
+            if (token.refreshTokenExpiresAt < /* @__PURE__ */ new Date()) {
+              throw new betterCall.APIError("UNAUTHORIZED", {
+                error_description: "refresh token expired",
+                error: "invalid_grant"
+              });
+            }
+            const accessToken2 = random.generateRandomString(32, "a-z", "A-Z");
+            const newRefreshToken = random.generateRandomString(32, "a-z", "A-Z");
+            const accessTokenExpiresAt2 = new Date(
+              Date.now() + opts.accessTokenExpiresIn * 1e3
+            );
+            const refreshTokenExpiresAt2 = new Date(
+              Date.now() + opts.refreshTokenExpiresIn * 1e3
+            );
+            await ctx.context.adapter.create({
+              model: modelName.oauthAccessToken,
+              data: {
+                accessToken: accessToken2,
+                refreshToken: newRefreshToken,
+                accessTokenExpiresAt: accessTokenExpiresAt2,
+                refreshTokenExpiresAt: refreshTokenExpiresAt2,
+                clientId: client_id.toString(),
+                userId: token.userId,
+                scopes: token.scopes,
+                createdAt: /* @__PURE__ */ new Date(),
+                updatedAt: /* @__PURE__ */ new Date()
+              }
+            });
+            return ctx.json({
+              access_token: accessToken2,
+              token_type: "bearer",
+              expires_in: opts.accessTokenExpiresIn,
+              refresh_token: newRefreshToken,
+              scope: token.scopes
+            });
+          }
+          if (!code) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              error_description: "code is required",
+              error: "invalid_request"
+            });
+          }
+          if (opts.requirePKCE && !code_verifier) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              error_description: "code verifier is missing",
+              error: "invalid_request"
+            });
+          }
+          const verificationValue = await ctx.context.internalAdapter.findVerificationValue(
+            code.toString()
+          );
+          if (!verificationValue) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "invalid code",
+              error: "invalid_grant"
+            });
+          }
+          if (verificationValue.expiresAt < /* @__PURE__ */ new Date()) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "code expired",
+              error: "invalid_grant"
+            });
+          }
+          await ctx.context.internalAdapter.deleteVerificationValue(
+            verificationValue.id
+          );
+          if (!client_id || !client_secret) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "client_id and client_secret are required",
+              error: "invalid_client"
+            });
+          }
+          if (!grant_type) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              error_description: "grant_type is required",
+              error: "invalid_request"
+            });
+          }
+          if (grant_type !== "authorization_code") {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              error_description: "grant_type must be 'authorization_code'",
+              error: "unsupported_grant_type"
+            });
+          }
+          if (!redirect_uri) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              error_description: "redirect_uri is required",
+              error: "invalid_request"
+            });
+          }
+          const client = await ctx.context.adapter.findOne({
+            model: modelName.oauthClient,
+            where: [{ field: "clientId", value: client_id.toString() }]
+          }).then((res) => {
+            if (!res) {
+              return null;
+            }
+            return {
+              ...res,
+              redirectURLs: res.redirectURLs.split(","),
+              metadata: res.metadata ? JSON.parse(res.metadata) : {}
+            };
+          });
+          if (!client) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "invalid client_id",
+              error: "invalid_client"
+            });
+          }
+          if (client.disabled) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "client is disabled",
+              error: "invalid_client"
+            });
+          }
+          const isValidSecret = client.clientSecret === client_secret.toString();
+          if (!isValidSecret) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "invalid client_secret",
+              error: "invalid_client"
+            });
+          }
+          const value = JSON.parse(
+            verificationValue.value
+          );
+          if (value.clientId !== client_id.toString()) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "invalid client_id",
+              error: "invalid_client"
+            });
+          }
+          if (value.redirectURI !== redirect_uri.toString()) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "invalid redirect_uri",
+              error: "invalid_client"
+            });
+          }
+          if (value.codeChallenge && !code_verifier) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              error_description: "code verifier is missing",
+              error: "invalid_request"
+            });
+          }
+          const challenge = value.codeChallengeMethod === "plain" ? code_verifier : await hash.createHash("SHA-256", "base64urlnopad").digest(
+            code_verifier
+          );
+          if (challenge !== value.codeChallenge) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "code verification failed",
+              error: "invalid_request"
+            });
+          }
+          const requestedScopes = value.scope;
+          await ctx.context.internalAdapter.deleteVerificationValue(
+            verificationValue.id
+          );
+          const accessToken = random.generateRandomString(32, "a-z", "A-Z");
+          const refreshToken = random.generateRandomString(32, "A-Z", "a-z");
+          const accessTokenExpiresAt = new Date(
+            Date.now() + opts.accessTokenExpiresIn * 1e3
+          );
+          const refreshTokenExpiresAt = new Date(
+            Date.now() + opts.refreshTokenExpiresIn * 1e3
+          );
+          await ctx.context.adapter.create({
+            model: modelName.oauthAccessToken,
+            data: {
+              accessToken,
+              refreshToken,
+              accessTokenExpiresAt,
+              refreshTokenExpiresAt,
+              clientId: client_id.toString(),
+              userId: value.userId,
+              scopes: requestedScopes.join(" "),
+              createdAt: /* @__PURE__ */ new Date(),
+              updatedAt: /* @__PURE__ */ new Date()
+            }
+          });
+          const user = await ctx.context.internalAdapter.findUserById(
+            value.userId
+          );
+          if (!user) {
+            throw new betterCall.APIError("UNAUTHORIZED", {
+              error_description: "user not found",
+              error: "invalid_grant"
+            });
+          }
+          let secretKey = {
+            alg: "HS256",
+            key: await utils.subtle.generateKey(
+              {
+                name: "HMAC",
+                hash: "SHA-256"
+              },
+              true,
+              ["sign", "verify"]
+            )
+          };
+          const profile = {
+            given_name: user.name.split(" ")[0],
+            family_name: user.name.split(" ")[1],
+            name: user.name,
+            profile: user.image,
+            updated_at: user.updatedAt.toISOString()
+          };
+          const email = {
+            email: user.email,
+            email_verified: user.emailVerified
+          };
+          const userClaims = {
+            ...requestedScopes.includes("profile") ? profile : {},
+            ...requestedScopes.includes("email") ? email : {}
+          };
+          const additionalUserClaims = opts.getAdditionalUserInfoClaim ? opts.getAdditionalUserInfoClaim(user, requestedScopes) : {};
+          const idToken = await new jose.SignJWT({
+            sub: user.id,
+            aud: client_id.toString(),
+            iat: Date.now(),
+            auth_time: ctx.context.session?.session.createdAt.getTime(),
+            nonce: value.nonce,
+            acr: "urn:mace:incommon:iap:silver",
+            // default to silver - ⚠︎ this should be configurable and should be validated against the client's metadata
+            ...userClaims,
+            ...additionalUserClaims
+          }).setProtectedHeader({ alg: secretKey.alg }).setIssuedAt().setExpirationTime(
+            Math.floor(Date.now() / 1e3) + opts.accessTokenExpiresIn
+          ).sign(secretKey.key);
+          return ctx.json(
+            {
+              access_token: accessToken,
+              token_type: "Bearer",
+              expires_in: opts.accessTokenExpiresIn,
+              refresh_token: requestedScopes.includes("offline_access") ? refreshToken : void 0,
+              scope: requestedScopes.join(" "),
+              id_token: requestedScopes.includes("openid") ? idToken : void 0
+            },
+            {
+              headers: {
+                "Cache-Control": "no-store",
+                Pragma: "no-cache"
+              }
+            }
+          );
+        }
+      ),
+      registerMcpClient: account.createAuthEndpoint(
+        "/mcp/register",
+        {
+          method: "POST",
+          body: zod.z.object({
+            redirect_uris: zod.z.array(zod.z.string()),
+            token_endpoint_auth_method: zod.z.enum(["none", "client_secret_basic", "client_secret_post"]).default("client_secret_basic").optional(),
+            grant_types: zod.z.array(
+              zod.z.enum([
+                "authorization_code",
+                "implicit",
+                "password",
+                "client_credentials",
+                "refresh_token",
+                "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                "urn:ietf:params:oauth:grant-type:saml2-bearer"
+              ])
+            ).default(["authorization_code"]).optional(),
+            response_types: zod.z.array(zod.z.enum(["code", "token"])).default(["code"]).optional(),
+            client_name: zod.z.string().optional(),
+            client_uri: zod.z.string().optional(),
+            logo_uri: zod.z.string().optional(),
+            scope: zod.z.string().optional(),
+            contacts: zod.z.array(zod.z.string()).optional(),
+            tos_uri: zod.z.string().optional(),
+            policy_uri: zod.z.string().optional(),
+            jwks_uri: zod.z.string().optional(),
+            jwks: zod.z.record(zod.z.any()).optional(),
+            metadata: zod.z.record(zod.z.any()).optional(),
+            software_id: zod.z.string().optional(),
+            software_version: zod.z.string().optional(),
+            software_statement: zod.z.string().optional()
+          }),
+          metadata: {
+            openapi: {
+              description: "Register an OAuth2 application",
+              responses: {
+                "200": {
+                  description: "OAuth2 application registered successfully",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          name: {
+                            type: "string",
+                            description: "Name of the OAuth2 application"
+                          },
+                          icon: {
+                            type: "string",
+                            nullable: true,
+                            description: "Icon URL for the application"
+                          },
+                          metadata: {
+                            type: "object",
+                            additionalProperties: true,
+                            nullable: true,
+                            description: "Additional metadata for the application"
+                          },
+                          clientId: {
+                            type: "string",
+                            description: "Unique identifier for the client"
+                          },
+                          clientSecret: {
+                            type: "string",
+                            description: "Secret key for the client"
+                          },
+                          redirectURLs: {
+                            type: "array",
+                            items: { type: "string", format: "uri" },
+                            description: "List of allowed redirect URLs"
+                          },
+                          type: {
+                            type: "string",
+                            description: "Type of the client",
+                            enum: ["web"]
+                          },
+                          authenticationScheme: {
+                            type: "string",
+                            description: "Authentication scheme used by the client",
+                            enum: ["client_secret"]
+                          },
+                          disabled: {
+                            type: "boolean",
+                            description: "Whether the client is disabled",
+                            enum: [false]
+                          },
+                          userId: {
+                            type: "string",
+                            nullable: true,
+                            description: "ID of the user who registered the client, null if registered anonymously"
+                          },
+                          createdAt: {
+                            type: "string",
+                            format: "date-time",
+                            description: "Creation timestamp"
+                          },
+                          updatedAt: {
+                            type: "string",
+                            format: "date-time",
+                            description: "Last update timestamp"
+                          }
+                        },
+                        required: [
+                          "name",
+                          "clientId",
+                          "clientSecret",
+                          "redirectURLs",
+                          "type",
+                          "authenticationScheme",
+                          "disabled",
+                          "createdAt",
+                          "updatedAt"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        async (ctx) => {
+          const body = ctx.body;
+          const session = await account.getSessionFromCtx(ctx);
+          ctx.setHeader("Access-Control-Allow-Origin", "*");
+          ctx.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+          ctx.setHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization"
+          );
+          ctx.setHeader("Access-Control-Max-Age", "86400");
+          ctx.headers?.set("Access-Control-Max-Age", "86400");
+          if ((!body.grant_types || body.grant_types.includes("authorization_code") || body.grant_types.includes("implicit")) && (!body.redirect_uris || body.redirect_uris.length === 0)) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              error: "invalid_redirect_uri",
+              error_description: "Redirect URIs are required for authorization_code and implicit grant types"
+            });
+          }
+          if (body.grant_types && body.response_types) {
+            if (body.grant_types.includes("authorization_code") && !body.response_types.includes("code")) {
+              throw new betterCall.APIError("BAD_REQUEST", {
+                error: "invalid_client_metadata",
+                error_description: "When 'authorization_code' grant type is used, 'code' response type must be included"
+              });
+            }
+            if (body.grant_types.includes("implicit") && !body.response_types.includes("token")) {
+              throw new betterCall.APIError("BAD_REQUEST", {
+                error: "invalid_client_metadata",
+                error_description: "When 'implicit' grant type is used, 'token' response type must be included"
+              });
+            }
+          }
+          const clientId = opts.generateClientId?.() || random.generateRandomString(32, "a-z", "A-Z");
+          const clientSecret = opts.generateClientSecret?.() || random.generateRandomString(32, "a-z", "A-Z");
+          await ctx.context.adapter.create({
+            model: modelName.oauthClient,
+            data: {
+              name: body.client_name,
+              icon: body.logo_uri,
+              metadata: body.metadata ? JSON.stringify(body.metadata) : null,
+              clientId,
+              clientSecret,
+              redirectURLs: body.redirect_uris.join(","),
+              type: "web",
+              authenticationScheme: body.token_endpoint_auth_method || "client_secret_basic",
+              disabled: false,
+              userId: session?.session.userId,
+              createdAt: /* @__PURE__ */ new Date(),
+              updatedAt: /* @__PURE__ */ new Date()
+            }
+          });
+          return ctx.json(
+            {
+              client_id: clientId,
+              client_secret: clientSecret,
+              client_id_issued_at: Math.floor(Date.now() / 1e3),
+              client_secret_expires_at: 0,
+              // 0 means it doesn't expire
+              redirect_uris: body.redirect_uris,
+              token_endpoint_auth_method: body.token_endpoint_auth_method || "client_secret_basic",
+              grant_types: body.grant_types || ["authorization_code"],
+              response_types: body.response_types || ["code"],
+              client_name: body.client_name,
+              client_uri: body.client_uri,
+              logo_uri: body.logo_uri,
+              scope: body.scope,
+              contacts: body.contacts,
+              tos_uri: body.tos_uri,
+              policy_uri: body.policy_uri,
+              jwks_uri: body.jwks_uri,
+              jwks: body.jwks,
+              software_id: body.software_id,
+              software_version: body.software_version,
+              software_statement: body.software_statement,
+              metadata: body.metadata
+            },
+            {
+              status: 201,
+              headers: {
+                "Cache-Control": "no-store",
+                Pragma: "no-cache"
+              }
+            }
+          );
+        }
+      ),
+      getMcpSession: account.createAuthEndpoint(
+        "/mcp/get-session",
+        {
+          method: "GET",
+          requireHeaders: true
+        },
+        async (c) => {
+          const accessToken = c.headers?.get("Authorization")?.replace("Bearer ", "");
+          if (!accessToken) {
+            c.headers?.set("WWW-Authenticate", "Bearer");
+            return c.json(null);
+          }
+          const accessTokenData = await c.context.adapter.findOne({
+            model: modelName.oauthAccessToken,
+            where: [
+              {
+                field: "accessToken",
+                value: accessToken
+              }
+            ]
+          });
+          if (!accessTokenData) {
+            return c.json(null);
+          }
+          return c.json(accessTokenData);
+        }
+      )
+    },
+    schema: plugins_oidcProvider_index.schema
+  };
+};
+const withMcpAuth = (auth, handler) => {
+  return async (req) => {
+    const session = await auth.api.getMcpSession({
+      headers: req.headers
+    });
+    const wwwAuthenticateValue = "Bearer resource_metadata=http://localhost:3000/api/auth/.well-known/oauth-authorization-server";
+    if (!session) {
+      return Response.json(
+        {
+          jsonrpc: "2.0",
+          error: {
+            code: -32e3,
+            message: "Unauthorized: Authentication required",
+            "www-authenticate": wwwAuthenticateValue
+          },
+          id: null
+        },
+        {
+          status: 401,
+          headers: {
+            "WWW-Authenticate": wwwAuthenticateValue
+          }
+        }
+      );
+    }
+    return handler(req, session);
+  };
+};
+const oAuthDiscoveryMetadata = (auth) => {
+  return async (request) => {
+    const res = await auth.api.getMcpOAuthConfig();
+    return new Response(JSON.stringify(res), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Max-Age": "86400"
+      }
+    });
+  };
+};
+
 exports.organization = organization.organization;
 exports.parseRoles = organization.parseRoles;
 exports.TWO_FACTOR_ERROR_CODES = plugins_twoFactor_index.TWO_FACTOR_ERROR_CODES;
@@ -1973,6 +2948,7 @@ exports.oneTap = plugins_oneTap_index.oneTap;
 exports.oAuthProxy = plugins_oauthProxy_index.oAuthProxy;
 exports.customSession = plugins_customSession_index.customSession;
 exports.openAPI = plugins_openApi_index.openAPI;
+exports.getMetadata = plugins_oidcProvider_index.getMetadata;
 exports.oidcProvider = plugins_oidcProvider_index.oidcProvider;
 exports.captcha = plugins_captcha_index.captcha;
 exports.haveIBeenPwned = plugins_haveibeenpwned_index.haveIBeenPwned;
@@ -1982,3 +2958,7 @@ exports.API_KEY_TABLE_NAME = API_KEY_TABLE_NAME;
 exports.ERROR_CODES = ERROR_CODES;
 exports.apiKey = apiKey;
 exports.defaultKeyHasher = defaultKeyHasher;
+exports.getMCPProviderMetadata = getMCPProviderMetadata;
+exports.mcp = mcp;
+exports.oAuthDiscoveryMetadata = oAuthDiscoveryMetadata;
+exports.withMcpAuth = withMcpAuth;

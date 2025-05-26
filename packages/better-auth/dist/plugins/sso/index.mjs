@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { APIError } from 'better-call';
-import { a as createAuthEndpoint, h as handleOAuthUserInfo, s as sessionMiddleware } from '../../shared/better-auth.Dvh-YFwT.mjs';
+import { a as createAuthEndpoint, h as handleOAuthUserInfo, s as sessionMiddleware } from '../../shared/better-auth.Cle5OGPw.mjs';
 import { setSessionCookie } from '../../cookies/index.mjs';
 import '../../shared/better-auth.Cc72UxUH.mjs';
 import '../../shared/better-auth.8zoxzg-F.mjs';
@@ -12,6 +12,7 @@ import '@better-auth/utils/base64';
 import '@better-auth/utils/hash';
 import { p as parseState, g as generateState } from '../../shared/better-auth.dn8_oqOu.mjs';
 import { decodeJwt } from 'jose';
+import '@better-auth/utils/random';
 import '../../social-providers/index.mjs';
 import '@noble/ciphers/chacha';
 import '@noble/ciphers/utils';
@@ -21,7 +22,6 @@ import '@better-auth/utils';
 import '@better-auth/utils/hex';
 import '@noble/hashes/utils';
 import '../../shared/better-auth.B4Qoxdgc.mjs';
-import '@better-auth/utils/random';
 import '../../shared/better-auth.DdzSJf-n.mjs';
 import '../../shared/better-auth.tB5eU6EY.mjs';
 import '../../shared/better-auth.CW6D9eSx.mjs';
@@ -659,6 +659,7 @@ const sso = (options) => {
               refreshTokenExpiresAt: tokenResponse.refreshTokenExpiresAt,
               scope: tokenResponse.scopes?.join(",")
             },
+            callbackURL,
             disableSignUp: options?.disableImplicitSignUp && !requestSignUp,
             overrideUserInfo: config.overrideUserInfo
           });

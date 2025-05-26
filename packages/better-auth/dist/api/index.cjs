@@ -1,7 +1,7 @@
 'use strict';
 
 const betterCall = require('better-call');
-const account = require('../shared/better-auth.DxtzDaxH.cjs');
+const account = require('../shared/better-auth.9hFnPqb5.cjs');
 const zod = require('zod');
 const cookies_index = require('../cookies/index.cjs');
 const schema = require('../shared/better-auth.DcWKCjjf.cjs');
@@ -9,24 +9,24 @@ const env = require('../shared/better-auth.DiSjtgs9.cjs');
 const logger = require('../shared/better-auth.GpOOav9x.cjs');
 const getRequestIp = require('../shared/better-auth.B7cZ2juS.cjs');
 const defu = require('defu');
-require('../social-providers/index.cjs');
-require('@better-fetch/fetch');
-require('jose');
-require('../shared/better-auth.6XyKj7DG.cjs');
-require('@better-auth/utils/base64');
-require('../shared/better-auth.C1hdVENX.cjs');
+require('@better-auth/utils/random');
+require('../shared/better-auth.CWJ7qc0w.cjs');
 require('@better-auth/utils/hash');
 require('@noble/ciphers/chacha');
 require('@noble/ciphers/utils');
 require('@noble/ciphers/webcrypto');
+require('@better-auth/utils/base64');
+require('jose');
 require('@noble/hashes/scrypt');
 require('@better-auth/utils');
 require('@better-auth/utils/hex');
 require('@noble/hashes/utils');
 require('../shared/better-auth.CYeOI8C-.cjs');
-require('@better-auth/utils/random');
+require('../social-providers/index.cjs');
+require('@better-fetch/fetch');
+require('../shared/better-auth.6XyKj7DG.cjs');
+require('../shared/better-auth.C1hdVENX.cjs');
 require('../shared/better-auth.ANpbi45u.cjs');
-require('../shared/better-auth.CWJ7qc0w.cjs');
 require('../shared/better-auth.D3mtHEZg.cjs');
 require('../shared/better-auth.Bg6iw3ig.cjs');
 require('@better-auth/utils/hmac');
@@ -702,7 +702,8 @@ function getEndpoints(ctx, options) {
     deleteUserCallback: account.deleteUserCallback,
     unlinkAccount: account.unlinkAccount,
     refreshToken: account.refreshToken,
-    getAccessToken: account.getAccessToken
+    getAccessToken: account.getAccessToken,
+    accountInfo: account.accountInfo
   };
   const endpoints = {
     ...baseEndpoints,
@@ -796,6 +797,7 @@ const router = (ctx, options) => {
 };
 
 exports.APIError = betterCall.APIError;
+exports.accountInfo = account.accountInfo;
 exports.callbackOAuth = account.callbackOAuth;
 exports.changeEmail = account.changeEmail;
 exports.changePassword = account.changePassword;

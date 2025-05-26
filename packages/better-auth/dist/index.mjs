@@ -1,7 +1,7 @@
 import { getEndpoints, router } from './api/index.mjs';
 import { defu } from 'defu';
 import { v as verifyPassword, h as hashPassword } from './shared/better-auth.OT3XFeFk.mjs';
-import { a as getAdapter, c as createInternalAdapter, e as getMigrations } from './shared/better-auth.Bdf76d5Z.mjs';
+import { a as getAdapter, c as createInternalAdapter, e as getMigrations } from './shared/better-auth.DCB35LVD.mjs';
 import { g as getAuthTables } from './shared/better-auth.DORkW_Ge.mjs';
 import 'zod';
 import './shared/better-auth.Cc72UxUH.mjs';
@@ -23,8 +23,8 @@ import { c as checkPassword } from './shared/better-auth.YwDQhoPc.mjs';
 import { a as getBaseURL, g as getOrigin } from './shared/better-auth.VTXNLFMT.mjs';
 import { B as BetterAuthError } from './shared/better-auth.DdzSJf-n.mjs';
 export { M as MissingDependencyError } from './shared/better-auth.DdzSJf-n.mjs';
-import { B as BASE_ERROR_CODES } from './shared/better-auth.Dvh-YFwT.mjs';
-export { H as HIDE_METADATA } from './shared/better-auth.Dvh-YFwT.mjs';
+import { B as BASE_ERROR_CODES } from './shared/better-auth.Cle5OGPw.mjs';
+export { H as HIDE_METADATA } from './shared/better-auth.Cle5OGPw.mjs';
 export { c as capitalizeFirstLetter } from './shared/better-auth.D-2CmEwz.mjs';
 export { g as generateState, p as parseState } from './shared/better-auth.dn8_oqOu.mjs';
 import './shared/better-auth.iKoUsdFE.mjs';
@@ -163,7 +163,7 @@ function runPluginInit(ctx) {
   const dbHooks = [];
   for (const plugin of plugins) {
     if (plugin.init) {
-      const result = plugin.init(ctx);
+      const result = plugin.init(context);
       if (typeof result === "object") {
         if (result.options) {
           const { databaseHooks, ...restOpts } = result.options;
@@ -207,6 +207,11 @@ function getTrustedOrigins(options) {
   const envTrustedOrigins = env.BETTER_AUTH_TRUSTED_ORIGINS;
   if (envTrustedOrigins) {
     trustedOrigins.push(...envTrustedOrigins.split(","));
+  }
+  if (trustedOrigins.filter((x) => !x).length) {
+    throw new BetterAuthError(
+      "A provided trusted origin is invalid, make sure your trusted origins list is properly defined."
+    );
   }
   return trustedOrigins;
 }

@@ -1,11 +1,11 @@
 import { Role, AccessControl, Statements } from '../access/index.js';
 import { z, ZodLiteral } from 'zod';
 import * as better_call from 'better-call';
-import { G as GenericEndpointContext, S as Session, U as User, l as AuthContext } from '../../shared/better-auth.Cl6aee2s.js';
+import { G as GenericEndpointContext, S as Session, U as User, p as AuthContext } from '../../shared/better-auth.8wNVcAAq.js';
 import { defaultRoles } from './access/index.js';
 export { adminAc, defaultAc, defaultStatements, memberAc, ownerAc } from './access/index.js';
-import '../../shared/better-auth.CYegVoq1.js';
-import '../../shared/better-auth.Bzjh9zg_.js';
+import '../../shared/better-auth.Bi8FQwDD.js';
+import '../../shared/better-auth.ByC0y0O-.js';
 import 'jose';
 import 'kysely';
 import 'better-sqlite3';

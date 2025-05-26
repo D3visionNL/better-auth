@@ -1,4 +1,4 @@
-import { j as BASE_ERROR_CODES, B as BetterAuthPlugin } from '../shared/better-auth.CpmhGkrr.cjs';
+import { f as BASE_ERROR_CODES, h as BetterAuthPlugin } from '../shared/better-auth.CGB93vl8.cjs';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchError, BetterFetch, BetterFetchOption } from '@better-fetch/fetch';
 export * from '@better-fetch/fetch';
@@ -7,9 +7,9 @@ export { AtomListener, InferAdditionalFromClient, InferPluginsFromClient, InferS
 import * as nanostores from 'nanostores';
 import { Atom, PreinitializedWritableAtom } from 'nanostores';
 export * from 'nanostores';
-import { U as UnionToIntersection, a as PrettifyDeep } from '../shared/better-auth.CYegVoq1.cjs';
+import { U as UnionToIntersection, P as PrettifyDeep } from '../shared/better-auth.Bi8FQwDD.cjs';
 import 'zod';
-import '../shared/better-auth._rXvQlMG.cjs';
+import '../shared/better-auth.BgtukYVC.cjs';
 import 'jose';
 import 'kysely';
 import 'better-call';

@@ -2,7 +2,7 @@
 
 const zod = require('zod');
 const betterCall = require('better-call');
-const account = require('../../shared/better-auth.DxtzDaxH.cjs');
+const account = require('../../shared/better-auth.9hFnPqb5.cjs');
 const cookies_index = require('../../cookies/index.cjs');
 require('../../shared/better-auth.DcWKCjjf.cjs');
 require('../../shared/better-auth.DiSjtgs9.cjs');
@@ -14,6 +14,7 @@ require('@better-auth/utils/base64');
 require('@better-auth/utils/hash');
 const state = require('../../shared/better-auth.CWJ7qc0w.cjs');
 const jose = require('jose');
+require('@better-auth/utils/random');
 require('../../social-providers/index.cjs');
 require('@noble/ciphers/chacha');
 require('@noble/ciphers/utils');
@@ -23,7 +24,6 @@ require('@better-auth/utils');
 require('@better-auth/utils/hex');
 require('@noble/hashes/utils');
 require('../../shared/better-auth.CYeOI8C-.cjs');
-require('@better-auth/utils/random');
 require('../../shared/better-auth.ANpbi45u.cjs');
 require('../../shared/better-auth.D3mtHEZg.cjs');
 require('../../shared/better-auth.C1hdVENX.cjs');
@@ -661,6 +661,7 @@ const sso = (options) => {
               refreshTokenExpiresAt: tokenResponse.refreshTokenExpiresAt,
               scope: tokenResponse.scopes?.join(",")
             },
+            callbackURL,
             disableSignUp: options?.disableImplicitSignUp && !requestSignUp,
             overrideUserInfo: config.overrideUserInfo
           });

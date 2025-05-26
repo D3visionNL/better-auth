@@ -1,8 +1,8 @@
 import 'better-call';
-export { ar as BetterAuthCookies, aw as EligibleCookies, ap as createCookieGetter, au as deleteSessionCookie, ay as getCookieCache, aq as getCookies, ax as getSessionCookie, av as parseCookies, az as parseSetCookieHeader, as as setCookieCache, aA as setCookieToHeader, at as setSessionCookie } from '../shared/better-auth.p1j7naQW.mjs';
-import '../shared/better-auth.CYegVoq1.mjs';
+export { ax as BetterAuthCookies, aC as EligibleCookies, av as createCookieGetter, aA as deleteSessionCookie, aE as getCookieCache, aw as getCookies, aD as getSessionCookie, aB as parseCookies, aF as parseSetCookieHeader, ay as setCookieCache, aG as setCookieToHeader, az as setSessionCookie } from '../shared/better-auth.C4mhHFlW.mjs';
+import '../shared/better-auth.Bi8FQwDD.mjs';
 import 'zod';
-import '../shared/better-auth.BTXFetzv.mjs';
+import '../shared/better-auth.CggyDr6H.mjs';
 import 'jose';
 import 'kysely';
 import 'better-sqlite3';

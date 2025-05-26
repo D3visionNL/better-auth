@@ -1,5 +1,5 @@
-import { Subset, AuthortizeResponse } from '../../access/index.js';
-import '../../../shared/better-auth.CYegVoq1.js';
+import { Subset, AuthorizeResponse } from '../../access/index.js';
+import '../../../shared/better-auth.Bi8FQwDD.js';
 import 'zod';
 
 declare const defaultStatements: {
@@ -23,7 +23,7 @@ declare const defaultAc: {
                 readonly session: readonly ["list", "revoke", "delete"];
             }>[key];
             connector: "OR" | "AND";
-        } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+        } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
         statements: Subset<K, {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
             readonly session: readonly ["list", "revoke", "delete"];
@@ -47,7 +47,7 @@ declare const adminAc: {
             readonly session: readonly ["list", "revoke", "delete"];
         }>[key];
         connector: "OR" | "AND";
-    } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+    } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
     statements: Subset<"session" | "user", {
         readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
         readonly session: readonly ["list", "revoke", "delete"];
@@ -66,7 +66,7 @@ declare const userAc: {
             readonly session: readonly ["list", "revoke", "delete"];
         }>[key];
         connector: "OR" | "AND";
-    } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+    } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
     statements: Subset<"session" | "user", {
         readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
         readonly session: readonly ["list", "revoke", "delete"];
@@ -86,7 +86,7 @@ declare const defaultRoles: {
                 readonly session: readonly ["list", "revoke", "delete"];
             }>[key];
             connector: "OR" | "AND";
-        } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+        } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
         statements: Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
             readonly session: readonly ["list", "revoke", "delete"];
@@ -105,7 +105,7 @@ declare const defaultRoles: {
                 readonly session: readonly ["list", "revoke", "delete"];
             }>[key];
             connector: "OR" | "AND";
-        } | undefined; } : never, connector?: "OR" | "AND"): AuthortizeResponse;
+        } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
         statements: Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
             readonly session: readonly ["list", "revoke", "delete"];

@@ -3,7 +3,7 @@
 const api_index = require('./api/index.cjs');
 const defu = require('defu');
 const password = require('./shared/better-auth.YUF6P-PB.cjs');
-const getMigration = require('./shared/better-auth.BMyxOUuq.cjs');
+const getMigration = require('./shared/better-auth.BnnLmpgJ.cjs');
 const getTables = require('./shared/better-auth.BEphVDyL.cjs');
 require('zod');
 require('./shared/better-auth.DcWKCjjf.cjs');
@@ -23,7 +23,7 @@ const env = require('./shared/better-auth.DiSjtgs9.cjs');
 const password$1 = require('./shared/better-auth.CDXNofOe.cjs');
 const url = require('./shared/better-auth.C-R0J0n1.cjs');
 const index = require('./shared/better-auth.ANpbi45u.cjs');
-const account = require('./shared/better-auth.DxtzDaxH.cjs');
+const account = require('./shared/better-auth.9hFnPqb5.cjs');
 const misc = require('./shared/better-auth.BLDOwz3i.cjs');
 const state = require('./shared/better-auth.CWJ7qc0w.cjs');
 require('./shared/better-auth.B7cZ2juS.cjs');
@@ -162,7 +162,7 @@ function runPluginInit(ctx) {
   const dbHooks = [];
   for (const plugin of plugins) {
     if (plugin.init) {
-      const result = plugin.init(ctx);
+      const result = plugin.init(context);
       if (typeof result === "object") {
         if (result.options) {
           const { databaseHooks, ...restOpts } = result.options;
@@ -206,6 +206,11 @@ function getTrustedOrigins(options) {
   const envTrustedOrigins = env.env.BETTER_AUTH_TRUSTED_ORIGINS;
   if (envTrustedOrigins) {
     trustedOrigins.push(...envTrustedOrigins.split(","));
+  }
+  if (trustedOrigins.filter((x) => !x).length) {
+    throw new index.BetterAuthError(
+      "A provided trusted origin is invalid, make sure your trusted origins list is properly defined."
+    );
   }
   return trustedOrigins;
 }

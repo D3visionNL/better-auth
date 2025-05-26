@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import * as better_call from 'better-call';
-import { U as User, I as InferOptionSchema, d as AuthEndpoint, H as HookEndpointContext } from '../../shared/better-auth.Cl6aee2s.js';
-import { L as LiteralString } from '../../shared/better-auth.CYegVoq1.js';
+import { U as User, I as InferOptionSchema, l as AuthEndpoint, H as HookEndpointContext } from '../../shared/better-auth.8wNVcAAq.js';
+import { L as LiteralString } from '../../shared/better-auth.Bi8FQwDD.js';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
-import '../../shared/better-auth.Bzjh9zg_.js';
+import '../../shared/better-auth.ByC0y0O-.js';
 import 'jose';
 import 'kysely';
 import 'better-sqlite3';

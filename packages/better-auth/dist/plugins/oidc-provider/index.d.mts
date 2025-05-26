@@ -1,8 +1,8 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { U as User } from '../../shared/better-auth.p1j7naQW.mjs';
-import '../../shared/better-auth.CYegVoq1.mjs';
-import '../../shared/better-auth.BTXFetzv.mjs';
+import { U as User, G as GenericEndpointContext } from '../../shared/better-auth.C4mhHFlW.mjs';
+import '../../shared/better-auth.Bi8FQwDD.mjs';
+import '../../shared/better-auth.CggyDr6H.mjs';
 import 'jose';
 import 'kysely';
 import 'better-sqlite3';
@@ -512,8 +512,17 @@ interface OIDCMetadata {
      * ["sub", "iss", "aud", "exp", "nbf", "iat", "jti", "email", "email_verified", "name"]
      */
     claims_supported: string[];
+    /**
+     * Supported code challenge methods.
+     *
+     * only `S256` is supported.
+     *
+     * @default ["S256"]
+     */
+    code_challenge_methods_supported: ["S256"];
 }
 
+declare const getMetadata: (ctx: GenericEndpointContext, options?: OIDCOptions) => OIDCMetadata;
 /**
  * OpenID Connect (OIDC) plugin for Better Auth. This plugin implements the
  * authorization code flow and the token exchange flow. It also implements the
@@ -796,7 +805,7 @@ declare const oidcProvider: (options: OIDCOptions) => {
                 returnHeaders?: ReturnHeaders | undefined;
             }) | undefined): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
                 headers: Headers;
-                response: Record<string, any> | {
+                response: {
                     sub: string;
                     email: string | undefined;
                     name: string | undefined;
@@ -813,7 +822,7 @@ declare const oidcProvider: (options: OIDCOptions) => {
                     family_name: string | undefined;
                     email_verified: boolean | undefined;
                 };
-            } : Record<string, any> | {
+            } : {
                 sub: string;
                 email: string | undefined;
                 name: string | undefined;
@@ -1329,4 +1338,4 @@ declare const oidcProvider: (options: OIDCOptions) => {
     };
 };
 
-export { type AuthorizationQuery, type Client, type CodeVerificationValue, type OAuthAccessToken, type OIDCMetadata, type OIDCOptions, type TokenBody, oidcProvider };
+export { type AuthorizationQuery, type Client, type CodeVerificationValue, type OAuthAccessToken, type OIDCMetadata, type OIDCOptions, type TokenBody, getMetadata, oidcProvider };

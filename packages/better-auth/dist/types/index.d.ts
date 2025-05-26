@@ -1,11 +1,11 @@
-import { B as BetterAuthPlugin, a5 as InferFieldsInputClient, a3 as InferFieldsOutput, U as User, S as Session, k as Auth } from '../shared/better-auth.Cl6aee2s.js';
-export { x as Account, g as Adapter, z as AdapterInstance, i as AdapterSchemaCreation, u as AdditionalSessionFieldsInput, v as AdditionalSessionFieldsOutput, s as AdditionalUserFieldsInput, t as AdditionalUserFieldsOutput, l as AuthContext, A as AuthPluginSchema, f as BetterAuthOptions, E as FilterActions, D as FilteredAPI, G as GenericEndpointContext, H as HookEndpointContext, L as InferAPI, I as InferOptionSchema, a as InferPluginErrorCodes, w as InferPluginTypes, n as InferSession, J as InferSessionAPI, m as InferUser, M as Models, R as RateLimit, C as SecondaryStorage, V as Verification, W as Where, y as init } from '../shared/better-auth.Cl6aee2s.js';
+import { h as BetterAuthPlugin, aa as InferFieldsInputClient, a8 as InferFieldsOutput, U as User, S as Session, n as Auth } from '../shared/better-auth.8wNVcAAq.js';
+export { D as Account, a as Adapter, J as AdapterInstance, F as AdapterSchemaCreation, x as AdditionalSessionFieldsInput, y as AdditionalSessionFieldsOutput, v as AdditionalUserFieldsInput, w as AdditionalUserFieldsOutput, p as AuthContext, g as AuthPluginSchema, B as BetterAuthOptions, O as FilterActions, N as FilteredAPI, G as GenericEndpointContext, H as HookEndpointContext, Q as InferAPI, I as InferOptionSchema, i as InferPluginErrorCodes, z as InferPluginTypes, r as InferSession, P as InferSessionAPI, q as InferUser, M as Models, R as RateLimit, L as SecondaryStorage, V as Verification, W as Where, E as init } from '../shared/better-auth.8wNVcAAq.js';
 import { BetterFetchOption, BetterFetchResponse, BetterFetch, BetterFetchPlugin } from '@better-fetch/fetch';
 import { WritableAtom, Atom } from 'nanostores';
-import { U as UnionToIntersection, H as HasRequiredKeys, P as Prettify, L as LiteralString, S as StripEmptyObjects } from '../shared/better-auth.CYegVoq1.js';
+import { U as UnionToIntersection, H as HasRequiredKeys, b as Prettify, L as LiteralString, S as StripEmptyObjects } from '../shared/better-auth.Bi8FQwDD.js';
 import { Endpoint, InputContext } from 'better-call';
 import 'zod';
-import '../shared/better-auth.Bzjh9zg_.js';
+import '../shared/better-auth.ByC0y0O-.js';
 import 'jose';
 import 'kysely';
 import 'better-sqlite3';

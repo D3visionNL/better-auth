@@ -2,7 +2,7 @@
 
 const zod = require('zod');
 const betterCall = require('better-call');
-const account = require('../../shared/better-auth.DxtzDaxH.cjs');
+const account = require('../../shared/better-auth.9hFnPqb5.cjs');
 const cookies_index = require('../../cookies/index.cjs');
 require('../../shared/better-auth.DcWKCjjf.cjs');
 require('../../shared/better-auth.DiSjtgs9.cjs');
@@ -21,12 +21,12 @@ require('@noble/hashes/utils');
 const random = require('../../shared/better-auth.CYeOI8C-.cjs');
 const date = require('../../shared/better-auth.C1hdVENX.cjs');
 const pluginHelper = require('../../shared/better-auth.DNqtHmvg.cjs');
+require('@better-auth/utils/random');
+require('../../shared/better-auth.CWJ7qc0w.cjs');
 require('../../social-providers/index.cjs');
 require('@better-fetch/fetch');
 require('../../shared/better-auth.6XyKj7DG.cjs');
 require('../../shared/better-auth.ANpbi45u.cjs');
-require('@better-auth/utils/random');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
 require('../../shared/better-auth.D3mtHEZg.cjs');
 require('../../shared/better-auth.Bg6iw3ig.cjs');
 require('@better-auth/utils/hmac');

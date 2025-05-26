@@ -2,7 +2,7 @@ import { betterFetch } from '@better-fetch/fetch';
 import { APIError } from 'better-call';
 import { decodeJwt } from 'jose';
 import { z } from 'zod';
-import { a as createAuthEndpoint, s as sessionMiddleware, B as BASE_ERROR_CODES, h as handleOAuthUserInfo } from '../../shared/better-auth.Dvh-YFwT.mjs';
+import { a as createAuthEndpoint, s as sessionMiddleware, B as BASE_ERROR_CODES, h as handleOAuthUserInfo } from '../../shared/better-auth.Cle5OGPw.mjs';
 import { setSessionCookie } from '../../cookies/index.mjs';
 import '../../shared/better-auth.Cc72UxUH.mjs';
 import '../../shared/better-auth.8zoxzg-F.mjs';
@@ -12,6 +12,7 @@ import { c as createAuthorizationURL, v as validateAuthorizationCode, r as refre
 import '@better-auth/utils/hash';
 import '@better-auth/utils/base64';
 import { g as generateState, p as parseState } from '../../shared/better-auth.dn8_oqOu.mjs';
+import '@better-auth/utils/random';
 import '../../social-providers/index.mjs';
 import '@noble/ciphers/chacha';
 import '@noble/ciphers/utils';
@@ -21,7 +22,6 @@ import '@better-auth/utils';
 import '@better-auth/utils/hex';
 import '@noble/hashes/utils';
 import '../../shared/better-auth.B4Qoxdgc.mjs';
-import '@better-auth/utils/random';
 import '../../shared/better-auth.DdzSJf-n.mjs';
 import '../../shared/better-auth.tB5eU6EY.mjs';
 import '../../shared/better-auth.CW6D9eSx.mjs';
@@ -494,6 +494,7 @@ const genericOAuth = (options) => {
               ...tokens,
               scope: tokens.scopes?.join(",")
             },
+            callbackURL,
             disableSignUp: provider.disableImplicitSignUp && !requestSignUp || provider.disableSignUp,
             overrideUserInfo: provider.overrideUserInfo
           });

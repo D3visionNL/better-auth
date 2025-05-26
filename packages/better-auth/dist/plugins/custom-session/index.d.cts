@@ -1,8 +1,8 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { f as BetterAuthOptions, m as InferUser, n as InferSession, G as GenericEndpointContext } from '../../shared/better-auth.CpmhGkrr.cjs';
-import '../../shared/better-auth.CYegVoq1.cjs';
-import '../../shared/better-auth._rXvQlMG.cjs';
+import { B as BetterAuthOptions, q as InferUser, r as InferSession, G as GenericEndpointContext } from '../../shared/better-auth.CGB93vl8.cjs';
+import '../../shared/better-auth.Bi8FQwDD.cjs';
+import '../../shared/better-auth.BgtukYVC.cjs';
 import 'jose';
 import 'kysely';
 import 'better-sqlite3';

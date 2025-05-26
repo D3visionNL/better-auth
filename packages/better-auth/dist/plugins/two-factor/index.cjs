@@ -2,7 +2,7 @@
 
 const random = require('../../shared/better-auth.CYeOI8C-.cjs');
 const zod = require('zod');
-const account = require('../../shared/better-auth.DxtzDaxH.cjs');
+const account = require('../../shared/better-auth.9hFnPqb5.cjs');
 const betterCall = require('better-call');
 const cookies_index = require('../../cookies/index.cjs');
 const schema$1 = require('../../shared/better-auth.DcWKCjjf.cjs');
@@ -25,12 +25,12 @@ const otp = require('@better-auth/utils/otp');
 const password = require('../../shared/better-auth.CDXNofOe.cjs');
 const client = require('../../shared/better-auth.DnER2-iT.cjs');
 require('@better-auth/utils/random');
+require('../../shared/better-auth.CWJ7qc0w.cjs');
 require('../../social-providers/index.cjs');
 require('@better-fetch/fetch');
 require('../../shared/better-auth.6XyKj7DG.cjs');
 require('../../shared/better-auth.C1hdVENX.cjs');
 require('../../shared/better-auth.ANpbi45u.cjs');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
 require('../../shared/better-auth.D3mtHEZg.cjs');
 require('../../shared/better-auth.Bg6iw3ig.cjs');
 require('../../shared/better-auth.BMYo0QR-.cjs');
