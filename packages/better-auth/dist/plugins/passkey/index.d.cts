@@ -2,7 +2,7 @@ import * as _simplewebauthn_server from '@simplewebauthn/server';
 import { CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, AuthenticationResponseJSON } from '@simplewebauthn/server';
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { I as InferOptionSchema } from '../../shared/better-auth.CGB93vl8.cjs';
+import { I as InferOptionSchema } from '../../shared/better-auth.C67OuOdK.cjs';
 import '../../shared/better-auth.Bi8FQwDD.cjs';
 import '../../shared/better-auth.BgtukYVC.cjs';
 import 'jose';

@@ -3,7 +3,7 @@ import '../../shared/better-auth.8zoxzg-F.mjs';
 import '@better-auth/utils/base64';
 import { createHMAC } from '@better-auth/utils/hmac';
 import { parseSetCookieHeader } from '../../cookies/index.mjs';
-import { c as createAuthMiddleware } from '../../shared/better-auth.Cle5OGPw.mjs';
+import { c as createAuthMiddleware } from '../../shared/better-auth.c4QO78Xh.mjs';
 import 'zod';
 import '../../shared/better-auth.Cc72UxUH.mjs';
 import '../../shared/better-auth.Cqykj82J.mjs';

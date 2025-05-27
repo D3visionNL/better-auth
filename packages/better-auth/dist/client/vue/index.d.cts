@@ -6,7 +6,7 @@ export * from '@better-fetch/fetch';
 import { DeepReadonly, Ref } from 'vue';
 import { ClientOptions, BetterAuthClientPlugin, IsSignal, InferClientAPI, InferActions, InferErrorCodes } from '../../types/index.cjs';
 import { U as UnionToIntersection, P as PrettifyDeep } from '../../shared/better-auth.Bi8FQwDD.cjs';
-import { f as BASE_ERROR_CODES } from '../../shared/better-auth.CGB93vl8.cjs';
+import { f as BASE_ERROR_CODES } from '../../shared/better-auth.C67OuOdK.cjs';
 import 'better-call';
 import 'zod';
 import '../../shared/better-auth.BgtukYVC.cjs';

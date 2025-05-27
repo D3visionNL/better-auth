@@ -5,7 +5,7 @@ require('../../shared/better-auth.DiSjtgs9.cjs');
 require('@better-auth/utils/base64');
 const hmac = require('@better-auth/utils/hmac');
 const cookies_index = require('../../cookies/index.cjs');
-const account = require('../../shared/better-auth.9hFnPqb5.cjs');
+const account = require('../../shared/better-auth.iyK63nvn.cjs');
 require('zod');
 require('../../shared/better-auth.DcWKCjjf.cjs');
 require('../../shared/better-auth.GpOOav9x.cjs');

@@ -114,6 +114,18 @@ export const linkSocialAccount = createAuthEndpoint(
 					description: "Additional scopes to request from the provider",
 				})
 				.optional(),
+			/**
+			 * Disable automatic redirection to the provider
+			 *
+			 * This is useful if you want to handle the redirection
+			 * yourself like in a popup or a different tab.
+			 */
+			disableRedirect: z
+				.boolean({
+					description:
+						"Disable automatic redirection to the provider. Useful for handling the redirection yourself",
+				})
+				.optional(),
 		}),
 		use: [sessionMiddleware],
 		metadata: {
@@ -180,7 +192,7 @@ export const linkSocialAccount = createAuthEndpoint(
 
 		return c.json({
 			url: url.toString(),
-			redirect: true,
+			redirect: !c.body.disableRedirect,
 		});
 	},
 );

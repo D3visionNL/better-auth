@@ -20,7 +20,7 @@ require('../../shared/better-auth.CYeOI8C-.cjs');
 require('../../shared/better-auth.GpOOav9x.cjs');
 const getTables = require('../../shared/better-auth.BEphVDyL.cjs');
 require('kysely');
-const account = require('../../shared/better-auth.9hFnPqb5.cjs');
+const account = require('../../shared/better-auth.iyK63nvn.cjs');
 require('@better-auth/utils/hmac');
 require('defu');
 require('../../cookies/index.cjs');

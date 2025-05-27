@@ -18,7 +18,7 @@ import '../../shared/better-auth.B4Qoxdgc.mjs';
 import '../../shared/better-auth.Cqykj82J.mjs';
 import { g as getAuthTables } from '../../shared/better-auth.DORkW_Ge.mjs';
 import 'kysely';
-import { a as createAuthEndpoint } from '../../shared/better-auth.Cle5OGPw.mjs';
+import { a as createAuthEndpoint } from '../../shared/better-auth.c4QO78Xh.mjs';
 import '@better-auth/utils/hmac';
 import 'defu';
 import '../../cookies/index.mjs';

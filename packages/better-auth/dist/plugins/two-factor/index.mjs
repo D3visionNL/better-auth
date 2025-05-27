@@ -1,6 +1,6 @@
 import { g as generateRandomString } from '../../shared/better-auth.B4Qoxdgc.mjs';
 import { z } from 'zod';
-import { g as getSessionFromCtx, a as createAuthEndpoint, s as sessionMiddleware, B as BASE_ERROR_CODES, c as createAuthMiddleware } from '../../shared/better-auth.Cle5OGPw.mjs';
+import { g as getSessionFromCtx, a as createAuthEndpoint, s as sessionMiddleware, B as BASE_ERROR_CODES, c as createAuthMiddleware } from '../../shared/better-auth.c4QO78Xh.mjs';
 import { APIError } from 'better-call';
 import { setSessionCookie, deleteSessionCookie } from '../../cookies/index.mjs';
 import { m as mergeSchema } from '../../shared/better-auth.Cc72UxUH.mjs';

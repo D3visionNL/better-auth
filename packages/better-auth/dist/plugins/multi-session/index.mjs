@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { APIError } from 'better-call';
-import { c as createAuthMiddleware, a as createAuthEndpoint, s as sessionMiddleware } from '../../shared/better-auth.Cle5OGPw.mjs';
+import { c as createAuthMiddleware, a as createAuthEndpoint, s as sessionMiddleware } from '../../shared/better-auth.c4QO78Xh.mjs';
 import { parseSetCookieHeader, parseCookies, setSessionCookie, deleteSessionCookie } from '../../cookies/index.mjs';
 import '../../shared/better-auth.Cc72UxUH.mjs';
 import '../../shared/better-auth.8zoxzg-F.mjs';

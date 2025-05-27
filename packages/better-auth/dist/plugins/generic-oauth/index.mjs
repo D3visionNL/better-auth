@@ -2,7 +2,7 @@ import { betterFetch } from '@better-fetch/fetch';
 import { APIError } from 'better-call';
 import { decodeJwt } from 'jose';
 import { z } from 'zod';
-import { a as createAuthEndpoint, s as sessionMiddleware, B as BASE_ERROR_CODES, h as handleOAuthUserInfo } from '../../shared/better-auth.Cle5OGPw.mjs';
+import { a as createAuthEndpoint, s as sessionMiddleware, B as BASE_ERROR_CODES, h as handleOAuthUserInfo } from '../../shared/better-auth.c4QO78Xh.mjs';
 import { setSessionCookie } from '../../cookies/index.mjs';
 import '../../shared/better-auth.Cc72UxUH.mjs';
 import '../../shared/better-auth.8zoxzg-F.mjs';

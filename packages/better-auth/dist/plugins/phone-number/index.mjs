@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { a as createAuthEndpoint, g as getSessionFromCtx, B as BASE_ERROR_CODES } from '../../shared/better-auth.Cle5OGPw.mjs';
+import { a as createAuthEndpoint, g as getSessionFromCtx, B as BASE_ERROR_CODES } from '../../shared/better-auth.c4QO78Xh.mjs';
 import { APIError } from 'better-call';
 import { m as mergeSchema } from '../../shared/better-auth.Cc72UxUH.mjs';
 import { g as generateRandomString } from '../../shared/better-auth.B4Qoxdgc.mjs';

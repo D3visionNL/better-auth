@@ -2,7 +2,7 @@
 
 const zod = require('zod');
 require('better-call');
-const account = require('../../shared/better-auth.9hFnPqb5.cjs');
+const account = require('../../shared/better-auth.iyK63nvn.cjs');
 const env = require('../../shared/better-auth.DiSjtgs9.cjs');
 require('@better-auth/utils/base64');
 require('@better-auth/utils/hmac');

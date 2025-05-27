@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { EndpointContext } from 'better-call';
-import { U as User, S as Session, p as AuthContext, I as InferOptionSchema, H as HookEndpointContext } from '../../shared/better-auth.C4mhHFlW.mjs';
+import { U as User, S as Session, p as AuthContext, I as InferOptionSchema, H as HookEndpointContext } from '../../shared/better-auth.kHOzQ3TU.mjs';
 import '../../shared/better-auth.Bi8FQwDD.mjs';
 import 'zod';
 import '../../shared/better-auth.CggyDr6H.mjs';

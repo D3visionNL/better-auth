@@ -4,7 +4,7 @@ export * from '@better-fetch/fetch';
 import { ClientOptions, BetterAuthClientPlugin, IsSignal, InferClientAPI, InferActions, InferErrorCodes } from '../../types/index.js';
 import { Accessor } from 'solid-js';
 import { U as UnionToIntersection, P as PrettifyDeep } from '../../shared/better-auth.Bi8FQwDD.js';
-import { f as BASE_ERROR_CODES } from '../../shared/better-auth.8wNVcAAq.js';
+import { f as BASE_ERROR_CODES } from '../../shared/better-auth.BNRr97iY.js';
 export * from 'nanostores';
 import 'better-call';
 import 'zod';

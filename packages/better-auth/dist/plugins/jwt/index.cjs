@@ -3,7 +3,7 @@
 const schema$1 = require('../../shared/better-auth.BG6vHVNT.cjs');
 const jose = require('jose');
 require('better-call');
-const account = require('../../shared/better-auth.9hFnPqb5.cjs');
+const account = require('../../shared/better-auth.iyK63nvn.cjs');
 require('zod');
 const index = require('../../shared/better-auth.ANpbi45u.cjs');
 require('../../shared/better-auth.DiSjtgs9.cjs');

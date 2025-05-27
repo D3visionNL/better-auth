@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { U as User, I as InferOptionSchema } from '../../shared/better-auth.CGB93vl8.cjs';
+import { U as User, I as InferOptionSchema } from '../../shared/better-auth.C67OuOdK.cjs';
 import '../../shared/better-auth.Bi8FQwDD.cjs';
 import '../../shared/better-auth.BgtukYVC.cjs';
 import 'jose';

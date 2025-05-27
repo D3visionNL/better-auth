@@ -1,4 +1,4 @@
-import { f as BASE_ERROR_CODES, h as BetterAuthPlugin } from '../shared/better-auth.C4mhHFlW.mjs';
+import { f as BASE_ERROR_CODES, h as BetterAuthPlugin } from '../shared/better-auth.kHOzQ3TU.mjs';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchError, BetterFetch, BetterFetchOption } from '@better-fetch/fetch';
 export * from '@better-fetch/fetch';

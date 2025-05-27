@@ -1,5 +1,5 @@
 import { APIError } from 'better-call';
-import '../../shared/better-auth.Cle5OGPw.mjs';
+import '../../shared/better-auth.c4QO78Xh.mjs';
 import 'zod';
 import '../../shared/better-auth.8zoxzg-F.mjs';
 import '@better-auth/utils/base64';

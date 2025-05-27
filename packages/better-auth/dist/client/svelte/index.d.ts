@@ -6,7 +6,7 @@ import { BetterFetchError } from '@better-fetch/fetch';
 export * from '@better-fetch/fetch';
 import { ClientOptions, BetterAuthClientPlugin, IsSignal, InferClientAPI, InferActions, InferErrorCodes } from '../../types/index.js';
 import { U as UnionToIntersection, P as PrettifyDeep } from '../../shared/better-auth.Bi8FQwDD.js';
-import { f as BASE_ERROR_CODES } from '../../shared/better-auth.8wNVcAAq.js';
+import { f as BASE_ERROR_CODES } from '../../shared/better-auth.BNRr97iY.js';
 import 'better-call';
 import 'zod';
 import '../../shared/better-auth.ByC0y0O-.js';

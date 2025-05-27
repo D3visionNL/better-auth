@@ -23,7 +23,7 @@ const env = require('./shared/better-auth.DiSjtgs9.cjs');
 const password$1 = require('./shared/better-auth.CDXNofOe.cjs');
 const url = require('./shared/better-auth.C-R0J0n1.cjs');
 const index = require('./shared/better-auth.ANpbi45u.cjs');
-const account = require('./shared/better-auth.9hFnPqb5.cjs');
+const account = require('./shared/better-auth.iyK63nvn.cjs');
 const misc = require('./shared/better-auth.BLDOwz3i.cjs');
 const state = require('./shared/better-auth.CWJ7qc0w.cjs');
 require('./shared/better-auth.B7cZ2juS.cjs');

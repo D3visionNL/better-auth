@@ -2,7 +2,7 @@
 
 const zod = require('zod');
 const betterCall = require('better-call');
-const account = require('../../shared/better-auth.9hFnPqb5.cjs');
+const account = require('../../shared/better-auth.iyK63nvn.cjs');
 const cookies_index = require('../../cookies/index.cjs');
 require('../../shared/better-auth.DcWKCjjf.cjs');
 require('../../shared/better-auth.DiSjtgs9.cjs');

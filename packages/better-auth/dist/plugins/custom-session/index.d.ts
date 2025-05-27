@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { B as BetterAuthOptions, q as InferUser, r as InferSession, G as GenericEndpointContext } from '../../shared/better-auth.8wNVcAAq.js';
+import { B as BetterAuthOptions, q as InferUser, r as InferSession, G as GenericEndpointContext } from '../../shared/better-auth.BNRr97iY.js';
 import '../../shared/better-auth.Bi8FQwDD.js';
 import '../../shared/better-auth.ByC0y0O-.js';
 import 'jose';

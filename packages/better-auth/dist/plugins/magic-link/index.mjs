@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { a as createAuthEndpoint, o as originCheck, B as BASE_ERROR_CODES } from '../../shared/better-auth.Cle5OGPw.mjs';
+import { a as createAuthEndpoint, o as originCheck, B as BASE_ERROR_CODES } from '../../shared/better-auth.c4QO78Xh.mjs';
 import { APIError } from 'better-call';
 import { setSessionCookie } from '../../cookies/index.mjs';
 import '@better-auth/utils/hash';

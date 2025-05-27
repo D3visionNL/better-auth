@@ -2,7 +2,7 @@
 
 const random = require('../../shared/better-auth.CYeOI8C-.cjs');
 const zod = require('zod');
-const account = require('../../shared/better-auth.9hFnPqb5.cjs');
+const account = require('../../shared/better-auth.iyK63nvn.cjs');
 const betterCall = require('better-call');
 const cookies_index = require('../../cookies/index.cjs');
 const schema$1 = require('../../shared/better-auth.DcWKCjjf.cjs');

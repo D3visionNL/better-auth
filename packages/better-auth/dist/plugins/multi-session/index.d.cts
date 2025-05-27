@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import * as better_call from 'better-call';
-import { S as Session, U as User, H as HookEndpointContext } from '../../shared/better-auth.CGB93vl8.cjs';
+import { S as Session, U as User, H as HookEndpointContext } from '../../shared/better-auth.C67OuOdK.cjs';
 import '../../shared/better-auth.Bi8FQwDD.cjs';
 import '../../shared/better-auth.BgtukYVC.cjs';
 import 'jose';

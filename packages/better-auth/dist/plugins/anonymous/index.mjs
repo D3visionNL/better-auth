@@ -1,5 +1,5 @@
 import { APIError } from 'better-call';
-import { c as createAuthMiddleware, a as createAuthEndpoint, g as getSessionFromCtx } from '../../shared/better-auth.Cle5OGPw.mjs';
+import { c as createAuthMiddleware, a as createAuthEndpoint, g as getSessionFromCtx } from '../../shared/better-auth.c4QO78Xh.mjs';
 import 'zod';
 import { parseSetCookieHeader, setSessionCookie } from '../../cookies/index.mjs';
 import { m as mergeSchema } from '../../shared/better-auth.Cc72UxUH.mjs';

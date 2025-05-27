@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { z } from 'zod';
-import { U as User, p as AuthContext } from '../../shared/better-auth.C4mhHFlW.mjs';
+import { U as User, p as AuthContext } from '../../shared/better-auth.kHOzQ3TU.mjs';
 import { O as OAuth2Tokens, a as OAuthProvider } from '../../shared/better-auth.CggyDr6H.mjs';
 import '../../shared/better-auth.Bi8FQwDD.mjs';
 import 'kysely';
