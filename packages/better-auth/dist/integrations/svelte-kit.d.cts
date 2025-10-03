@@ -1,30 +1,40 @@
-import { B as BetterAuthOptions } from '../shared/better-auth.C67OuOdK.cjs';
-import '../shared/better-auth.Bi8FQwDD.cjs';
+import * as better_call from 'better-call';
+import { B as BetterAuthOptions } from '../shared/better-auth.jRxKMAeG.cjs';
+import { RequestEvent } from '@sveltejs/kit';
+import '../shared/better-auth.v_lf-jeY.cjs';
+import '../shared/better-auth.DTtXpZYr.cjs';
 import 'zod';
-import '../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
 import 'kysely';
-import 'better-call';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 declare const toSvelteKitHandler: (auth: {
-    handler: (request: Request) => any;
+    handler: (request: Request) => Response | Promise<Response>;
     options: BetterAuthOptions;
 }) => (event: {
     request: Request;
-}) => any;
-declare const svelteKitHandler: ({ auth, event, resolve, }: {
+}) => Response | Promise<Response>;
+declare const svelteKitHandler: ({ auth, event, resolve, building, }: {
     auth: {
-        handler: (request: Request) => any;
+        handler: (request: Request) => Response | Promise<Response>;
         options: BetterAuthOptions;
     };
-    event: {
-        request: Request;
-        url: URL;
-    };
-    resolve: (event: any) => any;
-}) => Promise<any>;
+    event: RequestEvent;
+    resolve: (event: RequestEvent) => Response | Promise<Response>;
+    building: boolean;
+}) => Promise<Response>;
 declare function isAuthPath(url: string, options: BetterAuthOptions): boolean;
+declare const sveltekitCookies: (getRequestEvent: () => RequestEvent<any, any>) => {
+    id: "sveltekit-cookies";
+    hooks: {
+        after: {
+            matcher(): true;
+            handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<void>;
+        }[];
+    };
+};
 
-export { isAuthPath, svelteKitHandler, toSvelteKitHandler };
+export { isAuthPath, svelteKitHandler, sveltekitCookies, toSvelteKitHandler };

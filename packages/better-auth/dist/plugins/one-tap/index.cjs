@@ -1,38 +1,51 @@
 'use strict';
 
-const zod = require('zod');
+const z = require('zod');
 const betterCall = require('better-call');
-const account = require('../../shared/better-auth.iyK63nvn.cjs');
-const cookies_index = require('../../cookies/index.cjs');
-require('../../shared/better-auth.DcWKCjjf.cjs');
-require('../../shared/better-auth.DiSjtgs9.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
-require('defu');
-const jose = require('jose');
+require('../../shared/better-auth.l_Ru3SGW.cjs');
+const session = require('../../shared/better-auth.B0k5C6Ik.cjs');
+const cookies_index = require('../../shared/better-auth.anw-08Z3.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
+require('@better-auth/core/db');
+require('../../shared/better-auth.Bu93hUoT.cjs');
+require('../../shared/better-auth.BToNb2fI.cjs');
 require('@better-auth/utils/random');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
 require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
 require('@better-auth/utils/base64');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+const jose = require('jose');
+require('@noble/hashes/scrypt.js');
 require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
+require('@noble/hashes/utils.js');
 require('../../shared/better-auth.CYeOI8C-.cjs');
-require('../../social-providers/index.cjs');
-require('@better-fetch/fetch');
-require('../../shared/better-auth.6XyKj7DG.cjs');
+require('kysely');
 require('../../shared/better-auth.C1hdVENX.cjs');
+require('../../crypto/index.cjs');
 require('../../shared/better-auth.ANpbi45u.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
+require('@better-fetch/fetch');
+require('../../shared/better-auth.DxBcELEX.cjs');
+require('jose/errors');
+require('../../shared/better-auth.Jlhc86WK.cjs');
 require('../../shared/better-auth.Bg6iw3ig.cjs');
 require('@better-auth/utils/hmac');
-require('../../shared/better-auth.BMYo0QR-.cjs');
-require('../../shared/better-auth.C-R0J0n1.cjs');
-require('jose/errors');
 require('@better-auth/utils/binary');
+require('defu');
+require('../../shared/better-auth.uykCWCYS.cjs');
+
+function _interopNamespaceCompat(e) {
+	if (e && typeof e === 'object' && 'default' in e) return e;
+	const n = Object.create(null);
+	if (e) {
+		for (const k in e) {
+			n[k] = e[k];
+		}
+	}
+	n.default = e;
+	return n;
+}
+
+const z__namespace = /*#__PURE__*/_interopNamespaceCompat(z);
 
 function toBoolean(value) {
   return value === "true" || value === true;
@@ -41,12 +54,12 @@ function toBoolean(value) {
 const oneTap = (options) => ({
   id: "one-tap",
   endpoints: {
-    oneTapCallback: account.createAuthEndpoint(
+    oneTapCallback: session.createAuthEndpoint(
       "/one-tap/callback",
       {
         method: "POST",
-        body: zod.z.object({
-          idToken: zod.z.string({
+        body: z__namespace.object({
+          idToken: z__namespace.string().meta({
             description: "Google ID token, which the client obtains from the One Tap API"
           })
         }),

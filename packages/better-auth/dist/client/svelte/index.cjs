@@ -1,14 +1,14 @@
 'use strict';
 
-const proxy = require('../../shared/better-auth.BV34uPij.cjs');
+const proxy = require('../../shared/better-auth.CZNeES-1.cjs');
 const misc = require('../../shared/better-auth.BLDOwz3i.cjs');
 require('@better-fetch/fetch');
-require('../../shared/better-auth.C-R0J0n1.cjs');
-require('../../shared/better-auth.DiSjtgs9.cjs');
+require('../../shared/better-auth.DxBcELEX.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
 require('../../shared/better-auth.ANpbi45u.cjs');
 require('nanostores');
-require('../../shared/better-auth.C_Zl7Etp.cjs');
-require('../../shared/better-auth.DhsGZ30Q.cjs');
+require('../../shared/better-auth.D9AYOecd.cjs');
+require('../../shared/better-auth.DUNU0obG.cjs');
 
 function createAuthClient(options) {
   const {

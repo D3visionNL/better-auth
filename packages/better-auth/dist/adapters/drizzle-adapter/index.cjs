@@ -2,37 +2,30 @@
 
 const drizzleOrm = require('drizzle-orm');
 const index$1 = require('../../shared/better-auth.ANpbi45u.cjs');
-const index = require('../../shared/better-auth.Be27qhjB.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
-require('../../shared/better-auth.CUdxApHl.cjs');
-require('../../shared/better-auth.BEphVDyL.cjs');
+const index = require('../../shared/better-auth.B3DNJnq5.cjs');
+require('../../shared/better-auth.Jlhc86WK.cjs');
+require('../../shared/better-auth.BToNb2fI.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
+require('../../shared/better-auth.S3hDEI-1.cjs');
 require('../../shared/better-auth.Bg6iw3ig.cjs');
 require('@better-auth/utils/random');
 require('zod');
 require('better-call');
 require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
 require('@better-auth/utils/base64');
 require('jose');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+require('@noble/hashes/scrypt.js');
 require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
+require('@noble/hashes/utils.js');
 require('../../shared/better-auth.CYeOI8C-.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
 
-const drizzleAdapter = (db, config) => index.createAdapter({
-  config: {
-    adapterId: "drizzle",
-    adapterName: "Drizzle Adapter",
-    usePlural: config.usePlural ?? false,
-    debugLogs: config.debugLogs ?? false
-  },
-  adapter: ({ getFieldName, debugLog }) => {
+const drizzleAdapter = (db, config) => {
+  let lazyOptions = null;
+  const createCustomAdapter = (db2) => ({ getFieldName, debugLog }) => {
     function getSchema(model) {
-      const schema = config.schema || db._.fullSchema;
+      const schema = config.schema || db2._.fullSchema;
       if (!schema) {
         throw new index$1.BetterAuthError(
           "Drizzle adapter failed to initialize. Schema not found. Please provide a schema object in the adapter options object."
@@ -55,19 +48,25 @@ const drizzleAdapter = (db, config) => index.createAdapter({
       const schemaModel = getSchema(model);
       const builderVal = builder.config?.values;
       if (where?.length) {
-        const clause = convertWhereClause(where, model);
-        const res = await db.select().from(schemaModel).where(...clause);
+        const updatedWhere = where.map((w) => {
+          if (data[w.field] !== void 0) {
+            return { ...w, value: data[w.field] };
+          }
+          return w;
+        });
+        const clause = convertWhereClause(updatedWhere, model);
+        const res = await db2.select().from(schemaModel).where(...clause);
         return res[0];
       } else if (builderVal && builderVal[0]?.id?.value) {
         let tId = builderVal[0]?.id?.value;
         if (!tId) {
-          const lastInsertId = await db.select({ id: drizzleOrm.sql`LAST_INSERT_ID()` }).from(schemaModel).orderBy(drizzleOrm.desc(schemaModel.id)).limit(1);
+          const lastInsertId = await db2.select({ id: drizzleOrm.sql`LAST_INSERT_ID()` }).from(schemaModel).orderBy(drizzleOrm.desc(schemaModel.id)).limit(1);
           tId = lastInsertId[0].id;
         }
-        const res = await db.select().from(schemaModel).where(drizzleOrm.eq(schemaModel.id, tId)).limit(1).execute();
+        const res = await db2.select().from(schemaModel).where(drizzleOrm.eq(schemaModel.id, tId)).limit(1).execute();
         return res[0];
       } else if (data.id) {
-        const res = await db.select().from(schemaModel).where(drizzleOrm.eq(schemaModel.id, data.id)).limit(1).execute();
+        const res = await db2.select().from(schemaModel).where(drizzleOrm.eq(schemaModel.id, data.id)).limit(1).execute();
         return res[0];
       } else {
         if (!("id" in schemaModel)) {
@@ -75,7 +74,7 @@ const drizzleAdapter = (db, config) => index.createAdapter({
             `The model "${model}" does not have an "id" field. Please use the "id" field as your primary key.`
           );
         }
-        const res = await db.select().from(schemaModel).orderBy(drizzleOrm.desc(schemaModel.id)).limit(1).execute();
+        const res = await db2.select().from(schemaModel).orderBy(drizzleOrm.desc(schemaModel.id)).limit(1).execute();
         return res[0];
       }
     };
@@ -100,6 +99,14 @@ const drizzleAdapter = (db, config) => index.createAdapter({
             );
           }
           return [drizzleOrm.inArray(schemaModel[field], w.value)];
+        }
+        if (w.operator === "not_in") {
+          if (!Array.isArray(w.value)) {
+            throw new index$1.BetterAuthError(
+              `The value for the field "${w.field}" must be an array when using the "not_in" operator.`
+            );
+          }
+          return [drizzleOrm.notInArray(schemaModel[field], w.value)];
         }
         if (w.operator === "contains") {
           return [drizzleOrm.like(schemaModel[field], `%${w.value}%`)];
@@ -142,6 +149,14 @@ const drizzleAdapter = (db, config) => index.createAdapter({
             }
             return drizzleOrm.inArray(schemaModel[field], w.value);
           }
+          if (w.operator === "not_in") {
+            if (!Array.isArray(w.value)) {
+              throw new index$1.BetterAuthError(
+                `The value for the field "${w.field}" must be an array when using the "not_in" operator.`
+              );
+            }
+            return drizzleOrm.notInArray(schemaModel[field], w.value);
+          }
           return drizzleOrm.eq(schemaModel[field], w.value);
         })
       );
@@ -174,14 +189,14 @@ const drizzleAdapter = (db, config) => index.createAdapter({
       async create({ model, data: values }) {
         const schemaModel = getSchema(model);
         checkMissingFields(schemaModel, model, values);
-        const builder = db.insert(schemaModel).values(values);
+        const builder = db2.insert(schemaModel).values(values);
         const returned = await withReturning(model, builder, values);
         return returned;
       },
       async findOne({ model, where }) {
         const schemaModel = getSchema(model);
         const clause = convertWhereClause(where, model);
-        const res = await db.select().from(schemaModel).where(...clause);
+        const res = await db2.select().from(schemaModel).where(...clause);
         if (!res.length) return null;
         return res[0];
       },
@@ -189,7 +204,7 @@ const drizzleAdapter = (db, config) => index.createAdapter({
         const schemaModel = getSchema(model);
         const clause = where ? convertWhereClause(where, model) : [];
         const sortFn = sortBy?.direction === "desc" ? drizzleOrm.desc : drizzleOrm.asc;
-        const builder = db.select().from(schemaModel).limit(limit || 100).offset(offset || 0);
+        const builder = db2.select().from(schemaModel).limit(limit || 100).offset(offset || 0);
         if (sortBy?.field) {
           builder.orderBy(
             sortFn(
@@ -202,36 +217,58 @@ const drizzleAdapter = (db, config) => index.createAdapter({
       async count({ model, where }) {
         const schemaModel = getSchema(model);
         const clause = where ? convertWhereClause(where, model) : [];
-        const res = await db.select({ count: drizzleOrm.count() }).from(schemaModel).where(...clause);
+        const res = await db2.select({ count: drizzleOrm.count() }).from(schemaModel).where(...clause);
         return res[0].count;
       },
       async update({ model, where, update: values }) {
         const schemaModel = getSchema(model);
         const clause = convertWhereClause(where, model);
-        const builder = db.update(schemaModel).set(values).where(...clause);
+        const builder = db2.update(schemaModel).set(values).where(...clause);
         return await withReturning(model, builder, values, where);
       },
       async updateMany({ model, where, update: values }) {
         const schemaModel = getSchema(model);
         const clause = convertWhereClause(where, model);
-        const builder = db.update(schemaModel).set(values).where(...clause);
+        const builder = db2.update(schemaModel).set(values).where(...clause);
         return await builder;
       },
       async delete({ model, where }) {
         const schemaModel = getSchema(model);
         const clause = convertWhereClause(where, model);
-        const builder = db.delete(schemaModel).where(...clause);
+        const builder = db2.delete(schemaModel).where(...clause);
         return await builder;
       },
       async deleteMany({ model, where }) {
         const schemaModel = getSchema(model);
         const clause = convertWhereClause(where, model);
-        const builder = db.delete(schemaModel).where(...clause);
+        const builder = db2.delete(schemaModel).where(...clause);
         return await builder;
       },
       options: config
     };
-  }
-});
+  };
+  let adapterOptions = null;
+  adapterOptions = {
+    config: {
+      adapterId: "drizzle",
+      adapterName: "Drizzle Adapter",
+      usePlural: config.usePlural ?? false,
+      debugLogs: config.debugLogs ?? false,
+      transaction: config.transaction ?? false ? (cb) => db.transaction((tx) => {
+        const adapter2 = index.createAdapterFactory({
+          config: adapterOptions.config,
+          adapter: createCustomAdapter(tx)
+        })(lazyOptions);
+        return cb(adapter2);
+      }) : false
+    },
+    adapter: createCustomAdapter(db)
+  };
+  const adapter = index.createAdapterFactory(adapterOptions);
+  return (options) => {
+    lazyOptions = options;
+    return adapter(options);
+  };
+};
 
 exports.drizzleAdapter = drizzleAdapter;

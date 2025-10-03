@@ -1,16 +1,24 @@
 import { Kysely } from 'kysely';
-import { B as BetterAuthOptions, K as KyselyDatabaseType, A as AdapterDebugLogs, a as Adapter } from '../../shared/better-auth.kHOzQ3TU.mjs';
-import '../../shared/better-auth.Bi8FQwDD.mjs';
+import { B as BetterAuthOptions, K as KyselyDatabaseType, A as AdapterDebugLogs, a as Adapter } from '../../shared/better-auth.DUREkDBM.mjs';
+import '../../shared/better-auth.XefKa8DI.mjs';
+import '../../shared/better-auth.DTtXpZYr.mjs';
 import 'zod';
-import '../../shared/better-auth.CggyDr6H.mjs';
-import 'jose';
 import 'better-call';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
+declare function getKyselyDatabaseType(db: BetterAuthOptions["database"]): KyselyDatabaseType | null;
 declare const createKyselyAdapter: (config: BetterAuthOptions) => Promise<{
+    kysely: Kysely<any>;
+    databaseType: KyselyDatabaseType;
+    transaction: boolean | undefined;
+} | {
     kysely: Kysely<any> | null;
     databaseType: KyselyDatabaseType | null;
+    transaction: undefined;
 }>;
 
 interface KyselyAdapterConfig {
@@ -30,7 +38,15 @@ interface KyselyAdapterConfig {
      * @default false
      */
     usePlural?: boolean;
+    /**
+     * Whether to execute multiple operations in a transaction.
+     *
+     * If the database doesn't support transactions,
+     * set this to `false` and operations will be executed sequentially.
+     * @default true
+     */
+    transaction?: boolean;
 }
 declare const kyselyAdapter: (db: Kysely<any>, config?: KyselyAdapterConfig) => (options: BetterAuthOptions) => Adapter;
 
-export { KyselyDatabaseType, createKyselyAdapter, kyselyAdapter };
+export { KyselyDatabaseType, createKyselyAdapter, getKyselyDatabaseType, kyselyAdapter };

@@ -1,48 +1,80 @@
-import { a as Adapter, B as BetterAuthOptions, G as GenericEndpointContext, W as Where, a1 as FieldAttribute, a2 as FieldType, K as KyselyDatabaseType } from '../shared/better-auth.kHOzQ3TU.mjs';
-export { ae as BetterAuthDbSchema, a5 as FieldAttributeConfig, ad as InferFieldsFromOptions, ac as InferFieldsFromPlugins, a9 as InferFieldsInput, aa as InferFieldsInputClient, a8 as InferFieldsOutput, a7 as InferValueType, a4 as InternalAdapter, ab as PluginFieldAttribute, ag as accountSchema, a6 as createFieldAttribute, a3 as createInternalAdapter, al as getAllFields, af as getAuthTables, au as mergeSchema, as as parseAccountInput, an as parseAccountOutput, ar as parseAdditionalUserInput, ap as parseInputData, ak as parseOutputData, at as parseSessionInput, ao as parseSessionOutput, aq as parseUserInput, am as parseUserOutput, ai as sessionSchema, ah as userSchema, aj as verificationSchema } from '../shared/better-auth.kHOzQ3TU.mjs';
-import { z } from 'zod';
-import '../shared/better-auth.Bi8FQwDD.mjs';
-import '../shared/better-auth.CggyDr6H.mjs';
-import 'jose';
+import { BetterAuthDBSchema, DBFieldAttribute, DBFieldType } from '@better-auth/core/db';
+export * from '@better-auth/core/db';
+import { B as BetterAuthOptions, a as Adapter, G as GenericEndpointContext, N as TransactionAdapter, L as Where, K as KyselyDatabaseType } from '../shared/better-auth.DUREkDBM.mjs';
+export { ad as FieldAttributeToObject, ae as InferAdditionalFieldsFromPluginOptions, ah as InferFieldsFromOptions, ag as InferFieldsFromPlugins, ab as InferFieldsInput, ac as InferFieldsInputClient, aa as InferFieldsOutput, a9 as InferValueType, a7 as InternalAdapter, af as PluginFieldAttribute, aj as accountSchema, ai as coreSchema, a8 as createFieldAttribute, a6 as createInternalAdapter, av as mergeSchema, at as parseAccountInput, ao as parseAccountOutput, as as parseAdditionalUserInput, aq as parseInputData, au as parseSessionInput, ap as parseSessionOutput, ar as parseUserInput, an as parseUserOutput, al as sessionSchema, ak as userSchema, am as verificationSchema } from '../shared/better-auth.DUREkDBM.mjs';
+import * as z from 'zod';
+import '../shared/better-auth.XefKa8DI.mjs';
+import '../shared/better-auth.DTtXpZYr.mjs';
 import 'kysely';
 import 'better-call';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
+
+declare const getAuthTables: (options: BetterAuthOptions) => BetterAuthDBSchema;
 
 declare function getWithHooks(adapter: Adapter, ctx: {
     options: BetterAuthOptions;
     hooks: Exclude<BetterAuthOptions["databaseHooks"], undefined>[];
 }): {
-    createWithHooks: <T extends Record<string, any>>(data: T, model: "session" | "user" | "account" | "verification", customCreateFn?: {
+    createWithHooks: <T extends Record<string, any>>(data: T, model: "user" | "session" | "account" | "verification", customCreateFn?: {
         fn: (data: Record<string, any>) => void | Promise<any>;
         executeMainFn?: boolean;
-    }, context?: GenericEndpointContext) => Promise<any>;
-    updateWithHooks: <T extends Record<string, any>>(data: any, where: Where[], model: "session" | "user" | "account" | "verification", customUpdateFn?: {
+    }, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
+    updateWithHooks: <T extends Record<string, any>>(data: any, where: Where[], model: "user" | "session" | "account" | "verification", customUpdateFn?: {
         fn: (data: Record<string, any>) => void | Promise<any>;
         executeMainFn?: boolean;
-    }, context?: GenericEndpointContext) => Promise<any>;
-    updateManyWithHooks: <T extends Record<string, any>>(data: any, where: Where[], model: "session" | "user" | "account" | "verification", customUpdateFn?: {
+    }, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
+    updateManyWithHooks: <T extends Record<string, any>>(data: any, where: Where[], model: "user" | "session" | "account" | "verification", customUpdateFn?: {
         fn: (data: Record<string, any>) => void | Promise<any>;
         executeMainFn?: boolean;
-    }, context?: GenericEndpointContext) => Promise<any>;
+    }, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
 };
 
-declare function toZodSchema(fields: Record<string, FieldAttribute>): z.ZodObject<{}, "strip", z.ZodTypeAny, {}, {}>;
+declare function toZodSchema<Fields extends Record<string, DBFieldAttribute | never>, IsClientSide extends boolean>({ fields, isClientSide, }: {
+    fields: Fields;
+    /**
+     * If true, then any fields that have `input: false` will be removed from the schema to prevent user input.
+     */
+    isClientSide: IsClientSide;
+}): z.ZodObject<RemoveNeverProps<{ [key in keyof Fields]: FieldAttributeToSchema<Fields[key], IsClientSide>; }>, z.core.$strip>;
+type FieldAttributeToSchema<Field extends DBFieldAttribute | Record<string, never>, isClientSide extends boolean = false> = Field extends {
+    type: any;
+} ? GetInput<isClientSide, Field, GetRequired<Field, GetType<Field>>> : Record<string, never>;
+type GetType<F extends DBFieldAttribute> = F extends {
+    type: "string";
+} ? z.ZodString : F extends {
+    type: "number";
+} ? z.ZodNumber : F extends {
+    type: "boolean";
+} ? z.ZodBoolean : F extends {
+    type: "date";
+} ? z.ZodDate : z.ZodAny;
+type GetRequired<F extends DBFieldAttribute, Schema extends z.core.SomeType> = F extends {
+    required: true;
+} ? Schema : z.ZodOptional<Schema>;
+type GetInput<isClientSide extends boolean, Field extends DBFieldAttribute, Schema extends z.core.SomeType> = Field extends {
+    input: false;
+} ? isClientSide extends true ? never : Schema : Schema;
+type RemoveNeverProps<T> = {
+    [K in keyof T as [T[K]] extends [never] ? never : K]: T[K];
+};
 
 declare function getAdapter(options: BetterAuthOptions): Promise<Adapter>;
-declare function convertToDB<T extends Record<string, any>>(fields: Record<string, FieldAttribute>, values: T): T;
-declare function convertFromDB<T extends Record<string, any>>(fields: Record<string, FieldAttribute>, values: T | null): T | null;
+declare function convertToDB<T extends Record<string, any>>(fields: Record<string, DBFieldAttribute>, values: T): T;
+declare function convertFromDB<T extends Record<string, any>>(fields: Record<string, DBFieldAttribute>, values: T | null): T | null;
 
-declare function matchType(columnDataType: string, fieldType: FieldType, dbType: KyselyDatabaseType): boolean;
+declare function matchType(columnDataType: string, fieldType: DBFieldType, dbType: KyselyDatabaseType): any;
 declare function getMigrations(config: BetterAuthOptions): Promise<{
     toBeCreated: {
         table: string;
-        fields: Record<string, FieldAttribute>;
+        fields: Record<string, DBFieldAttribute>;
         order: number;
     }[];
     toBeAdded: {
         table: string;
-        fields: Record<string, FieldAttribute>;
+        fields: Record<string, DBFieldAttribute>;
         order: number;
     }[];
     runMigrations: () => Promise<void>;
@@ -50,8 +82,9 @@ declare function getMigrations(config: BetterAuthOptions): Promise<{
 }>;
 
 declare function getSchema(config: BetterAuthOptions): Record<string, {
-    fields: Record<string, FieldAttribute>;
+    fields: Record<string, DBFieldAttribute>;
     order: number;
 }>;
 
-export { FieldAttribute, FieldType, convertFromDB, convertToDB, getAdapter, getMigrations, getSchema, getWithHooks, matchType, toZodSchema };
+export { convertFromDB, convertToDB, getAdapter, getAuthTables, getMigrations, getSchema, getWithHooks, matchType, toZodSchema };
+export type { FieldAttributeToSchema };

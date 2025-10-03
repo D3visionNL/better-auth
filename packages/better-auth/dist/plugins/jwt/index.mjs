@@ -1,122 +1,74 @@
-import { s as schema } from '../../shared/better-auth.fsvwNeUx.mjs';
-import { generateKeyPair, exportJWK, importJWK, SignJWT } from 'jose';
-import 'better-call';
-import { c as createAuthMiddleware, a as createAuthEndpoint, s as sessionMiddleware } from '../../shared/better-auth.c4QO78Xh.mjs';
-import 'zod';
+import { g as getJwtToken, s as signJWT, a as getJwksAdapter, c as createJwk } from '../../shared/better-auth.DDuRjwGK.mjs';
+export { b as generateExportedKeyPair } from '../../shared/better-auth.DDuRjwGK.mjs';
+import { APIError } from 'better-call';
+import '../../shared/better-auth.CpZXDeOc.mjs';
+import { c as createAuthMiddleware, a as createAuthEndpoint, s as sessionMiddleware } from '../../shared/better-auth.D_jpufHc.mjs';
+import * as z from 'zod';
 import { B as BetterAuthError } from '../../shared/better-auth.DdzSJf-n.mjs';
-import '../../shared/better-auth.8zoxzg-F.mjs';
+import '../../shared/better-auth.CiuwFiHM.mjs';
 import '@better-auth/utils/base64';
 import '@better-auth/utils/hmac';
-import { m as mergeSchema } from '../../shared/better-auth.Cc72UxUH.mjs';
-import '../../shared/better-auth.Cqykj82J.mjs';
-import 'defu';
-import { symmetricEncrypt, symmetricDecrypt } from '../../crypto/index.mjs';
-import '../../cookies/index.mjs';
-import '../../shared/better-auth.CW6D9eSx.mjs';
-import '../../shared/better-auth.tB5eU6EY.mjs';
-import '../../shared/better-auth.VTXNLFMT.mjs';
-import '@better-auth/utils/random';
-import '../../shared/better-auth.dn8_oqOu.mjs';
-import '@better-auth/utils/hash';
-import '@noble/ciphers/chacha';
-import '@noble/ciphers/utils';
-import '@noble/ciphers/webcrypto';
-import '@noble/hashes/scrypt';
-import '@better-auth/utils';
-import '@better-auth/utils/hex';
-import '@noble/hashes/utils';
-import '../../shared/better-auth.B4Qoxdgc.mjs';
-import '../../social-providers/index.mjs';
-import '@better-fetch/fetch';
-import '../../shared/better-auth.DufyW0qf.mjs';
-import '../../shared/better-auth.BUPPRXfK.mjs';
-import '../../shared/better-auth.DDEbWX-S.mjs';
-import 'jose/errors';
+import '../../shared/better-auth.DgGir396.mjs';
 import '@better-auth/utils/binary';
-import '../../shared/better-auth.OT3XFeFk.mjs';
+import '@better-auth/core/db';
+import { m as mergeSchema } from '../../shared/better-auth.BZghgUMh.mjs';
+import '@better-auth/utils/random';
+import '@better-auth/utils/hash';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
+import 'jose';
+import '@noble/hashes/scrypt.js';
+import '@better-auth/utils/hex';
+import '@noble/hashes/utils.js';
+import '../../shared/better-auth.B4Qoxdgc.mjs';
+import 'kysely';
+import '../../crypto/index.mjs';
+import '@better-auth/utils';
+import '../../shared/better-auth.CW6D9eSx.mjs';
+import '@better-fetch/fetch';
+import '../../shared/better-auth.BAQSo96z.mjs';
+import '../../shared/better-auth.L4mY8Wf-.mjs';
+import '../../shared/better-auth.BTrSrKsi.mjs';
+import 'jose/errors';
+import '../../shared/better-auth.BUPPRXfK.mjs';
+import 'defu';
+import '../../shared/better-auth.D2xndZ2p.mjs';
 
-const getJwksAdapter = (adapter) => {
-  return {
-    getAllKeys: async () => {
-      return await adapter.findMany({
-        model: "jwks"
-      });
-    },
-    getLatestKey: async () => {
-      const key = await adapter.findMany({
-        model: "jwks",
-        sortBy: {
-          field: "createdAt",
-          direction: "desc"
-        },
-        limit: 1
-      });
-      return key[0];
-    },
-    createJwk: async (webKey) => {
-      const jwk = await adapter.create({
-        model: "jwks",
-        data: {
-          ...webKey,
-          createdAt: /* @__PURE__ */ new Date()
-        }
-      });
-      return jwk;
+const schema = {
+  jwks: {
+    fields: {
+      publicKey: {
+        type: "string",
+        required: true
+      },
+      privateKey: {
+        type: "string",
+        required: true
+      },
+      createdAt: {
+        type: "date",
+        required: true
+      }
     }
-  };
+  }
 };
 
-async function getJwtToken(ctx, options) {
-  const adapter = getJwksAdapter(ctx.context.adapter);
-  let key = await adapter.getLatestKey();
-  const privateKeyEncryptionEnabled = !options?.jwks?.disablePrivateKeyEncryption;
-  if (key === void 0) {
-    const { publicKey, privateKey: privateKey2 } = await generateKeyPair(
-      options?.jwks?.keyPairConfig?.alg ?? "EdDSA",
-      options?.jwks?.keyPairConfig ?? {
-        crv: "Ed25519",
-        extractable: true
-      }
-    );
-    const publicWebKey = await exportJWK(publicKey);
-    const privateWebKey2 = await exportJWK(privateKey2);
-    const stringifiedPrivateWebKey = JSON.stringify(privateWebKey2);
-    let jwk = {
-      publicKey: JSON.stringify(publicWebKey),
-      privateKey: privateKeyEncryptionEnabled ? JSON.stringify(
-        await symmetricEncrypt({
-          key: ctx.context.secret,
-          data: stringifiedPrivateWebKey
-        })
-      ) : stringifiedPrivateWebKey,
-      createdAt: /* @__PURE__ */ new Date()
-    };
-    key = await adapter.createJwk(jwk);
-  }
-  let privateWebKey = privateKeyEncryptionEnabled ? await symmetricDecrypt({
-    key: ctx.context.secret,
-    data: JSON.parse(key.privateKey)
-  }).catch(() => {
-    throw new BetterAuthError(
-      "Failed to decrypt private private key. Make sure the secret currently in use is the same as the one used to encrypt the private key. If you are using a different secret, either cleanup your jwks or disable private key encryption."
-    );
-  }) : key.privateKey;
-  const privateKey = await importJWK(
-    JSON.parse(privateWebKey),
-    options?.jwks?.keyPairConfig?.alg ?? "EdDSA"
-  );
-  const payload = !options?.jwt?.definePayload ? ctx.context.session.user : await options?.jwt.definePayload(ctx.context.session);
-  const jwt2 = await new SignJWT(payload).setProtectedHeader({
-    alg: options?.jwks?.keyPairConfig?.alg ?? "EdDSA",
-    kid: key.id
-  }).setIssuedAt().setIssuer(options?.jwt?.issuer ?? ctx.context.options.baseURL).setAudience(options?.jwt?.audience ?? ctx.context.options.baseURL).setExpirationTime(options?.jwt?.expirationTime ?? "15m").setSubject(
-    await options?.jwt?.getSubject?.(ctx.context.session) ?? ctx.context.session.user.id
-  ).sign(privateKey);
-  return jwt2;
-}
 const jwt = (options) => {
+  if (options?.jwt?.sign && !options.jwks?.remoteUrl) {
+    throw new BetterAuthError(
+      "jwks_config",
+      "jwks.remoteUrl must be set when using jwt.sign"
+    );
+  }
+  if (options?.jwks?.remoteUrl && !options.jwks?.keyPairConfig?.alg) {
+    throw new BetterAuthError(
+      "jwks_config",
+      "must specify alg when using the oidc plugin and jwks.remoteUrl"
+    );
+  }
   return {
     id: "jwt",
+    options,
     endpoints: {
       getJwks: createAuthEndpoint(
         "/jwks",
@@ -197,47 +149,26 @@ const jwt = (options) => {
           }
         },
         async (ctx) => {
+          if (options?.jwks?.remoteUrl) {
+            throw new APIError("NOT_FOUND");
+          }
           const adapter = getJwksAdapter(ctx.context.adapter);
           const keySets = await adapter.getAllKeys();
           if (keySets.length === 0) {
-            const alg = options?.jwks?.keyPairConfig?.alg ?? "EdDSA";
-            const { publicKey, privateKey } = await generateKeyPair(
-              alg,
-              options?.jwks?.keyPairConfig ?? {
-                crv: "Ed25519",
-                extractable: true
-              }
-            );
-            const publicWebKey = await exportJWK(publicKey);
-            const privateWebKey = await exportJWK(privateKey);
-            const stringifiedPrivateWebKey = JSON.stringify(privateWebKey);
-            const privateKeyEncryptionEnabled = !options?.jwks?.disablePrivateKeyEncryption;
-            let jwk = {
-              publicKey: JSON.stringify({ alg, ...publicWebKey }),
-              privateKey: privateKeyEncryptionEnabled ? JSON.stringify(
-                await symmetricEncrypt({
-                  key: ctx.context.secret,
-                  data: stringifiedPrivateWebKey
-                })
-              ) : stringifiedPrivateWebKey,
-              createdAt: /* @__PURE__ */ new Date()
-            };
-            await adapter.createJwk(jwk);
-            return ctx.json({
-              keys: [
-                {
-                  ...publicWebKey,
-                  alg,
-                  kid: jwk.id
-                }
-              ]
-            });
+            const key = await createJwk(ctx, options);
+            keySets.push(key);
           }
+          const keyPairConfig = options?.jwks?.keyPairConfig;
+          const defaultCrv = keyPairConfig ? "crv" in keyPairConfig ? keyPairConfig.crv : void 0 : void 0;
           return ctx.json({
-            keys: keySets.map((keySet) => ({
-              ...JSON.parse(keySet.publicKey),
-              kid: keySet.id
-            }))
+            keys: keySets.map((keySet) => {
+              return {
+                alg: keySet.alg ?? options?.jwks?.keyPairConfig?.alg ?? "EdDSA",
+                crv: keySet.crv ?? defaultCrv,
+                ...JSON.parse(keySet.publicKey),
+                kid: keySet.id
+              };
+            })
           });
         }
       ),
@@ -276,6 +207,32 @@ const jwt = (options) => {
             token: jwt2
           });
         }
+      ),
+      signJWT: createAuthEndpoint(
+        "/sign-jwt",
+        {
+          method: "POST",
+          metadata: {
+            SERVER_ONLY: true,
+            $Infer: {
+              body: {}
+            }
+          },
+          body: z.object({
+            payload: z.record(z.string(), z.any()),
+            overrideOptions: z.record(z.string(), z.any()).optional()
+          })
+        },
+        async (c) => {
+          const jwt2 = await signJWT(c, {
+            options: {
+              ...options,
+              ...c.body.overrideOptions
+            },
+            payload: c.body.payload
+          });
+          return c.json({ token: jwt2 });
+        }
       )
     },
     hooks: {
@@ -285,11 +242,24 @@ const jwt = (options) => {
             return context.path === "/get-session";
           },
           handler: createAuthMiddleware(async (ctx) => {
+            if (options?.disableSettingJwtHeader) {
+              return;
+            }
             const session = ctx.context.session || ctx.context.newSession;
             if (session && session.session) {
               const jwt2 = await getJwtToken(ctx, options);
+              const exposedHeaders = ctx.context.responseHeaders?.get(
+                "access-control-expose-headers"
+              ) || "";
+              const headersSet = new Set(
+                exposedHeaders.split(",").map((header) => header.trim()).filter(Boolean)
+              );
+              headersSet.add("set-auth-jwt");
               ctx.setHeader("set-auth-jwt", jwt2);
-              ctx.setHeader("Access-Control-Expose-Headers", "set-auth-jwt");
+              ctx.setHeader(
+                "Access-Control-Expose-Headers",
+                Array.from(headersSet).join(", ")
+              );
             }
           })
         }
@@ -299,4 +269,4 @@ const jwt = (options) => {
   };
 };
 
-export { getJwtToken, jwt };
+export { createJwk, getJwtToken, jwt };

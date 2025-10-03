@@ -1,12 +1,14 @@
-import { z } from 'zod';
+import { H as HookEndpointContext, d as AuthContext } from '../../shared/better-auth.HOXfa1Ev.js';
 import * as better_call from 'better-call';
-import { H as HookEndpointContext, p as AuthContext } from '../../shared/better-auth.BNRr97iY.js';
-import '../../shared/better-auth.Bi8FQwDD.js';
-import '../../shared/better-auth.ByC0y0O-.js';
-import 'jose';
+import * as z from 'zod';
+import '../../shared/better-auth.4SXCyo06.js';
+import '../../shared/better-auth.DTtXpZYr.js';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface OAuthProxyOptions {
     /**
@@ -32,6 +34,7 @@ interface OAuthProxyOptions {
  */
 declare const oAuthProxy: (opts?: OAuthProxyOptions) => {
     id: "oauth-proxy";
+    options: OAuthProxyOptions | undefined;
     endpoints: {
         oAuthProxy: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
@@ -66,13 +69,7 @@ declare const oAuthProxy: (opts?: OAuthProxyOptions) => {
                 query: z.ZodObject<{
                     callbackURL: z.ZodString;
                     cookies: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    callbackURL: string;
-                    cookies: string;
-                }, {
-                    callbackURL: string;
-                    cookies: string;
-                }>;
+                }, z.core.$strip>;
                 use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<void>)[];
                 metadata: {
                     openapi: {
@@ -109,7 +106,18 @@ declare const oAuthProxy: (opts?: OAuthProxyOptions) => {
             matcher(context: HookEndpointContext): boolean;
             handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<void>;
         }[];
-        before: {
+        before: ({
+            matcher(): true;
+            handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
+                context: {
+                    context: {
+                        oauthConfig: {
+                            skipStateCookieCheck: boolean;
+                        };
+                    };
+                };
+            } | undefined>;
+        } | {
             matcher(context: HookEndpointContext): boolean;
             handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
                 context: better_call.MiddlewareContext<better_call.MiddlewareOptions, AuthContext & {
@@ -117,7 +125,7 @@ declare const oAuthProxy: (opts?: OAuthProxyOptions) => {
                     responseHeaders?: Headers;
                 }>;
             } | undefined>;
-        }[];
+        })[];
     };
 };
 

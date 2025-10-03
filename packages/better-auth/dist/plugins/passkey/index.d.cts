@@ -1,14 +1,16 @@
 import * as _simplewebauthn_server from '@simplewebauthn/server';
 import { CredentialDeviceType, PublicKeyCredentialCreationOptionsJSON, AuthenticationResponseJSON } from '@simplewebauthn/server';
 import * as better_call from 'better-call';
-import { z } from 'zod';
-import { I as InferOptionSchema } from '../../shared/better-auth.C67OuOdK.cjs';
-import '../../shared/better-auth.Bi8FQwDD.cjs';
-import '../../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
+import * as z from 'zod';
+import { I as InferOptionSchema } from '../../shared/better-auth.jRxKMAeG.cjs';
+import '../../shared/better-auth.v_lf-jeY.cjs';
+import '../../shared/better-auth.DTtXpZYr.cjs';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface PasskeyOptions {
     /**
@@ -32,7 +34,7 @@ interface PasskeyOptions {
      * if this isn't provided. The client itself will
      * pass this value.
      */
-    origin?: string | null;
+    origin?: string | string[] | null;
     /**
      * Allow customization of the authenticatorSelection options
      * during passkey registration.
@@ -60,6 +62,7 @@ type Passkey = {
     backedUp: boolean;
     transports?: string;
     createdAt: Date;
+    aaguid?: string;
 };
 declare const passkey: (options?: PasskeyOptions) => {
     id: "passkey";
@@ -72,6 +75,7 @@ declare const passkey: (options?: PasskeyOptions) => {
             } & {
                 query?: {
                     authenticatorAttachment?: "platform" | "cross-platform" | undefined;
+                    name?: string | undefined;
                 } | undefined;
             } & {
                 params?: Record<string, any>;
@@ -107,22 +111,22 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
                 }>)[];
                 query: z.ZodOptional<z.ZodObject<{
-                    authenticatorAttachment: z.ZodOptional<z.ZodEnum<["platform", "cross-platform"]>>;
-                }, "strip", z.ZodTypeAny, {
-                    authenticatorAttachment?: "platform" | "cross-platform" | undefined;
-                }, {
-                    authenticatorAttachment?: "platform" | "cross-platform" | undefined;
-                }>>;
+                    authenticatorAttachment: z.ZodOptional<z.ZodEnum<{
+                        platform: "platform";
+                        "cross-platform": "cross-platform";
+                    }>>;
+                    name: z.ZodOptional<z.ZodString>;
+                }, z.core.$strip>>;
                 metadata: {
                     client: boolean;
                     openapi: {
@@ -133,6 +137,10 @@ declare const passkey: (options?: PasskeyOptions) => {
                                 parameters: {
                                     query: {
                                         authenticatorAttachment: {
+                                            description: string;
+                                            required: boolean;
+                                        };
+                                        name: {
                                             description: string;
                                             required: boolean;
                                         };
@@ -243,9 +251,7 @@ declare const passkey: (options?: PasskeyOptions) => {
         };
         generatePasskeyAuthenticationOptions: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0?: ({
-                body?: {
-                    email?: string | undefined;
-                } | undefined;
+                body?: undefined;
             } & {
                 method?: "POST" | undefined;
             } & {
@@ -270,13 +276,6 @@ declare const passkey: (options?: PasskeyOptions) => {
             } : _simplewebauthn_server.PublicKeyCredentialRequestOptionsJSON>;
             options: {
                 method: "POST";
-                body: z.ZodOptional<z.ZodObject<{
-                    email: z.ZodOptional<z.ZodString>;
-                }, "strip", z.ZodTypeAny, {
-                    email?: string | undefined;
-                }, {
-                    email?: string | undefined;
-                }>>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -375,8 +374,8 @@ declare const passkey: (options?: PasskeyOptions) => {
         verifyPasskeyRegistration: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
+                    response: any;
                     name?: string | undefined;
-                    response?: any;
                 };
             } & {
                 method?: "POST" | undefined;
@@ -405,13 +404,7 @@ declare const passkey: (options?: PasskeyOptions) => {
                 body: z.ZodObject<{
                     response: z.ZodAny;
                     name: z.ZodOptional<z.ZodString>;
-                }, "strip", z.ZodTypeAny, {
-                    name?: string | undefined;
-                    response?: any;
-                }, {
-                    name?: string | undefined;
-                    response?: any;
-                }>;
+                }, z.core.$strip>;
                 use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
                     session: {
                         session: Record<string, any> & {
@@ -426,11 +419,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -512,12 +505,8 @@ declare const passkey: (options?: PasskeyOptions) => {
             options: {
                 method: "POST";
                 body: z.ZodObject<{
-                    response: z.ZodRecord<z.ZodString, z.ZodAny>;
-                }, "strip", z.ZodTypeAny, {
-                    response: Record<string, any>;
-                }, {
-                    response: Record<string, any>;
-                }>;
+                    response: z.ZodRecord<z.ZodAny, z.ZodAny>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -553,6 +542,21 @@ declare const passkey: (options?: PasskeyOptions) => {
             };
             path: "/passkey/verify-authentication";
         };
+        /**
+         * ### Endpoint
+         *
+         * GET `/passkey/list-user-passkeys`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.listPasskeys`
+         *
+         * **client:**
+         * `authClient.passkey.listUserPasskeys`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/passkey#api-method-passkey-list-user-passkeys)
+         */
         listPasskeys: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0?: ({
                 body?: undefined;
@@ -594,11 +598,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -630,6 +634,21 @@ declare const passkey: (options?: PasskeyOptions) => {
             };
             path: "/passkey/list-user-passkeys";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/passkey/delete-passkey`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.deletePasskey`
+         *
+         * **client:**
+         * `authClient.passkey.deletePasskey`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/passkey#api-method-passkey-delete-passkey)
+         */
         deletePasskey: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -661,11 +680,7 @@ declare const passkey: (options?: PasskeyOptions) => {
                 method: "POST";
                 body: z.ZodObject<{
                     id: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    id: string;
-                }, {
-                    id: string;
-                }>;
+                }, z.core.$strip>;
                 use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
                     session: {
                         session: Record<string, any> & {
@@ -680,11 +695,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -718,6 +733,21 @@ declare const passkey: (options?: PasskeyOptions) => {
             };
             path: "/passkey/delete-passkey";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/passkey/update-passkey`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.updatePasskey`
+         *
+         * **client:**
+         * `authClient.passkey.updatePasskey`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/passkey#api-method-passkey-update-passkey)
+         */
         updatePasskey: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -755,13 +785,7 @@ declare const passkey: (options?: PasskeyOptions) => {
                 body: z.ZodObject<{
                     id: z.ZodString;
                     name: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    id: string;
-                    name: string;
-                }, {
-                    id: string;
-                    name: string;
-                }>;
+                }, z.core.$strip>;
                 use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
                     session: {
                         session: Record<string, any> & {
@@ -776,11 +800,11 @@ declare const passkey: (options?: PasskeyOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -818,44 +842,48 @@ declare const passkey: (options?: PasskeyOptions) => {
         passkey: {
             fields: {
                 name: {
-                    type: "string";
-                    required: false;
+                    type: string;
+                    required: boolean;
                 };
                 publicKey: {
-                    type: "string";
-                    required: true;
+                    type: string;
+                    required: boolean;
                 };
                 userId: {
-                    type: "string";
+                    type: string;
                     references: {
                         model: string;
                         field: string;
                     };
-                    required: true;
+                    required: boolean;
                 };
                 credentialID: {
-                    type: "string";
-                    required: true;
+                    type: string;
+                    required: boolean;
                 };
                 counter: {
-                    type: "number";
-                    required: true;
+                    type: string;
+                    required: boolean;
                 };
                 deviceType: {
-                    type: "string";
-                    required: true;
+                    type: string;
+                    required: boolean;
                 };
                 backedUp: {
-                    type: "boolean";
-                    required: true;
+                    type: string;
+                    required: boolean;
                 };
                 transports: {
-                    type: "string";
-                    required: false;
+                    type: string;
+                    required: boolean;
                 };
                 createdAt: {
-                    type: "date";
-                    required: false;
+                    type: string;
+                    required: boolean;
+                };
+                aaguid: {
+                    type: string;
+                    required: boolean;
                 };
             };
         };
@@ -874,47 +902,52 @@ declare const schema: {
     passkey: {
         fields: {
             name: {
-                type: "string";
-                required: false;
+                type: string;
+                required: boolean;
             };
             publicKey: {
-                type: "string";
-                required: true;
+                type: string;
+                required: boolean;
             };
             userId: {
-                type: "string";
+                type: string;
                 references: {
                     model: string;
                     field: string;
                 };
-                required: true;
+                required: boolean;
             };
             credentialID: {
-                type: "string";
-                required: true;
+                type: string;
+                required: boolean;
             };
             counter: {
-                type: "number";
-                required: true;
+                type: string;
+                required: boolean;
             };
             deviceType: {
-                type: "string";
-                required: true;
+                type: string;
+                required: boolean;
             };
             backedUp: {
-                type: "boolean";
-                required: true;
+                type: string;
+                required: boolean;
             };
             transports: {
-                type: "string";
-                required: false;
+                type: string;
+                required: boolean;
             };
             createdAt: {
-                type: "date";
-                required: false;
+                type: string;
+                required: boolean;
+            };
+            aaguid: {
+                type: string;
+                required: boolean;
             };
         };
     };
 };
 
-export { type Passkey, type PasskeyOptions, passkey };
+export { passkey };
+export type { Passkey, PasskeyOptions };

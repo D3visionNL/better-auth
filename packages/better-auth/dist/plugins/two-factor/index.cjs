@@ -1,43 +1,54 @@
 'use strict';
 
 const random = require('../../shared/better-auth.CYeOI8C-.cjs');
-const zod = require('zod');
-const account = require('../../shared/better-auth.iyK63nvn.cjs');
+const z = require('zod');
+const session = require('../../shared/better-auth.B0k5C6Ik.cjs');
 const betterCall = require('better-call');
-const cookies_index = require('../../cookies/index.cjs');
-const schema$1 = require('../../shared/better-auth.DcWKCjjf.cjs');
-require('../../shared/better-auth.DiSjtgs9.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
-require('defu');
+require('../../shared/better-auth.l_Ru3SGW.cjs');
+const cookies_index = require('../../shared/better-auth.anw-08Z3.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
+require('@better-auth/core/db');
+const schema$1 = require('../../shared/better-auth.Bu93hUoT.cjs');
+require('../../shared/better-auth.BToNb2fI.cjs');
+require('@better-auth/utils/random');
 const crypto_index = require('../../crypto/index.cjs');
-require('@better-auth/utils/base64');
+require('kysely');
+const base64 = require('@better-auth/utils/base64');
 const hmac = require('@better-auth/utils/hmac');
-require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
+require('@better-auth/utils/binary');
+const hash = require('@better-auth/utils/hash');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
 require('jose');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+require('@noble/hashes/scrypt.js');
 require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
+require('@noble/hashes/utils.js');
 const otp = require('@better-auth/utils/otp');
 const password = require('../../shared/better-auth.CDXNofOe.cjs');
 const client = require('../../shared/better-auth.DnER2-iT.cjs');
-require('@better-auth/utils/random');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
-require('../../social-providers/index.cjs');
-require('@better-fetch/fetch');
-require('../../shared/better-auth.6XyKj7DG.cjs');
 require('../../shared/better-auth.C1hdVENX.cjs');
+require('../../shared/better-auth.Jlhc86WK.cjs');
+require('../../shared/better-auth.uykCWCYS.cjs');
+require('@better-fetch/fetch');
+require('../../shared/better-auth.DxBcELEX.cjs');
 require('../../shared/better-auth.ANpbi45u.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
-require('../../shared/better-auth.Bg6iw3ig.cjs');
-require('../../shared/better-auth.BMYo0QR-.cjs');
-require('../../shared/better-auth.C-R0J0n1.cjs');
 require('jose/errors');
-require('@better-auth/utils/binary');
-require('../../shared/better-auth.YUF6P-PB.cjs');
+require('../../shared/better-auth.Bg6iw3ig.cjs');
+require('defu');
+
+function _interopNamespaceCompat(e) {
+	if (e && typeof e === 'object' && 'default' in e) return e;
+	const n = Object.create(null);
+	if (e) {
+		for (const k in e) {
+			n[k] = e[k];
+		}
+	}
+	n.default = e;
+	return n;
+}
+
+const z__namespace = /*#__PURE__*/_interopNamespaceCompat(z);
 
 const TWO_FACTOR_ERROR_CODES = {
   OTP_NOT_ENABLED: "OTP not enabled",
@@ -55,8 +66,8 @@ const TWO_FACTOR_COOKIE_NAME = "two_factor";
 const TRUST_DEVICE_COOKIE_NAME = "trust_device";
 
 async function verifyTwoFactor(ctx) {
-  const session = await account.getSessionFromCtx(ctx);
-  if (!session) {
+  const session$1 = await session.getSessionFromCtx(ctx);
+  if (!session$1) {
     const cookieName = ctx.context.createAuthCookie(TWO_FACTOR_COOKIE_NAME);
     const twoFactorCookie = await ctx.getSignedCookie(
       cookieName.name,
@@ -154,15 +165,15 @@ async function verifyTwoFactor(ctx) {
   return {
     valid: async (ctx2) => {
       return ctx2.json({
-        token: session.session.token,
+        token: session$1.session.token,
         user: {
-          id: session.user.id,
-          email: session.user.email,
-          emailVerified: session.user.emailVerified,
-          name: session.user.name,
-          image: session.user.image,
-          createdAt: session.user.createdAt,
-          updatedAt: session.user.updatedAt
+          id: session$1.user.id,
+          email: session$1.user.email,
+          emailVerified: session$1.user.emailVerified,
+          name: session$1.user.name,
+          image: session$1.user.image,
+          createdAt: session$1.user.createdAt,
+          updatedAt: session$1.user.updatedAt
         }
       });
     },
@@ -171,8 +182,8 @@ async function verifyTwoFactor(ctx) {
         message: TWO_FACTOR_ERROR_CODES.INVALID_TWO_FACTOR_COOKIE
       });
     },
-    session,
-    key: `${session.user.id}!${session.session.id}`
+    session: session$1,
+    key: `${session$1.user.id}!${session$1.session.id}`
   };
 }
 
@@ -211,7 +222,7 @@ async function getBackupCodes(backupCodes, key) {
     )
   );
   const data = JSON.parse(secret);
-  const result = zod.z.array(zod.z.string()).safeParse(data);
+  const result = z__namespace.array(z__namespace.string()).safeParse(data);
   if (result.success) {
     return result.data;
   }
@@ -219,19 +230,60 @@ async function getBackupCodes(backupCodes, key) {
 }
 const backupCode2fa = (options) => {
   const twoFactorTable = "twoFactor";
+  async function storeBackupCodes(ctx, backupCodes) {
+    if (options?.storeBackupCodes === "encrypted") {
+      return await crypto_index.symmetricEncrypt({
+        key: ctx.context.secret,
+        data: backupCodes
+      });
+    }
+    if (typeof options?.storeBackupCodes === "object" && "encrypt" in options?.storeBackupCodes) {
+      return await options?.storeBackupCodes.encrypt(backupCodes);
+    }
+    return backupCodes;
+  }
+  async function decryptBackupCodes(ctx, backupCodes) {
+    if (options?.storeBackupCodes === "encrypted") {
+      return await crypto_index.symmetricDecrypt({
+        key: ctx.context.secret,
+        data: backupCodes
+      });
+    }
+    if (typeof options?.storeBackupCodes === "object" && "decrypt" in options?.storeBackupCodes) {
+      return await options?.storeBackupCodes.decrypt(backupCodes);
+    }
+    return backupCodes;
+  }
   return {
     id: "backup_code",
     endpoints: {
-      verifyBackupCode: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/two-factor/verify-backup-code`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.verifyBackupCode`
+       *
+       * **client:**
+       * `authClient.twoFactor.verifyBackupCode`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/2fa#api-method-two-factor-verify-backup-code)
+       */
+      verifyBackupCode: session.createAuthEndpoint(
         "/two-factor/verify-backup-code",
         {
           method: "POST",
-          body: zod.z.object({
-            code: zod.z.string(),
+          body: z__namespace.object({
+            code: z__namespace.string().meta({
+              description: `A backup code to verify. Eg: "123456"`
+            }),
             /**
              * Disable setting the session cookie
              */
-            disableSession: zod.z.boolean({
+            disableSession: z__namespace.boolean().meta({
               description: "If true, the session cookie will not be set."
             }).optional(),
             /**
@@ -239,8 +291,8 @@ const backupCode2fa = (options) => {
              * for 30 days. It'll be refreshed on
              * every sign in request within this time.
              */
-            trustDevice: zod.z.boolean({
-              description: "If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time."
+            trustDevice: z__namespace.boolean().meta({
+              description: "If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. Eg: true"
             }).optional()
           }),
           metadata: {
@@ -363,9 +415,13 @@ const backupCode2fa = (options) => {
               message: TWO_FACTOR_ERROR_CODES.BACKUP_CODES_NOT_ENABLED
             });
           }
+          const decryptedBackupCodes = await decryptBackupCodes(
+            ctx,
+            twoFactor.backupCodes
+          );
           const validate = await verifyBackupCode(
             {
-              backupCodes: twoFactor.backupCodes,
+              backupCodes: decryptedBackupCodes,
               code: ctx.body.code
             },
             ctx.context.secret
@@ -408,14 +464,31 @@ const backupCode2fa = (options) => {
           });
         }
       ),
-      generateBackupCodes: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/two-factor/generate-backup-codes`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.generateBackupCodes`
+       *
+       * **client:**
+       * `authClient.twoFactor.generateBackupCodes`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/2fa#api-method-two-factor-generate-backup-codes)
+       */
+      generateBackupCodes: session.createAuthEndpoint(
         "/two-factor/generate-backup-codes",
         {
           method: "POST",
-          body: zod.z.object({
-            password: zod.z.string()
+          body: z__namespace.object({
+            password: z__namespace.string().meta({
+              description: "The users password."
+            })
           }),
-          use: [account.sessionMiddleware],
+          use: [session.sessionMiddleware],
           metadata: {
             openapi: {
               description: "Generate new backup codes for two-factor authentication",
@@ -459,10 +532,14 @@ const backupCode2fa = (options) => {
             ctx.context.secret,
             options
           );
+          const storedBackupCodes = await storeBackupCodes(
+            ctx,
+            backupCodes.encryptedBackupCodes
+          );
           await ctx.context.adapter.update({
             model: twoFactorTable,
             update: {
-              backupCodes: backupCodes.encryptedBackupCodes
+              backupCodes: storedBackupCodes
             },
             where: [
               {
@@ -477,12 +554,29 @@ const backupCode2fa = (options) => {
           });
         }
       ),
-      viewBackupCodes: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * GET `/two-factor/view-backup-codes`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.viewBackupCodes`
+       *
+       * **client:**
+       * `authClient.twoFactor.viewBackupCodes`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/2fa#api-method-two-factor-view-backup-codes)
+       */
+      viewBackupCodes: session.createAuthEndpoint(
         "/two-factor/view-backup-codes",
         {
           method: "GET",
-          body: zod.z.object({
-            userId: zod.z.coerce.string()
+          body: z__namespace.object({
+            userId: z__namespace.coerce.string().meta({
+              description: `The user ID to view all backup codes. Eg: "user-id"`
+            })
           }),
           metadata: {
             SERVER_ONLY: true
@@ -512,9 +606,13 @@ const backupCode2fa = (options) => {
               message: TWO_FACTOR_ERROR_CODES.BACKUP_CODES_NOT_ENABLED
             });
           }
+          const decryptedBackupCodes = await decryptBackupCodes(
+            ctx,
+            twoFactor.backupCodes
+          );
           return ctx.json({
             status: true,
-            backupCodes
+            backupCodes: decryptedBackupCodes
           });
         }
       )
@@ -522,24 +620,72 @@ const backupCode2fa = (options) => {
   };
 };
 
+const defaultKeyHasher = async (token) => {
+  const hash$1 = await hash.createHash("SHA-256").digest(
+    new TextEncoder().encode(token)
+  );
+  const hashed = base64.base64Url.encode(new Uint8Array(hash$1), {
+    padding: false
+  });
+  return hashed;
+};
+
 const otp2fa = (options) => {
   const opts = {
+    storeOTP: "plain",
+    digits: 6,
     ...options,
-    digits: options?.digits || 6,
     period: (options?.period || 3) * 60 * 1e3
   };
-  const twoFactorTable = "twoFactor";
-  const send2FaOTP = account.createAuthEndpoint(
+  async function storeOTP(ctx, otp) {
+    if (opts.storeOTP === "hashed") {
+      return await defaultKeyHasher(otp);
+    }
+    if (typeof opts.storeOTP === "object" && "hash" in opts.storeOTP) {
+      return await opts.storeOTP.hash(otp);
+    }
+    if (typeof opts.storeOTP === "object" && "encrypt" in opts.storeOTP) {
+      return await opts.storeOTP.encrypt(otp);
+    }
+    if (opts.storeOTP === "encrypted") {
+      return await crypto_index.symmetricEncrypt({
+        key: ctx.context.secret,
+        data: otp
+      });
+    }
+    return otp;
+  }
+  async function decryptOTP(ctx, otp) {
+    if (opts.storeOTP === "hashed") {
+      return await defaultKeyHasher(otp);
+    }
+    if (opts.storeOTP === "encrypted") {
+      return await crypto_index.symmetricDecrypt({
+        key: ctx.context.secret,
+        data: otp
+      });
+    }
+    if (typeof opts.storeOTP === "object" && "encrypt" in opts.storeOTP) {
+      return await opts.storeOTP.decrypt(otp);
+    }
+    if (typeof opts.storeOTP === "object" && "hash" in opts.storeOTP) {
+      return await opts.storeOTP.hash(otp);
+    }
+    return otp;
+  }
+  const send2FaOTP = session.createAuthEndpoint(
     "/two-factor/send-otp",
     {
       method: "POST",
-      body: zod.z.object({
+      body: z__namespace.object({
         /**
          * if true, the device will be trusted
          * for 30 days. It'll be refreshed on
          * every sign in request within this time.
          */
-        trustDevice: zod.z.boolean().optional()
+        trustDevice: z__namespace.boolean().optional().meta({
+          description: "If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. Eg: true"
+        })
       }).optional(),
       metadata: {
         openapi: {
@@ -575,24 +721,16 @@ const otp2fa = (options) => {
         });
       }
       const { session, key } = await verifyTwoFactor(ctx);
-      const twoFactor = await ctx.context.adapter.findOne({
-        model: twoFactorTable,
-        where: [
-          {
-            field: "userId",
-            value: session.user.id
-          }
-        ]
-      });
-      if (!twoFactor) {
+      if (!session.user.twoFactorEnabled) {
         throw new betterCall.APIError("BAD_REQUEST", {
           message: TWO_FACTOR_ERROR_CODES.OTP_NOT_ENABLED
         });
       }
       const code = random.generateRandomString(opts.digits, "0-9");
+      const hashedCode = await storeOTP(ctx, code);
       await ctx.context.internalAdapter.createVerificationValue(
         {
-          value: `${code}!0`,
+          value: `${hashedCode}:0`,
           identifier: `2fa-otp-${key}`,
           expiresAt: new Date(Date.now() + opts.period)
         },
@@ -605,20 +743,22 @@ const otp2fa = (options) => {
       return ctx.json({ status: true });
     }
   );
-  const verifyOTP = account.createAuthEndpoint(
+  const verifyOTP = session.createAuthEndpoint(
     "/two-factor/verify-otp",
     {
       method: "POST",
-      body: zod.z.object({
-        code: zod.z.string({
-          description: "The otp code to verify"
+      body: z__namespace.object({
+        code: z__namespace.string().meta({
+          description: 'The otp code to verify. Eg: "012345"'
         }),
         /**
          * if true, the device will be trusted
          * for 30 days. It'll be refreshed on
          * every sign in request within this time.
          */
-        trustDevice: zod.z.boolean().optional()
+        trustDevice: z__namespace.boolean().optional().meta({
+          description: "If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. Eg: true"
+        })
       }),
       metadata: {
         openapi: {
@@ -690,25 +830,12 @@ const otp2fa = (options) => {
       }
     },
     async (ctx) => {
-      const { session, key, valid, invalid } = await verifyTwoFactor(ctx);
-      const twoFactor = await ctx.context.adapter.findOne({
-        model: twoFactorTable,
-        where: [
-          {
-            field: "userId",
-            value: session.user.id
-          }
-        ]
-      });
-      if (!twoFactor) {
-        throw new betterCall.APIError("BAD_REQUEST", {
-          message: TWO_FACTOR_ERROR_CODES.OTP_NOT_ENABLED
-        });
-      }
+      const { session: session$1, key, valid, invalid } = await verifyTwoFactor(ctx);
       const toCheckOtp = await ctx.context.internalAdapter.findVerificationValue(
         `2fa-otp-${key}`
       );
-      const [otp, counter] = toCheckOtp?.value?.split("!") ?? [];
+      const [otp, counter] = toCheckOtp?.value?.split(":") ?? [];
+      const decryptedOtp = await decryptOTP(ctx, otp);
       if (!toCheckOtp || toCheckOtp.expiresAt < /* @__PURE__ */ new Date()) {
         if (toCheckOtp) {
           await ctx.context.internalAdapter.deleteVerificationValue(
@@ -728,27 +855,27 @@ const otp2fa = (options) => {
           message: TWO_FACTOR_ERROR_CODES.TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE
         });
       }
-      if (otp === ctx.body.code) {
-        if (!session.user.twoFactorEnabled) {
-          if (!session.session) {
+      if (decryptedOtp === ctx.body.code) {
+        if (!session$1.user.twoFactorEnabled) {
+          if (!session$1.session) {
             throw new betterCall.APIError("BAD_REQUEST", {
-              message: account.BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION
+              message: session.BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION
             });
           }
           const updatedUser = await ctx.context.internalAdapter.updateUser(
-            session.user.id,
+            session$1.user.id,
             {
               twoFactorEnabled: true
             }
           );
           const newSession = await ctx.context.internalAdapter.createSession(
-            session.user.id,
+            session$1.user.id,
             ctx,
             false,
-            session.session
+            session$1.session
           );
           await ctx.context.internalAdapter.deleteSession(
-            session.session.token
+            session$1.session.token
           );
           await cookies_index.setSessionCookie(ctx, {
             session: newSession,
@@ -772,7 +899,7 @@ const otp2fa = (options) => {
         await ctx.context.internalAdapter.updateVerificationValue(
           toCheckOtp.id,
           {
-            value: `${otp}!${parseInt(counter) + 1}`
+            value: `${otp}:${(parseInt(counter, 10) || 0) + 1}`
           }
         );
         return invalid("INVALID_CODE");
@@ -782,7 +909,37 @@ const otp2fa = (options) => {
   return {
     id: "otp",
     endpoints: {
+      /**
+       * ### Endpoint
+       *
+       * POST `/two-factor/send-otp`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.send2FaOTP`
+       *
+       * **client:**
+       * `authClient.twoFactor.sendOtp`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/2fa#api-method-two-factor-send-otp)
+       */
       sendTwoFactorOTP: send2FaOTP,
+      /**
+       * ### Endpoint
+       *
+       * POST `/two-factor/verify-otp`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.verifyOTP`
+       *
+       * **client:**
+       * `authClient.twoFactor.verifyOtp`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/2fa#api-method-two-factor-verify-otp)
+       */
       verifyTwoFactorOTP: verifyOTP
     }
   };
@@ -795,12 +952,12 @@ const totp2fa = (options) => {
     period: options?.period || 30
   };
   const twoFactorTable = "twoFactor";
-  const generateTOTP = account.createAuthEndpoint(
+  const generateTOTP = session.createAuthEndpoint(
     "/totp/generate",
     {
       method: "POST",
-      body: zod.z.object({
-        secret: zod.z.string({
+      body: z__namespace.object({
+        secret: z__namespace.string().meta({
           description: "The secret to generate the TOTP code"
         })
       }),
@@ -845,13 +1002,13 @@ const totp2fa = (options) => {
       return { code };
     }
   );
-  const getTOTPURI = account.createAuthEndpoint(
+  const getTOTPURI = session.createAuthEndpoint(
     "/two-factor/get-totp-uri",
     {
       method: "POST",
-      use: [account.sessionMiddleware],
-      body: zod.z.object({
-        password: zod.z.string({
+      use: [session.sessionMiddleware],
+      body: z__namespace.object({
+        password: z__namespace.string().meta({
           description: "User password"
         })
       }),
@@ -898,7 +1055,7 @@ const totp2fa = (options) => {
           }
         ]
       });
-      if (!twoFactor || !user.twoFactorEnabled) {
+      if (!twoFactor) {
         throw new betterCall.APIError("BAD_REQUEST", {
           message: TWO_FACTOR_ERROR_CODES.TOTP_NOT_ENABLED
         });
@@ -917,21 +1074,21 @@ const totp2fa = (options) => {
       };
     }
   );
-  const verifyTOTP = account.createAuthEndpoint(
+  const verifyTOTP = session.createAuthEndpoint(
     "/two-factor/verify-totp",
     {
       method: "POST",
-      body: zod.z.object({
-        code: zod.z.string({
-          description: "The otp code to verify"
+      body: z__namespace.object({
+        code: z__namespace.string().meta({
+          description: 'The otp code to verify. Eg: "012345"'
         }),
         /**
          * if true, the device will be trusted
          * for 30 days. It'll be refreshed on
          * every sign in request within this time.
          */
-        trustDevice: zod.z.boolean({
-          description: "If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time."
+        trustDevice: z__namespace.boolean().meta({
+          description: "If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. Eg: true"
         }).optional()
       }),
       metadata: {
@@ -967,8 +1124,8 @@ const totp2fa = (options) => {
           message: "totp isn't configured"
         });
       }
-      const { session, valid, invalid } = await verifyTwoFactor(ctx);
-      const user = session.user;
+      const { session: session$1, valid, invalid } = await verifyTwoFactor(ctx);
+      const user = session$1.user;
       const twoFactor = await ctx.context.adapter.findOne({
         model: twoFactorTable,
         where: [
@@ -995,9 +1152,9 @@ const totp2fa = (options) => {
         return invalid("INVALID_CODE");
       }
       if (!user.twoFactorEnabled) {
-        if (!session.session) {
+        if (!session$1.session) {
           throw new betterCall.APIError("BAD_REQUEST", {
-            message: account.BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION
+            message: session.BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION
           });
         }
         const updatedUser = await ctx.context.internalAdapter.updateUser(
@@ -1007,10 +1164,10 @@ const totp2fa = (options) => {
           },
           ctx
         );
-        const newSession = await ctx.context.internalAdapter.createSession(user.id, ctx, false, session.session).catch((e) => {
+        const newSession = await ctx.context.internalAdapter.createSession(user.id, ctx, false, session$1.session).catch((e) => {
           throw e;
         });
-        await ctx.context.internalAdapter.deleteSession(session.session.token);
+        await ctx.context.internalAdapter.deleteSession(session$1.session.token);
         await cookies_index.setSessionCookie(ctx, {
           session: newSession,
           user: updatedUser
@@ -1022,7 +1179,37 @@ const totp2fa = (options) => {
   return {
     id: "totp",
     endpoints: {
+      /**
+       * ### Endpoint
+       *
+       * POST `/totp/generate`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.generateTOTP`
+       *
+       * **client:**
+       * `authClient.totp.generate`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/totp#api-method-totp-generate)
+       */
       generateTOTP,
+      /**
+       * ### Endpoint
+       *
+       * POST `/two-factor/get-totp-uri`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.getTOTPURI`
+       *
+       * **client:**
+       * `authClient.twoFactor.getTotpUri`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/two-factor#api-method-two-factor-get-totp-uri)
+       */
       getTOTPURI,
       verifyTOTP
     }
@@ -1078,19 +1265,34 @@ const twoFactor = (options) => {
       ...totp.endpoints,
       ...otp$1.endpoints,
       ...backupCode.endpoints,
-      enableTwoFactor: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/two-factor/enable`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.enableTwoFactor`
+       *
+       * **client:**
+       * `authClient.twoFactor.enable`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/2fa#api-method-two-factor-enable)
+       */
+      enableTwoFactor: session.createAuthEndpoint(
         "/two-factor/enable",
         {
           method: "POST",
-          body: zod.z.object({
-            password: zod.z.string({
+          body: z__namespace.object({
+            password: z__namespace.string().meta({
               description: "User password"
             }),
-            issuer: zod.z.string({
+            issuer: z__namespace.string().meta({
               description: "Custom issuer for the TOTP URI"
             }).optional()
           }),
-          use: [account.sessionMiddleware],
+          use: [session.sessionMiddleware],
           metadata: {
             openapi: {
               summary: "Enable two factor authentication",
@@ -1132,7 +1334,7 @@ const twoFactor = (options) => {
           });
           if (!isPasswordValid) {
             throw new betterCall.APIError("BAD_REQUEST", {
-              message: account.BASE_ERROR_CODES.INVALID_PASSWORD
+              message: session.BASE_ERROR_CODES.INVALID_PASSWORD
             });
           }
           const secret = random.generateRandomString(32);
@@ -1190,16 +1392,31 @@ const twoFactor = (options) => {
           return ctx.json({ totpURI, backupCodes: backupCodes.backupCodes });
         }
       ),
-      disableTwoFactor: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/two-factor/disable`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.disableTwoFactor`
+       *
+       * **client:**
+       * `authClient.twoFactor.disable`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/2fa#api-method-two-factor-disable)
+       */
+      disableTwoFactor: session.createAuthEndpoint(
         "/two-factor/disable",
         {
           method: "POST",
-          body: zod.z.object({
-            password: zod.z.string({
+          body: z__namespace.object({
+            password: z__namespace.string().meta({
               description: "User password"
             })
           }),
-          use: [account.sessionMiddleware],
+          use: [session.sessionMiddleware],
           metadata: {
             openapi: {
               summary: "Disable two factor authentication",
@@ -1276,7 +1493,7 @@ const twoFactor = (options) => {
           matcher(context) {
             return context.path === "/sign-in/email" || context.path === "/sign-in/username" || context.path === "/sign-in/phone-number";
           },
-          handler: account.createAuthMiddleware(async (ctx) => {
+          handler: session.createAuthMiddleware(async (ctx) => {
             const data = ctx.context.newSession;
             if (!data) {
               return;
@@ -1313,7 +1530,7 @@ const twoFactor = (options) => {
             }
             cookies_index.deleteSessionCookie(ctx, true);
             await ctx.context.internalAdapter.deleteSession(data.session.token);
-            const maxAge = options?.otpOptions?.period || 60 * 5;
+            const maxAge = (options?.otpOptions?.period ?? 3) * 60;
             const twoFactorCookie = ctx.context.createAuthCookie(
               TWO_FACTOR_COOKIE_NAME,
               {

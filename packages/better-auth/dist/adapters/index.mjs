@@ -1,20 +1,22 @@
-export { c as createAdapter } from '../shared/better-auth.Dpv9J4ny.mjs';
-import '../shared/better-auth.tB5eU6EY.mjs';
-import '../shared/better-auth.0TC26uRi.mjs';
-import '../shared/better-auth.DORkW_Ge.mjs';
+import { c as createAdapterFactory } from '../shared/better-auth.BrEH5bcK.mjs';
+import '../shared/better-auth.BTrSrKsi.mjs';
+import '../shared/better-auth.DgGir396.mjs';
+import '../shared/better-auth.CiuwFiHM.mjs';
+import '../shared/better-auth.DhziC0ap.mjs';
 import '../shared/better-auth.BUPPRXfK.mjs';
 import '@better-auth/utils/random';
 import 'zod';
 import 'better-call';
 import '@better-auth/utils/hash';
-import '@noble/ciphers/chacha';
-import '@noble/ciphers/utils';
-import '@noble/ciphers/webcrypto';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
 import '@better-auth/utils/base64';
 import 'jose';
-import '@noble/hashes/scrypt';
-import '@better-auth/utils';
+import '@noble/hashes/scrypt.js';
 import '@better-auth/utils/hex';
-import '@noble/hashes/utils';
+import '@noble/hashes/utils.js';
 import '../shared/better-auth.B4Qoxdgc.mjs';
-import '../shared/better-auth.Cqykj82J.mjs';
+
+const createAdapter = createAdapterFactory;
+
+export { createAdapter, createAdapterFactory };

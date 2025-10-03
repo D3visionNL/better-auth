@@ -1,45 +1,46 @@
-import '../shared/better-auth.8zoxzg-F.mjs';
+import '../shared/better-auth.CiuwFiHM.mjs';
 import '@better-auth/utils/base64';
 import '@better-auth/utils/hmac';
-import { parseSetCookieHeader } from '../cookies/index.mjs';
+import '../shared/better-auth.DgGir396.mjs';
+import '@better-auth/utils/binary';
+import { p as parseSetCookieHeader } from '../shared/better-auth.L4mY8Wf-.mjs';
 import 'better-call';
 import 'zod';
-import { c as createAuthMiddleware } from '../shared/better-auth.c4QO78Xh.mjs';
-import '../shared/better-auth.Cc72UxUH.mjs';
-import '../shared/better-auth.B07VZSbw.mjs';
-import '../plugins/organization/access/index.mjs';
-import '../shared/better-auth.B4Qoxdgc.mjs';
-import '../shared/better-auth.Cqykj82J.mjs';
-import 'defu';
+import { c as createAuthMiddleware } from '../shared/better-auth.D_jpufHc.mjs';
+import '../shared/better-auth.CpZXDeOc.mjs';
+import '@better-auth/core/db';
+import '../shared/better-auth.BZghgUMh.mjs';
+import '@better-auth/utils/random';
 import '@better-auth/utils/hash';
-import '@noble/ciphers/chacha';
-import '@noble/ciphers/utils';
-import '@noble/ciphers/webcrypto';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
 import 'jose';
-import '@noble/hashes/scrypt';
-import '@better-auth/utils';
+import '@noble/hashes/scrypt.js';
 import '@better-auth/utils/hex';
-import '@noble/hashes/utils';
+import '@noble/hashes/utils.js';
+import '../shared/better-auth.B4Qoxdgc.mjs';
+import 'kysely';
+import '../shared/better-auth.AiorGAx9.mjs';
+import '../plugins/organization/access/index.mjs';
 import '@better-auth/utils/otp';
 import '../plugins/admin/access/index.mjs';
 import '@better-fetch/fetch';
-import '@better-auth/utils/random';
-import '../shared/better-auth.fsvwNeUx.mjs';
-import 'kysely';
+import '@better-auth/utils';
+import '../plugins/custom-session/index.mjs';
+import '@noble/hashes/sha3.js';
+import '../plugins/device-authorization/index.mjs';
 import '../shared/better-auth.DdzSJf-n.mjs';
 import '../shared/better-auth.CW6D9eSx.mjs';
-import '../shared/better-auth.tB5eU6EY.mjs';
-import '../shared/better-auth.VTXNLFMT.mjs';
-import '../shared/better-auth.dn8_oqOu.mjs';
-import '../social-providers/index.mjs';
-import '../shared/better-auth.DufyW0qf.mjs';
-import '../shared/better-auth.BUPPRXfK.mjs';
-import '../shared/better-auth.DDEbWX-S.mjs';
+import '../shared/better-auth.BTrSrKsi.mjs';
+import '../shared/better-auth.BAQSo96z.mjs';
+import '../shared/better-auth.D2xndZ2p.mjs';
+import '../crypto/index.mjs';
 import 'jose/errors';
-import '@better-auth/utils/binary';
-import '../shared/better-auth.ffWeg50w.mjs';
-import '../shared/better-auth.OuYYTHC7.mjs';
+import '../shared/better-auth.BUPPRXfK.mjs';
+import 'defu';
 import '../plugins/access/index.mjs';
+import '../shared/better-auth.DQI8AD7d.mjs';
+import '../shared/better-auth.BpA03GIs.mjs';
 
 function toNextJsHandler(auth) {
   const handler = async (request) => {
@@ -69,7 +70,17 @@ const nextCookies = () => {
               if (!setCookies) return;
               const parsed = parseSetCookieHeader(setCookies);
               const { cookies } = await import('next/headers');
-              const cookieHelper = await cookies();
+              let cookieHelper;
+              try {
+                cookieHelper = await cookies();
+              } catch (error) {
+                if (error instanceof Error && error.message.startsWith(
+                  "`cookies` was called outside a request scope."
+                )) {
+                  return;
+                }
+                throw error;
+              }
               parsed.forEach((value, key) => {
                 if (!key) return;
                 const opts = {

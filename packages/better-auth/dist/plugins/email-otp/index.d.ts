@@ -1,12 +1,14 @@
-import { z } from 'zod';
 import * as better_call from 'better-call';
-import { H as HookEndpointContext } from '../../shared/better-auth.BNRr97iY.js';
-import '../../shared/better-auth.Bi8FQwDD.js';
-import '../../shared/better-auth.ByC0y0O-.js';
-import 'jose';
+import { d as AuthContext, U as User, H as HookEndpointContext } from '../../shared/better-auth.HOXfa1Ev.js';
+import * as z from 'zod';
+import '../../shared/better-auth.4SXCyo06.js';
+import '../../shared/better-auth.DTtXpZYr.js';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface EmailOTPOptions {
     /**
@@ -35,7 +37,7 @@ interface EmailOTPOptions {
     generateOTP?: (data: {
         email: string;
         type: "sign-in" | "email-verification" | "forget-password";
-    }, request?: Request) => string;
+    }, request?: Request) => string | undefined;
     /**
      * Send email verification on sign-up
      *
@@ -54,81 +56,39 @@ interface EmailOTPOptions {
      * @default 3
      */
     allowedAttempts?: number;
+    /**
+     * Store the OTP in your database in a secure way
+     * Note: This will not affect the OTP sent to the user, it will only affect the OTP stored in your database
+     *
+     * @default "plain"
+     */
+    storeOTP?: "hashed" | "plain" | "encrypted" | {
+        hash: (otp: string) => Promise<string>;
+    } | {
+        encrypt: (otp: string) => Promise<string>;
+        decrypt: (otp: string) => Promise<string>;
+    };
+    /**
+     * Override the default email verification to use email otp instead
+     *
+     * @default false
+     */
+    overrideDefaultEmailVerification?: boolean;
 }
 declare const emailOTP: (options: EmailOTPOptions) => {
     id: "email-otp";
-    endpoints: {
-        sendVerificationOTP: {
-            <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
-                body: {
-                    email: string;
-                    type: "sign-in" | "forget-password" | "email-verification";
-                };
-            } & {
-                method?: "POST" | undefined;
-            } & {
-                query?: Record<string, any> | undefined;
-            } & {
-                params?: Record<string, any>;
-            } & {
-                request?: Request;
-            } & {
-                headers?: HeadersInit;
-            } & {
-                asResponse?: boolean;
-                returnHeaders?: boolean;
-                use?: better_call.Middleware[];
-                path?: string;
-            } & {
-                asResponse?: AsResponse | undefined;
-                returnHeaders?: ReturnHeaders | undefined;
-            }): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
-                headers: Headers;
-                response: {
-                    success: boolean;
-                };
-            } : {
-                success: boolean;
-            }>;
-            options: {
-                method: "POST";
-                body: z.ZodObject<{
-                    email: z.ZodString;
-                    type: z.ZodEnum<["email-verification", "sign-in", "forget-password"]>;
-                }, "strip", z.ZodTypeAny, {
-                    email: string;
-                    type: "sign-in" | "forget-password" | "email-verification";
-                }, {
-                    email: string;
-                    type: "sign-in" | "forget-password" | "email-verification";
-                }>;
-                metadata: {
-                    openapi: {
-                        description: string;
-                        responses: {
-                            200: {
-                                description: string;
-                                content: {
-                                    "application/json": {
-                                        schema: {
-                                            type: "object";
-                                            properties: {
-                                                success: {
-                                                    type: string;
-                                                };
-                                            };
-                                        };
-                                    };
-                                };
-                            };
-                        };
-                    };
-                };
-            } & {
-                use: any[];
+    init(ctx: AuthContext): {
+        options: {
+            emailVerification: {
+                sendVerificationEmail(data: {
+                    user: User;
+                    url: string;
+                    token: string;
+                }, request: Request | undefined): Promise<void>;
             };
-            path: "/email-otp/send-verification-otp";
         };
+    } | undefined;
+    endpoints: {
         createVerificationOTP: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -161,14 +121,12 @@ declare const emailOTP: (options: EmailOTPOptions) => {
                 method: "POST";
                 body: z.ZodObject<{
                     email: z.ZodString;
-                    type: z.ZodEnum<["email-verification", "sign-in", "forget-password"]>;
-                }, "strip", z.ZodTypeAny, {
-                    email: string;
-                    type: "sign-in" | "forget-password" | "email-verification";
-                }, {
-                    email: string;
-                    type: "sign-in" | "forget-password" | "email-verification";
-                }>;
+                    type: z.ZodEnum<{
+                        "sign-in": "sign-in";
+                        "forget-password": "forget-password";
+                        "email-verification": "email-verification";
+                    }>;
+                }, z.core.$strip>;
                 metadata: {
                     SERVER_ONLY: true;
                     openapi: {
@@ -192,6 +150,18 @@ declare const emailOTP: (options: EmailOTPOptions) => {
             };
             path: "/email-otp/create-verification-otp";
         };
+        /**
+         * ### Endpoint
+         *
+         * GET `/email-otp/get-verification-otp`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.getVerificationOTP`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/email-otp#api-method-email-otp-get-verification-otp)
+         */
         getVerificationOTP: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body?: undefined;
@@ -232,14 +202,12 @@ declare const emailOTP: (options: EmailOTPOptions) => {
                 method: "GET";
                 query: z.ZodObject<{
                     email: z.ZodString;
-                    type: z.ZodEnum<["email-verification", "sign-in", "forget-password"]>;
-                }, "strip", z.ZodTypeAny, {
-                    email: string;
-                    type: "sign-in" | "forget-password" | "email-verification";
-                }, {
-                    email: string;
-                    type: "sign-in" | "forget-password" | "email-verification";
-                }>;
+                    type: z.ZodEnum<{
+                        "sign-in": "sign-in";
+                        "forget-password": "forget-password";
+                        "email-verification": "email-verification";
+                    }>;
+                }, z.core.$strip>;
                 metadata: {
                     SERVER_ONLY: true;
                     openapi: {
@@ -271,6 +239,104 @@ declare const emailOTP: (options: EmailOTPOptions) => {
             };
             path: "/email-otp/get-verification-otp";
         };
+        /**
+         * ### Endpoint
+         *
+         * GET `/email-otp/check-verification-otp`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.checkVerificationOTP`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/email-otp#api-method-email-otp-check-verification-otp)
+         */
+        checkVerificationOTP: {
+            <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
+                body: {
+                    email: string;
+                    type: "sign-in" | "forget-password" | "email-verification";
+                    otp: string;
+                };
+            } & {
+                method?: "POST" | undefined;
+            } & {
+                query?: Record<string, any> | undefined;
+            } & {
+                params?: Record<string, any>;
+            } & {
+                request?: Request;
+            } & {
+                headers?: HeadersInit;
+            } & {
+                asResponse?: boolean;
+                returnHeaders?: boolean;
+                use?: better_call.Middleware[];
+                path?: string;
+            } & {
+                asResponse?: AsResponse | undefined;
+                returnHeaders?: ReturnHeaders | undefined;
+            }): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
+                headers: Headers;
+                response: {
+                    success: boolean;
+                };
+            } : {
+                success: boolean;
+            }>;
+            options: {
+                method: "POST";
+                body: z.ZodObject<{
+                    email: z.ZodString;
+                    type: z.ZodEnum<{
+                        "sign-in": "sign-in";
+                        "forget-password": "forget-password";
+                        "email-verification": "email-verification";
+                    }>;
+                    otp: z.ZodString;
+                }, z.core.$strip>;
+                metadata: {
+                    openapi: {
+                        description: string;
+                        responses: {
+                            200: {
+                                description: string;
+                                content: {
+                                    "application/json": {
+                                        schema: {
+                                            type: "object";
+                                            properties: {
+                                                success: {
+                                                    type: string;
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            } & {
+                use: any[];
+            };
+            path: "/email-otp/check-verification-otp";
+        };
+        /**
+         * ### Endpoint
+         *
+         * POST `/email-otp/verify-email`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.verifyEmailOTP`
+         *
+         * **client:**
+         * `authClient.emailOtp.verifyEmail`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/email-otp#api-method-email-otp-verify-email)
+         */
         verifyEmailOTP: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -352,13 +418,7 @@ declare const emailOTP: (options: EmailOTPOptions) => {
                 body: z.ZodObject<{
                     email: z.ZodString;
                     otp: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    email: string;
-                    otp: string;
-                }, {
-                    email: string;
-                    otp: string;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -397,6 +457,21 @@ declare const emailOTP: (options: EmailOTPOptions) => {
             };
             path: "/email-otp/verify-email";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/sign-in/email-otp`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.signInEmailOTP`
+         *
+         * **client:**
+         * `authClient.signIn.emailOtp`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/email-otp#api-method-sign-in-email-otp)
+         */
         signInEmailOTP: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -452,13 +527,7 @@ declare const emailOTP: (options: EmailOTPOptions) => {
                 body: z.ZodObject<{
                     email: z.ZodString;
                     otp: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    email: string;
-                    otp: string;
-                }, {
-                    email: string;
-                    otp: string;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -491,6 +560,21 @@ declare const emailOTP: (options: EmailOTPOptions) => {
             };
             path: "/sign-in/email-otp";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/forget-password/email-otp`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.forgetPasswordEmailOTP`
+         *
+         * **client:**
+         * `authClient.forgetPassword.emailOtp`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/email-otp#api-method-forget-password-email-otp)
+         */
         forgetPasswordEmailOTP: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -526,11 +610,7 @@ declare const emailOTP: (options: EmailOTPOptions) => {
                 method: "POST";
                 body: z.ZodObject<{
                     email: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    email: string;
-                }, {
-                    email: string;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -559,12 +639,27 @@ declare const emailOTP: (options: EmailOTPOptions) => {
             };
             path: "/forget-password/email-otp";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/email-otp/reset-password`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.resetPasswordEmailOTP`
+         *
+         * **client:**
+         * `authClient.emailOtp.resetPassword`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/email-otp#api-method-email-otp-reset-password)
+         */
         resetPasswordEmailOTP: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
-                    password: string;
                     email: string;
                     otp: string;
+                    password: string;
                 };
             } & {
                 method?: "POST" | undefined;
@@ -598,15 +693,91 @@ declare const emailOTP: (options: EmailOTPOptions) => {
                     email: z.ZodString;
                     otp: z.ZodString;
                     password: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    password: string;
+                }, z.core.$strip>;
+                metadata: {
+                    openapi: {
+                        description: string;
+                        responses: {
+                            200: {
+                                description: string;
+                                contnt: {
+                                    "application/json": {
+                                        schema: {
+                                            type: string;
+                                            properties: {
+                                                success: {
+                                                    type: string;
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            } & {
+                use: any[];
+            };
+            path: "/email-otp/reset-password";
+        };
+        /**
+         * ### Endpoint
+         *
+         * POST `/email-otp/send-verification-otp`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.sendVerificationOTP`
+         *
+         * **client:**
+         * `authClient.emailOtp.sendVerificationOtp`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/email-otp#api-method-email-otp-send-verification-otp)
+         */
+        sendVerificationOTP: {
+            <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
+                body: {
                     email: string;
-                    otp: string;
-                }, {
-                    password: string;
-                    email: string;
-                    otp: string;
-                }>;
+                    type: "sign-in" | "forget-password" | "email-verification";
+                };
+            } & {
+                method?: "POST" | undefined;
+            } & {
+                query?: Record<string, any> | undefined;
+            } & {
+                params?: Record<string, any>;
+            } & {
+                request?: Request;
+            } & {
+                headers?: HeadersInit;
+            } & {
+                asResponse?: boolean;
+                returnHeaders?: boolean;
+                use?: better_call.Middleware[];
+                path?: string;
+            } & {
+                asResponse?: AsResponse | undefined;
+                returnHeaders?: ReturnHeaders | undefined;
+            }): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
+                headers: Headers;
+                response: {
+                    success: boolean;
+                };
+            } : {
+                success: boolean;
+            }>;
+            options: {
+                method: "POST";
+                body: z.ZodObject<{
+                    email: z.ZodString;
+                    type: z.ZodEnum<{
+                        "sign-in": "sign-in";
+                        "forget-password": "forget-password";
+                        "email-verification": "email-verification";
+                    }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -632,7 +803,7 @@ declare const emailOTP: (options: EmailOTPOptions) => {
             } & {
                 use: any[];
             };
-            path: "/email-otp/reset-password";
+            path: "/email-otp/send-verification-otp";
         };
     };
     hooks: {
@@ -653,6 +824,10 @@ declare const emailOTP: (options: EmailOTPOptions) => {
         window: number;
         max: number;
     } | {
+        pathMatcher(path: string): path is "/email-otp/check-verification-otp";
+        window: number;
+        max: number;
+    } | {
         pathMatcher(path: string): path is "/email-otp/verify-email";
         window: number;
         max: number;
@@ -663,4 +838,5 @@ declare const emailOTP: (options: EmailOTPOptions) => {
     })[];
 };
 
-export { type EmailOTPOptions, emailOTP };
+export { emailOTP };
+export type { EmailOTPOptions };

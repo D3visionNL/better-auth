@@ -1,36 +1,29 @@
 'use strict';
 
-const index = require('../../shared/better-auth.Be27qhjB.cjs');
 const index$1 = require('../../shared/better-auth.ANpbi45u.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
-require('../../shared/better-auth.CUdxApHl.cjs');
-require('../../shared/better-auth.BEphVDyL.cjs');
+const index = require('../../shared/better-auth.B3DNJnq5.cjs');
+require('../../shared/better-auth.Jlhc86WK.cjs');
+require('../../shared/better-auth.BToNb2fI.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
+require('../../shared/better-auth.S3hDEI-1.cjs');
 require('../../shared/better-auth.Bg6iw3ig.cjs');
 require('@better-auth/utils/random');
 require('zod');
 require('better-call');
 require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
 require('@better-auth/utils/base64');
 require('jose');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+require('@noble/hashes/scrypt.js');
 require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
+require('@noble/hashes/utils.js');
 require('../../shared/better-auth.CYeOI8C-.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
 
-const prismaAdapter = (prisma, config) => index.createAdapter({
-  config: {
-    adapterId: "prisma",
-    adapterName: "Prisma Adapter",
-    usePlural: config.usePlural ?? false,
-    debugLogs: config.debugLogs ?? false
-  },
-  adapter: ({ getFieldName }) => {
-    const db = prisma;
+const prismaAdapter = (prisma, config) => {
+  let lazyOptions = null;
+  const createCustomAdapter = (prisma2) => ({ getFieldName }) => {
+    const db = prisma2;
     const convertSelect = (select, model) => {
       if (!select || !model) return void 0;
       return select.reduce((prev, cur) => {
@@ -46,12 +39,16 @@ const prismaAdapter = (prisma, config) => index.createAdapter({
           return "startsWith";
         case "ends_with":
           return "endsWith";
+        case "ne":
+          return "not";
+        case "not_in":
+          return "notIn";
         default:
           return operator;
       }
     }
     const convertWhereClause = (model, where) => {
-      if (!where) return {};
+      if (!where || !where.length) return {};
       if (where.length === 1) {
         const w = where[0];
         if (!w) {
@@ -74,8 +71,8 @@ const prismaAdapter = (prisma, config) => index.createAdapter({
       });
       const orClause = or.map((w) => {
         return {
-          [getFieldName({ model, field: w.field })]: {
-            [w.operator || "eq"]: w.value
+          [getFieldName({ model, field: w.field })]: w.operator === "eq" || !w.operator ? w.value : {
+            [operatorToPrismaOperator(w.operator)]: w.value
           }
         };
       });
@@ -175,7 +172,29 @@ const prismaAdapter = (prisma, config) => index.createAdapter({
       },
       options: config
     };
-  }
-});
+  };
+  let adapterOptions = null;
+  adapterOptions = {
+    config: {
+      adapterId: "prisma",
+      adapterName: "Prisma Adapter",
+      usePlural: config.usePlural ?? false,
+      debugLogs: config.debugLogs ?? false,
+      transaction: config.transaction ?? false ? (cb) => prisma.$transaction((tx) => {
+        const adapter2 = index.createAdapterFactory({
+          config: adapterOptions.config,
+          adapter: createCustomAdapter(tx)
+        })(lazyOptions);
+        return cb(adapter2);
+      }) : false
+    },
+    adapter: createCustomAdapter(prisma)
+  };
+  const adapter = index.createAdapterFactory(adapterOptions);
+  return (options) => {
+    lazyOptions = options;
+    return adapter(options);
+  };
+};
 
 exports.prismaAdapter = prismaAdapter;

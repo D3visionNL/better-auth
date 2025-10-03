@@ -1,54 +1,65 @@
-export { InferInvitation, InferMember, InferOrganizationRolesFromOption, InferOrganizationZodRolesFromOption, Invitation, InvitationInput, InvitationStatus, Member, MemberInput, Organization, OrganizationInput, OrganizationOptions, Team, TeamInput, invitationSchema, invitationStatus, memberSchema, organization, organizationSchema, parseRoles, role, teamSchema } from './organization/index.mjs';
+export { InferInvitation, InferMember, InferOrganization, InferOrganizationRolesFromOption, InferOrganizationZodRolesFromOption, InferTeam, Invitation, InvitationInput, InvitationStatus, Member, MemberInput, Organization, OrganizationInput, OrganizationOptions, OrganizationRole, Team, TeamInput, TeamMember, TeamMemberInput, defaultRolesSchema, invitationSchema, invitationStatus, memberSchema, organization, organizationRoleSchema, organizationSchema, parseRoles, role, teamMemberSchema, teamSchema } from './organization/index.mjs';
 export { adminAc, defaultAc, defaultRoles, defaultStatements, memberAc, ownerAc } from './organization/access/index.mjs';
 export { TWO_FACTOR_ERROR_CODES, TwoFactorOptions, TwoFactorProvider, TwoFactorTable, UserWithTwoFactor, twoFactor, twoFactorClient } from './two-factor/index.mjs';
 export { USERNAME_ERROR_CODES, UsernameOptions, username } from './username/index.mjs';
 export { bearer } from './bearer/index.mjs';
-import { G as GenericEndpointContext } from '../shared/better-auth.kHOzQ3TU.mjs';
-export { l as AuthEndpoint, m as AuthMiddleware, g as AuthPluginSchema, h as BetterAuthPlugin, I as InferOptionSchema, i as InferPluginErrorCodes, k as createAuthEndpoint, j as createAuthMiddleware, o as optionsMiddleware } from '../shared/better-auth.kHOzQ3TU.mjs';
+import { G as GenericEndpointContext, B as BetterAuthOptions, d as AuthContext } from '../shared/better-auth.DUREkDBM.mjs';
+export { t as AuthEndpoint, u as AuthMiddleware, m as AuthPluginSchema, n as BetterAuthPlugin, I as InferOptionSchema, o as InferPluginErrorCodes, r as createAuthEndpoint, q as createAuthMiddleware, p as optionsMiddleware } from '../shared/better-auth.DUREkDBM.mjs';
 export { H as HIDE_METADATA } from '../shared/better-auth.DEHJp1rk.mjs';
 export { magicLink } from './magic-link/index.mjs';
 export { PhoneNumberOptions, UserWithPhoneNumber, phoneNumber } from './phone-number/index.mjs';
 export { AnonymousOptions, UserWithAnonymous, anonymous } from './anonymous/index.mjs';
 export { AdminOptions, InferAdminRolesFromOption, SessionWithImpersonatedBy, UserWithRole, admin } from './admin/index.mjs';
 export { GenericOAuthConfig, genericOAuth } from './generic-oauth/index.mjs';
-export { JwtOptions, getJwtToken, jwt } from './jwt/index.mjs';
+export { JWKOptions, JWSAlgorithms, Jwk, JwtOptions, createJwk, generateExportedKeyPair, getJwtToken, jwt } from './jwt/index.mjs';
 export { multiSession } from './multi-session/index.mjs';
 export { EmailOTPOptions, emailOTP } from './email-otp/index.mjs';
 export { oneTap } from './one-tap/index.mjs';
 export { oAuthProxy } from './oauth-proxy/index.mjs';
-export { customSession } from './custom-session/index.mjs';
+export { CustomSessionPluginOptions, customSession } from './custom-session/index.mjs';
 export { OpenAPIOptions, Path, generator, openAPI } from './open-api/index.mjs';
 import { OIDCOptions, OIDCMetadata, OAuthAccessToken } from './oidc-provider/index.mjs';
-export { AuthorizationQuery, Client, CodeVerificationValue, TokenBody, getMetadata, oidcProvider } from './oidc-provider/index.mjs';
+export { AuthorizationQuery, Client, CodeVerificationValue, TokenBody, getClient, getMetadata, oidcProvider } from './oidc-provider/index.mjs';
 export { captcha } from './captcha/index.mjs';
-export { A as API_KEY_TABLE_NAME, E as ERROR_CODES, a as apiKey, d as defaultKeyHasher } from '../shared/better-auth.DCH7RxHm.mjs';
+export { A as API_KEY_TABLE_NAME, E as ERROR_CODES, a as apiKey, d as defaultKeyHasher } from '../shared/better-auth.CPxTiBk4.mjs';
 export { HaveIBeenPwnedOptions, haveIBeenPwned } from './haveibeenpwned/index.mjs';
 export { oneTimeToken } from './one-time-token/index.mjs';
 import * as better_call from 'better-call';
-import { z } from 'zod';
+import * as z from 'zod';
+export { SIWEPluginOptions, siwe } from './siwe/index.mjs';
+export { $deviceAuthorizationOptionsSchema, DeviceAuthorizationOptions, deviceAuthorization, deviceAuthorizationClient } from './device-authorization/index.mjs';
+import '@better-auth/core/db';
 import './access/index.mjs';
-import '../shared/better-auth.Bi8FQwDD.mjs';
+import '../shared/better-auth.DTtXpZYr.mjs';
 import '@better-fetch/fetch';
-import '../shared/better-auth.CggyDr6H.mjs';
-import 'jose';
+import '../shared/better-auth.XefKa8DI.mjs';
 import 'kysely';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
+import 'jose';
 
 interface MCPOptions {
     loginPage: string;
+    resource?: string;
     oidcConfig?: OIDCOptions;
 }
 declare const getMCPProviderMetadata: (ctx: GenericEndpointContext, options?: OIDCOptions) => OIDCMetadata;
+declare const getMCPProtectedResourceMetadata: (ctx: GenericEndpointContext, options?: MCPOptions) => {
+    resource: string;
+    authorization_servers: string[];
+    jwks_uri: string;
+    scopes_supported: string[];
+    bearer_methods_supported: string[];
+    resource_signing_alg_values_supported: string[];
+};
 declare const mcp: (options: MCPOptions) => {
     id: "mcp";
     hooks: {
         after: {
             matcher(): true;
-            handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<void | {
-                redirect: boolean;
-                url: any;
-            }>;
+            handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<void>;
         }[];
     };
     endpoints: {
@@ -87,7 +98,56 @@ declare const mcp: (options: MCPOptions) => {
             };
             path: "/.well-known/oauth-authorization-server";
         };
-        mcpOAuthAuthroize: {
+        getMCPProtectedResource: {
+            <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0?: ({
+                body?: undefined;
+            } & {
+                method?: "GET" | undefined;
+            } & {
+                query?: Record<string, any> | undefined;
+            } & {
+                params?: Record<string, any>;
+            } & {
+                request?: Request;
+            } & {
+                headers?: HeadersInit;
+            } & {
+                asResponse?: boolean;
+                returnHeaders?: boolean;
+                use?: better_call.Middleware[];
+                path?: string;
+            } & {
+                asResponse?: AsResponse | undefined;
+                returnHeaders?: ReturnHeaders | undefined;
+            }) | undefined): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
+                headers: Headers;
+                response: {
+                    resource: string;
+                    authorization_servers: string[];
+                    jwks_uri: string;
+                    scopes_supported: string[];
+                    bearer_methods_supported: string[];
+                    resource_signing_alg_values_supported: string[];
+                };
+            } : {
+                resource: string;
+                authorization_servers: string[];
+                jwks_uri: string;
+                scopes_supported: string[];
+                bearer_methods_supported: string[];
+                resource_signing_alg_values_supported: string[];
+            }>;
+            options: {
+                method: "GET";
+                metadata: {
+                    client: boolean;
+                };
+            } & {
+                use: any[];
+            };
+            path: "/.well-known/oauth-protected-resource";
+        };
+        mcpOAuthAuthorize: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body?: undefined;
             } & {
@@ -141,7 +201,7 @@ declare const mcp: (options: MCPOptions) => {
         };
         mcpOAuthToken: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
-                body: Record<string, any>;
+                body: Record<any, any>;
             } & {
                 method?: "POST" | undefined;
             } & {
@@ -192,7 +252,7 @@ declare const mcp: (options: MCPOptions) => {
             }>;
             options: {
                 method: "POST";
-                body: z.ZodRecord<z.ZodString, z.ZodAny>;
+                body: z.ZodRecord<z.ZodAny, z.ZodAny>;
                 metadata: {
                     isAction: boolean;
                 };
@@ -205,19 +265,19 @@ declare const mcp: (options: MCPOptions) => {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
                     redirect_uris: string[];
-                    metadata?: Record<string, any> | undefined;
-                    scope?: string | undefined;
-                    jwks?: Record<string, any> | undefined;
-                    jwks_uri?: string | undefined;
                     token_endpoint_auth_method?: "none" | "client_secret_basic" | "client_secret_post" | undefined;
-                    grant_types?: ("password" | "refresh_token" | "authorization_code" | "implicit" | "client_credentials" | "urn:ietf:params:oauth:grant-type:jwt-bearer" | "urn:ietf:params:oauth:grant-type:saml2-bearer")[] | undefined;
+                    grant_types?: ("authorization_code" | "password" | "refresh_token" | "implicit" | "client_credentials" | "urn:ietf:params:oauth:grant-type:jwt-bearer" | "urn:ietf:params:oauth:grant-type:saml2-bearer")[] | undefined;
                     response_types?: ("code" | "token")[] | undefined;
                     client_name?: string | undefined;
                     client_uri?: string | undefined;
                     logo_uri?: string | undefined;
+                    scope?: string | undefined;
                     contacts?: string[] | undefined;
                     tos_uri?: string | undefined;
                     policy_uri?: string | undefined;
+                    jwks_uri?: string | undefined;
+                    jwks?: Record<string, any> | undefined;
+                    metadata?: Record<any, any> | undefined;
                     software_id?: string | undefined;
                     software_version?: string | undefined;
                     software_statement?: string | undefined;
@@ -242,109 +302,44 @@ declare const mcp: (options: MCPOptions) => {
                 returnHeaders?: ReturnHeaders | undefined;
             }): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
                 headers: Headers;
-                response: {
-                    client_id: string;
-                    client_secret: string;
-                    client_id_issued_at: number;
-                    client_secret_expires_at: number;
-                    redirect_uris: string[];
-                    token_endpoint_auth_method: "none" | "client_secret_basic" | "client_secret_post";
-                    grant_types: string[];
-                    response_types: string[];
-                    client_name: string | undefined;
-                    client_uri: string | undefined;
-                    logo_uri: string | undefined;
-                    scope: string | undefined;
-                    contacts: string[] | undefined;
-                    tos_uri: string | undefined;
-                    policy_uri: string | undefined;
-                    jwks_uri: string | undefined;
-                    jwks: Record<string, any> | undefined;
-                    software_id: string | undefined;
-                    software_version: string | undefined;
-                    software_statement: string | undefined;
-                    metadata: Record<string, any> | undefined;
-                };
-            } : {
-                client_id: string;
-                client_secret: string;
-                client_id_issued_at: number;
-                client_secret_expires_at: number;
-                redirect_uris: string[];
-                token_endpoint_auth_method: "none" | "client_secret_basic" | "client_secret_post";
-                grant_types: string[];
-                response_types: string[];
-                client_name: string | undefined;
-                client_uri: string | undefined;
-                logo_uri: string | undefined;
-                scope: string | undefined;
-                contacts: string[] | undefined;
-                tos_uri: string | undefined;
-                policy_uri: string | undefined;
-                jwks_uri: string | undefined;
-                jwks: Record<string, any> | undefined;
-                software_id: string | undefined;
-                software_version: string | undefined;
-                software_statement: string | undefined;
-                metadata: Record<string, any> | undefined;
-            }>;
+                response: Response;
+            } : Response>;
             options: {
                 method: "POST";
                 body: z.ZodObject<{
-                    redirect_uris: z.ZodArray<z.ZodString, "many">;
-                    token_endpoint_auth_method: z.ZodOptional<z.ZodDefault<z.ZodEnum<["none", "client_secret_basic", "client_secret_post"]>>>;
-                    grant_types: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodEnum<["authorization_code", "implicit", "password", "client_credentials", "refresh_token", "urn:ietf:params:oauth:grant-type:jwt-bearer", "urn:ietf:params:oauth:grant-type:saml2-bearer"]>, "many">>>;
-                    response_types: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodEnum<["code", "token"]>, "many">>>;
+                    redirect_uris: z.ZodArray<z.ZodString>;
+                    token_endpoint_auth_method: z.ZodOptional<z.ZodDefault<z.ZodEnum<{
+                        none: "none";
+                        client_secret_basic: "client_secret_basic";
+                        client_secret_post: "client_secret_post";
+                    }>>>;
+                    grant_types: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodEnum<{
+                        authorization_code: "authorization_code";
+                        password: "password";
+                        refresh_token: "refresh_token";
+                        implicit: "implicit";
+                        client_credentials: "client_credentials";
+                        "urn:ietf:params:oauth:grant-type:jwt-bearer": "urn:ietf:params:oauth:grant-type:jwt-bearer";
+                        "urn:ietf:params:oauth:grant-type:saml2-bearer": "urn:ietf:params:oauth:grant-type:saml2-bearer";
+                    }>>>>;
+                    response_types: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodEnum<{
+                        code: "code";
+                        token: "token";
+                    }>>>>;
                     client_name: z.ZodOptional<z.ZodString>;
                     client_uri: z.ZodOptional<z.ZodString>;
                     logo_uri: z.ZodOptional<z.ZodString>;
                     scope: z.ZodOptional<z.ZodString>;
-                    contacts: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+                    contacts: z.ZodOptional<z.ZodArray<z.ZodString>>;
                     tos_uri: z.ZodOptional<z.ZodString>;
                     policy_uri: z.ZodOptional<z.ZodString>;
                     jwks_uri: z.ZodOptional<z.ZodString>;
                     jwks: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
-                    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+                    metadata: z.ZodOptional<z.ZodRecord<z.ZodAny, z.ZodAny>>;
                     software_id: z.ZodOptional<z.ZodString>;
                     software_version: z.ZodOptional<z.ZodString>;
                     software_statement: z.ZodOptional<z.ZodString>;
-                }, "strip", z.ZodTypeAny, {
-                    redirect_uris: string[];
-                    metadata?: Record<string, any> | undefined;
-                    scope?: string | undefined;
-                    jwks?: Record<string, any> | undefined;
-                    jwks_uri?: string | undefined;
-                    token_endpoint_auth_method?: "none" | "client_secret_basic" | "client_secret_post" | undefined;
-                    grant_types?: ("password" | "refresh_token" | "authorization_code" | "implicit" | "client_credentials" | "urn:ietf:params:oauth:grant-type:jwt-bearer" | "urn:ietf:params:oauth:grant-type:saml2-bearer")[] | undefined;
-                    response_types?: ("code" | "token")[] | undefined;
-                    client_name?: string | undefined;
-                    client_uri?: string | undefined;
-                    logo_uri?: string | undefined;
-                    contacts?: string[] | undefined;
-                    tos_uri?: string | undefined;
-                    policy_uri?: string | undefined;
-                    software_id?: string | undefined;
-                    software_version?: string | undefined;
-                    software_statement?: string | undefined;
-                }, {
-                    redirect_uris: string[];
-                    metadata?: Record<string, any> | undefined;
-                    scope?: string | undefined;
-                    jwks?: Record<string, any> | undefined;
-                    jwks_uri?: string | undefined;
-                    token_endpoint_auth_method?: "none" | "client_secret_basic" | "client_secret_post" | undefined;
-                    grant_types?: ("password" | "refresh_token" | "authorization_code" | "implicit" | "client_credentials" | "urn:ietf:params:oauth:grant-type:jwt-bearer" | "urn:ietf:params:oauth:grant-type:saml2-bearer")[] | undefined;
-                    response_types?: ("code" | "token")[] | undefined;
-                    client_name?: string | undefined;
-                    client_uri?: string | undefined;
-                    logo_uri?: string | undefined;
-                    contacts?: string[] | undefined;
-                    tos_uri?: string | undefined;
-                    policy_uri?: string | undefined;
-                    software_id?: string | undefined;
-                    software_version?: string | undefined;
-                    software_statement?: string | undefined;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -470,43 +465,49 @@ declare const mcp: (options: MCPOptions) => {
             modelName: string;
             fields: {
                 name: {
-                    type: "string";
+                    type: string;
                 };
                 icon: {
-                    type: "string";
-                    required: false;
+                    type: string;
+                    required: boolean;
                 };
                 metadata: {
-                    type: "string";
-                    required: false;
+                    type: string;
+                    required: boolean;
                 };
                 clientId: {
-                    type: "string";
-                    unique: true;
+                    type: string;
+                    unique: boolean;
                 };
                 clientSecret: {
-                    type: "string";
+                    type: string;
+                    required: boolean;
                 };
                 redirectURLs: {
-                    type: "string";
+                    type: string;
                 };
                 type: {
-                    type: "string";
+                    type: string;
                 };
                 disabled: {
-                    type: "boolean";
-                    required: false;
-                    defaultValue: false;
+                    type: string;
+                    required: boolean;
+                    defaultValue: boolean;
                 };
                 userId: {
-                    type: "string";
-                    required: false;
+                    type: string;
+                    required: boolean;
+                    references: {
+                        model: string;
+                        field: string;
+                        onDelete: string;
+                    };
                 };
                 createdAt: {
-                    type: "date";
+                    type: string;
                 };
                 updatedAt: {
-                    type: "date";
+                    type: string;
                 };
             };
         };
@@ -514,34 +515,44 @@ declare const mcp: (options: MCPOptions) => {
             modelName: string;
             fields: {
                 accessToken: {
-                    type: "string";
-                    unique: true;
+                    type: string;
+                    unique: boolean;
                 };
                 refreshToken: {
-                    type: "string";
-                    unique: true;
+                    type: string;
+                    unique: boolean;
                 };
                 accessTokenExpiresAt: {
-                    type: "date";
+                    type: string;
                 };
                 refreshTokenExpiresAt: {
-                    type: "date";
+                    type: string;
                 };
                 clientId: {
-                    type: "string";
+                    type: string;
+                    references: {
+                        model: string;
+                        field: string;
+                        onDelete: string;
+                    };
                 };
                 userId: {
-                    type: "string";
-                    required: false;
+                    type: string;
+                    required: boolean;
+                    references: {
+                        model: string;
+                        field: string;
+                        onDelete: string;
+                    };
                 };
                 scopes: {
-                    type: "string";
+                    type: string;
                 };
                 createdAt: {
-                    type: "date";
+                    type: string;
                 };
                 updatedAt: {
-                    type: "date";
+                    type: string;
                 };
             };
         };
@@ -549,22 +560,32 @@ declare const mcp: (options: MCPOptions) => {
             modelName: string;
             fields: {
                 clientId: {
-                    type: "string";
+                    type: string;
+                    references: {
+                        model: string;
+                        field: string;
+                        onDelete: string;
+                    };
                 };
                 userId: {
-                    type: "string";
+                    type: string;
+                    references: {
+                        model: string;
+                        field: string;
+                        onDelete: string;
+                    };
                 };
                 scopes: {
-                    type: "string";
+                    type: string;
                 };
                 createdAt: {
-                    type: "date";
+                    type: string;
                 };
                 updatedAt: {
-                    type: "date";
+                    type: string;
                 };
                 consentGiven: {
-                    type: "boolean";
+                    type: string;
                 };
             };
         };
@@ -574,11 +595,121 @@ declare const withMcpAuth: <Auth extends {
     api: {
         getMcpSession: (...args: any) => Promise<OAuthAccessToken | null>;
     };
+    options: BetterAuthOptions;
 }>(auth: Auth, handler: (req: Request, sesssion: OAuthAccessToken) => Response | Promise<Response>) => (req: Request) => Promise<Response>;
 declare const oAuthDiscoveryMetadata: <Auth extends {
     api: {
         getMcpOAuthConfig: (...args: any) => any;
     };
 }>(auth: Auth) => (request: Request) => Promise<Response>;
+declare const oAuthProtectedResourceMetadata: <Auth extends {
+    api: {
+        getMCPProtectedResource: (...args: any) => any;
+    };
+}>(auth: Auth) => (request: Request) => Promise<Response>;
 
-export { OAuthAccessToken, OIDCMetadata, OIDCOptions, getMCPProviderMetadata, mcp, oAuthDiscoveryMetadata, withMcpAuth };
+/**
+ * Configuration for tracking different authentication methods
+ */
+interface LastLoginMethodOptions {
+    /**
+     * Name of the cookie to store the last login method
+     * @default "better-auth.last_used_login_method"
+     */
+    cookieName?: string;
+    /**
+     * Cookie expiration time in seconds
+     * @default 2592000 (30 days)
+     */
+    maxAge?: number;
+    /**
+     * Custom method to resolve the last login method
+     * @param ctx - The context from the hook
+     * @returns The last login method
+     */
+    customResolveMethod?: (ctx: GenericEndpointContext) => string | null;
+    /**
+     * Store the last login method in the database. This will create a new field in the user table.
+     * @default false
+     */
+    storeInDatabase?: boolean;
+    /**
+     * Custom schema for the plugin
+     * @default undefined
+     */
+    schema?: {
+        user?: {
+            lastLoginMethod?: string;
+        };
+    };
+}
+/**
+ * Plugin to track the last used login method
+ */
+declare const lastLoginMethod: <O extends LastLoginMethodOptions>(userConfig?: O) => {
+    id: "last-login-method";
+    init(ctx: AuthContext): {
+        options: {
+            databaseHooks: {
+                user: {
+                    create: {
+                        before(user: {
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
+                            image?: string | null | undefined;
+                        } & Record<string, unknown>, context: GenericEndpointContext | undefined): Promise<{
+                            data: {
+                                lastLoginMethod: any;
+                                id: string;
+                                createdAt: Date;
+                                updatedAt: Date;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image?: string | null | undefined;
+                            };
+                        } | undefined>;
+                    };
+                };
+                session: {
+                    create: {
+                        after(session: {
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            userId: string;
+                            expiresAt: Date;
+                            token: string;
+                            ipAddress?: string | null | undefined;
+                            userAgent?: string | null | undefined;
+                        } & Record<string, unknown>, context: GenericEndpointContext | undefined): Promise<void>;
+                    };
+                };
+            };
+        };
+    };
+    hooks: {
+        after: {
+            matcher(): true;
+            handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<void>;
+        }[];
+    };
+    schema: O["storeInDatabase"] extends true ? {
+        user: {
+            fields: {
+                lastLoginMethod: {
+                    type: "string";
+                    required: false;
+                    input: false;
+                };
+            };
+        };
+    } : undefined;
+};
+
+export { OAuthAccessToken, OIDCMetadata, OIDCOptions, getMCPProtectedResourceMetadata, getMCPProviderMetadata, lastLoginMethod, mcp, oAuthDiscoveryMetadata, oAuthProtectedResourceMetadata, withMcpAuth };
+export type { LastLoginMethodOptions };

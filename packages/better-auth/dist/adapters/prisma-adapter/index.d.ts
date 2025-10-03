@@ -1,12 +1,14 @@
-import { A as AdapterDebugLogs, B as BetterAuthOptions, a as Adapter } from '../../shared/better-auth.BNRr97iY.js';
-import '../../shared/better-auth.Bi8FQwDD.js';
+import { A as AdapterDebugLogs, B as BetterAuthOptions, a as Adapter } from '../../shared/better-auth.HOXfa1Ev.js';
+import '../../shared/better-auth.4SXCyo06.js';
+import '../../shared/better-auth.DTtXpZYr.js';
 import 'zod';
-import '../../shared/better-auth.ByC0y0O-.js';
-import 'jose';
 import 'kysely';
 import 'better-call';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface PrismaConfig {
     /**
@@ -25,9 +27,18 @@ interface PrismaConfig {
      * @default false
      */
     usePlural?: boolean;
+    /**
+     * Whether to execute multiple operations in a transaction.
+     *
+     * If the database doesn't support transactions,
+     * set this to `false` and operations will be executed sequentially.
+     * @default true
+     */
+    transaction?: boolean;
 }
 interface PrismaClient {
 }
 declare const prismaAdapter: (prisma: PrismaClient, config: PrismaConfig) => (options: BetterAuthOptions) => Adapter;
 
-export { type PrismaConfig, prismaAdapter };
+export { prismaAdapter };
+export type { PrismaConfig };

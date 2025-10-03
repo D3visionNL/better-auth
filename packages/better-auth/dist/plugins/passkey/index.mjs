@@ -1,37 +1,36 @@
 import { verifyAuthenticationResponse, verifyRegistrationResponse, generateAuthenticationOptions, generateRegistrationOptions } from '@simplewebauthn/server';
 import { APIError } from 'better-call';
 import { g as generateRandomString } from '../../shared/better-auth.B4Qoxdgc.mjs';
-import { z } from 'zod';
-import { a as createAuthEndpoint, s as sessionMiddleware, f as freshSessionMiddleware, g as getSessionFromCtx } from '../../shared/better-auth.c4QO78Xh.mjs';
-import { setSessionCookie } from '../../cookies/index.mjs';
-import { m as mergeSchema } from '../../shared/better-auth.Cc72UxUH.mjs';
-import '../../shared/better-auth.8zoxzg-F.mjs';
-import '../../shared/better-auth.Cqykj82J.mjs';
-import 'defu';
+import * as z from 'zod';
+import { a as createAuthEndpoint, s as sessionMiddleware, f as freshSessionMiddleware, g as getSessionFromCtx } from '../../shared/better-auth.D_jpufHc.mjs';
+import '../../shared/better-auth.CpZXDeOc.mjs';
+import { s as setSessionCookie } from '../../shared/better-auth.L4mY8Wf-.mjs';
+import '../../shared/better-auth.CiuwFiHM.mjs';
+import '@better-auth/core/db';
+import { m as mergeSchema } from '../../shared/better-auth.BZghgUMh.mjs';
+import '../../shared/better-auth.DgGir396.mjs';
 import { g as generateId } from '../../shared/better-auth.BUPPRXfK.mjs';
 import '@better-auth/utils/hash';
-import '@noble/ciphers/chacha';
-import '@noble/ciphers/utils';
-import '@noble/ciphers/webcrypto';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
 import { base64 } from '@better-auth/utils/base64';
 import 'jose';
-import '@noble/hashes/scrypt';
-import '@better-auth/utils';
+import '@noble/hashes/scrypt.js';
 import '@better-auth/utils/hex';
-import '@noble/hashes/utils';
+import '@noble/hashes/utils.js';
+import 'kysely';
 import '@better-auth/utils/random';
-import '../../shared/better-auth.dn8_oqOu.mjs';
-import '../../social-providers/index.mjs';
-import '@better-fetch/fetch';
-import '../../shared/better-auth.DufyW0qf.mjs';
 import '../../shared/better-auth.CW6D9eSx.mjs';
-import '../../shared/better-auth.DdzSJf-n.mjs';
-import '../../shared/better-auth.tB5eU6EY.mjs';
+import '../../shared/better-auth.BTrSrKsi.mjs';
+import '../../shared/better-auth.D2xndZ2p.mjs';
 import '@better-auth/utils/hmac';
-import '../../shared/better-auth.DDEbWX-S.mjs';
-import '../../shared/better-auth.VTXNLFMT.mjs';
-import 'jose/errors';
 import '@better-auth/utils/binary';
+import '../../crypto/index.mjs';
+import '../../shared/better-auth.DdzSJf-n.mjs';
+import '@better-fetch/fetch';
+import '../../shared/better-auth.BAQSo96z.mjs';
+import 'jose/errors';
+import 'defu';
 
 function getRpID(options, baseURL) {
   return options.rpID || (baseURL ? new URL(baseURL).hostname : "localhost");
@@ -68,7 +67,8 @@ const passkey = (options) => {
           method: "GET",
           use: [freshSessionMiddleware],
           query: z.object({
-            authenticatorAttachment: z.enum(["platform", "cross-platform"]).optional()
+            authenticatorAttachment: z.enum(["platform", "cross-platform"]).optional(),
+            name: z.string().optional()
           }).optional(),
           metadata: {
             client: false,
@@ -80,9 +80,14 @@ const passkey = (options) => {
                   parameters: {
                     query: {
                       authenticatorAttachment: {
-                        description: `Type of authenticator to use for registration. 
-                          "platform" for device-specific authenticators, 
+                        description: `Type of authenticator to use for registration.
+                          "platform" for device-specific authenticators,
                           "cross-platform" for authenticators that can be used across devices.`,
+                        required: false
+                      },
+                      name: {
+                        description: `Optional custom name for the passkey.
+                          This can help identify the passkey when managing multiple credentials.`,
                         required: false
                       }
                     }
@@ -205,7 +210,7 @@ const passkey = (options) => {
             rpName: opts.rpName || ctx.context.appName,
             rpID: getRpID(opts, ctx.context.options.baseURL),
             userID,
-            userName: session.user.email || session.user.id,
+            userName: ctx.query?.name || session.user.email || session.user.id,
             userDisplayName: session.user.email || session.user.id,
             attestationType: "none",
             excludeCredentials: userPasskeys.map((passkey2) => ({
@@ -258,11 +263,6 @@ const passkey = (options) => {
         "/passkey/generate-authenticate-options",
         {
           method: "POST",
-          body: z.object({
-            email: z.string({
-              description: "The email address of the user"
-            }).optional()
-          }).optional(),
           metadata: {
             openapi: {
               description: "Generate authentication options for a passkey",
@@ -417,10 +417,8 @@ const passkey = (options) => {
         {
           method: "POST",
           body: z.object({
-            response: z.any({
-              description: "The response from the authenticator"
-            }),
-            name: z.string({
+            response: z.any(),
+            name: z.string().meta({
               description: "Name of the passkey"
             }).optional()
           }),
@@ -497,6 +495,7 @@ const passkey = (options) => {
               });
             }
             const {
+              aaguid,
               // credentialID,
               // credentialPublicKey,
               // counter,
@@ -515,7 +514,8 @@ const passkey = (options) => {
               deviceType: credentialDeviceType,
               transports: resp.response.transports.join(","),
               backedUp: credentialBackedUp,
-              createdAt: /* @__PURE__ */ new Date()
+              createdAt: /* @__PURE__ */ new Date(),
+              aaguid
             };
             const newPasskeyRes = await ctx.context.adapter.create({
               model: "passkey",
@@ -537,7 +537,7 @@ const passkey = (options) => {
         {
           method: "POST",
           body: z.object({
-            response: z.record(z.any())
+            response: z.record(z.any(), z.any())
           }),
           metadata: {
             openapi: {
@@ -683,6 +683,21 @@ const passkey = (options) => {
           }
         }
       ),
+      /**
+       * ### Endpoint
+       *
+       * GET `/passkey/list-user-passkeys`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.listPasskeys`
+       *
+       * **client:**
+       * `authClient.passkey.listUserPasskeys`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/passkey#api-method-passkey-list-user-passkeys)
+       */
       listPasskeys: createAuthEndpoint(
         "/passkey/list-user-passkeys",
         {
@@ -727,12 +742,29 @@ const passkey = (options) => {
           });
         }
       ),
+      /**
+       * ### Endpoint
+       *
+       * POST `/passkey/delete-passkey`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.deletePasskey`
+       *
+       * **client:**
+       * `authClient.passkey.deletePasskey`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/passkey#api-method-passkey-delete-passkey)
+       */
       deletePasskey: createAuthEndpoint(
         "/passkey/delete-passkey",
         {
           method: "POST",
           body: z.object({
-            id: z.string()
+            id: z.string().meta({
+              description: 'The ID of the passkey to delete. Eg: "some-passkey-id"'
+            })
           }),
           use: [sessionMiddleware],
           metadata: {
@@ -775,13 +807,32 @@ const passkey = (options) => {
           });
         }
       ),
+      /**
+       * ### Endpoint
+       *
+       * POST `/passkey/update-passkey`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.updatePasskey`
+       *
+       * **client:**
+       * `authClient.passkey.updatePasskey`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/passkey#api-method-passkey-update-passkey)
+       */
       updatePasskey: createAuthEndpoint(
         "/passkey/update-passkey",
         {
           method: "POST",
           body: z.object({
-            id: z.string(),
-            name: z.string()
+            id: z.string().meta({
+              description: `The ID of the passkey which will be updated. Eg: "passkey-id"`
+            }),
+            name: z.string().meta({
+              description: `The new name which the passkey will be updated to. Eg: "my-new-passkey-name"`
+            })
           }),
           use: [sessionMiddleware],
           metadata: {
@@ -901,6 +952,10 @@ const schema = {
       },
       createdAt: {
         type: "date",
+        required: false
+      },
+      aaguid: {
+        type: "string",
         required: false
       }
     }

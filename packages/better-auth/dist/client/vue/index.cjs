@@ -1,15 +1,15 @@
 'use strict';
 
 const vue = require('vue');
-const proxy = require('../../shared/better-auth.BV34uPij.cjs');
+const proxy = require('../../shared/better-auth.CZNeES-1.cjs');
 const misc = require('../../shared/better-auth.BLDOwz3i.cjs');
 require('@better-fetch/fetch');
-require('../../shared/better-auth.C-R0J0n1.cjs');
-require('../../shared/better-auth.DiSjtgs9.cjs');
+require('../../shared/better-auth.DxBcELEX.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
 require('../../shared/better-auth.ANpbi45u.cjs');
 require('nanostores');
-require('../../shared/better-auth.C_Zl7Etp.cjs');
-require('../../shared/better-auth.DhsGZ30Q.cjs');
+require('../../shared/better-auth.D9AYOecd.cjs');
+require('../../shared/better-auth.DUNU0obG.cjs');
 
 function registerStore(store) {
   let instance = vue.getCurrentInstance();
@@ -37,13 +37,14 @@ function getAtomKey(str) {
 }
 function createAuthClient(options) {
   const {
+    baseURL,
     pluginPathMethods,
     pluginsActions,
     pluginsAtoms,
     $fetch,
     $store,
     atomListeners
-  } = proxy.getClientConfig(options);
+  } = proxy.getClientConfig(options, false);
   let resolvedHooks = {};
   for (const [key, value] of Object.entries(pluginsAtoms)) {
     resolvedHooks[getAtomKey(key)] = () => useStore(value);
@@ -51,11 +52,7 @@ function createAuthClient(options) {
   function useSession(useFetch) {
     if (useFetch) {
       const ref = useStore(pluginsAtoms.$sessionSignal);
-      const baseURL = options?.fetchOptions?.baseURL || options?.baseURL;
-      let authPath = baseURL ? new URL(baseURL).pathname : "/api/auth";
-      authPath = authPath === "/" ? "/api/auth" : authPath;
-      authPath = authPath.endsWith("/") ? authPath.slice(0, -1) : authPath;
-      return useFetch(`${authPath}/get-session`, {
+      return useFetch(`${baseURL}/get-session`, {
         ref
       }).then((res) => {
         return {

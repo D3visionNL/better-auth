@@ -1,38 +1,37 @@
 'use strict';
 
 const betterCall = require('better-call');
-require('../../shared/better-auth.DiSjtgs9.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
 require('@better-auth/utils/base64');
 const hmac = require('@better-auth/utils/hmac');
-const cookies_index = require('../../cookies/index.cjs');
-const account = require('../../shared/better-auth.iyK63nvn.cjs');
+require('../../shared/better-auth.BToNb2fI.cjs');
+require('@better-auth/utils/binary');
+const cookies_index = require('../../shared/better-auth.anw-08Z3.cjs');
+require('../../shared/better-auth.l_Ru3SGW.cjs');
+const session = require('../../shared/better-auth.B0k5C6Ik.cjs');
 require('zod');
-require('../../shared/better-auth.DcWKCjjf.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
-require('defu');
+require('@better-auth/core/db');
+require('../../shared/better-auth.Bu93hUoT.cjs');
+require('@better-auth/utils/random');
+require('@better-auth/utils/hash');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
+require('jose');
+require('@noble/hashes/scrypt.js');
+require('@better-auth/utils/hex');
+require('@noble/hashes/utils.js');
+require('../../shared/better-auth.CYeOI8C-.cjs');
+require('kysely');
 require('../../shared/better-auth.ANpbi45u.cjs');
 require('../../shared/better-auth.C1hdVENX.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
-require('../../shared/better-auth.C-R0J0n1.cjs');
-require('@better-auth/utils/random');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
-require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
-require('jose');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
-require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
-require('../../shared/better-auth.CYeOI8C-.cjs');
-require('../../social-providers/index.cjs');
+require('../../shared/better-auth.Jlhc86WK.cjs');
+require('../../shared/better-auth.DxBcELEX.cjs');
+require('../../crypto/index.cjs');
 require('@better-fetch/fetch');
-require('../../shared/better-auth.6XyKj7DG.cjs');
-require('../../shared/better-auth.Bg6iw3ig.cjs');
-require('../../shared/better-auth.BMYo0QR-.cjs');
 require('jose/errors');
-require('@better-auth/utils/binary');
+require('../../shared/better-auth.Bg6iw3ig.cjs');
+require('defu');
+require('../../shared/better-auth.uykCWCYS.cjs');
 
 const bearer = (options) => {
   return {
@@ -45,7 +44,7 @@ const bearer = (options) => {
               context.request?.headers.get("authorization") || context.headers?.get("authorization")
             );
           },
-          handler: account.createAuthMiddleware(async (c) => {
+          handler: session.createAuthMiddleware(async (c) => {
             const token = c.request?.headers.get("authorization")?.replace("Bearer ", "") || c.headers?.get("Authorization")?.replace("Bearer ", "");
             if (!token) {
               return;
@@ -96,7 +95,7 @@ const bearer = (options) => {
           matcher(context) {
             return true;
           },
-          handler: account.createAuthMiddleware(async (ctx) => {
+          handler: session.createAuthMiddleware(async (ctx) => {
             const setCookie = ctx.context.responseHeaders?.get("set-cookie");
             if (!setCookie) {
               return;
@@ -108,8 +107,18 @@ const bearer = (options) => {
               return;
             }
             const token = sessionCookie.value;
+            const exposedHeaders = ctx.context.responseHeaders?.get(
+              "access-control-expose-headers"
+            ) || "";
+            const headersSet = new Set(
+              exposedHeaders.split(",").map((header) => header.trim()).filter(Boolean)
+            );
+            headersSet.add("set-auth-token");
             ctx.setHeader("set-auth-token", token);
-            ctx.setHeader("Access-Control-Expose-Headers", "set-auth-token");
+            ctx.setHeader(
+              "Access-Control-Expose-Headers",
+              Array.from(headersSet).join(", ")
+            );
           })
         }
       ]

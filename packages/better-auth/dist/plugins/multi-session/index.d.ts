@@ -1,12 +1,14 @@
-import { z } from 'zod';
 import * as better_call from 'better-call';
-import { S as Session, U as User, H as HookEndpointContext } from '../../shared/better-auth.BNRr97iY.js';
-import '../../shared/better-auth.Bi8FQwDD.js';
-import '../../shared/better-auth.ByC0y0O-.js';
-import 'jose';
+import * as z from 'zod';
+import { S as Session, U as User, H as HookEndpointContext } from '../../shared/better-auth.HOXfa1Ev.js';
+import '../../shared/better-auth.4SXCyo06.js';
+import '../../shared/better-auth.DTtXpZYr.js';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface MultiSessionConfig {
     /**
@@ -19,6 +21,21 @@ interface MultiSessionConfig {
 declare const multiSession: (options?: MultiSessionConfig) => {
     id: "multi-session";
     endpoints: {
+        /**
+         * ### Endpoint
+         *
+         * GET `/multi-session/list-device-sessions`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.listDeviceSessions`
+         *
+         * **client:**
+         * `authClient.multiSession.listDeviceSessions`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/multi-session#api-method-multi-session-list-device-sessions)
+         */
         listDeviceSessions: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body?: undefined;
@@ -58,6 +75,21 @@ declare const multiSession: (options?: MultiSessionConfig) => {
             };
             path: "/multi-session/list-device-sessions";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/multi-session/set-active`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.setActiveSession`
+         *
+         * **client:**
+         * `authClient.multiSession.setActive`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/multi-session#api-method-multi-session-set-active)
+         */
         setActiveSession: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -95,11 +127,7 @@ declare const multiSession: (options?: MultiSessionConfig) => {
                 method: "POST";
                 body: z.ZodObject<{
                     sessionToken: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    sessionToken: string;
-                }, {
-                    sessionToken: string;
-                }>;
+                }, z.core.$strip>;
                 requireHeaders: true;
                 use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
                     session: {
@@ -115,11 +143,11 @@ declare const multiSession: (options?: MultiSessionConfig) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -151,6 +179,21 @@ declare const multiSession: (options?: MultiSessionConfig) => {
             };
             path: "/multi-session/set-active";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/multi-session/revoke`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.revokeDeviceSession`
+         *
+         * **client:**
+         * `authClient.multiSession.revoke`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/multi-session#api-method-multi-session-revoke)
+         */
         revokeDeviceSession: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -186,11 +229,7 @@ declare const multiSession: (options?: MultiSessionConfig) => {
                 method: "POST";
                 body: z.ZodObject<{
                     sessionToken: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    sessionToken: string;
-                }, {
-                    sessionToken: string;
-                }>;
+                }, z.core.$strip>;
                 requireHeaders: true;
                 use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
                     session: {
@@ -206,11 +245,11 @@ declare const multiSession: (options?: MultiSessionConfig) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };

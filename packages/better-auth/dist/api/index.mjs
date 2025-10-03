@@ -1,39 +1,39 @@
-import { APIError, toResponse, createRouter } from 'better-call';
+import { APIError, createRouter } from 'better-call';
 export { APIError } from 'better-call';
-import { a as createAuthEndpoint, B as BASE_ERROR_CODES, e as createEmailVerificationToken, w as wildcardMatch, l as listSessions, u as updateUser, b as getSession, i as originCheckMiddleware, j as error, k as ok, m as accountInfo, n as getAccessToken, r as refreshToken, p as unlinkAccount, q as deleteUserCallback, t as listUserAccounts, v as linkSocialAccount, x as revokeOtherSessions, y as revokeSessions, z as revokeSession, A as forgetPasswordCallback, C as deleteUser, D as setPassword, E as changePassword, F as changeEmail, G as sendVerificationEmail, I as verifyEmail, J as resetPassword, K as forgetPassword, L as signInEmail, M as signOut, N as callbackOAuth, O as signInSocial } from '../shared/better-auth.c4QO78Xh.mjs';
-export { c as createAuthMiddleware, f as freshSessionMiddleware, g as getSessionFromCtx, Q as optionsMiddleware, o as originCheck, P as requestOnlySessionMiddleware, d as sendVerificationEmailFn, s as sessionMiddleware } from '../shared/better-auth.c4QO78Xh.mjs';
-import { z } from 'zod';
-import { setSessionCookie } from '../cookies/index.mjs';
-import { f as parseUserInput } from '../shared/better-auth.Cc72UxUH.mjs';
-import { b as isDevelopment } from '../shared/better-auth.8zoxzg-F.mjs';
-import { l as logger } from '../shared/better-auth.Cqykj82J.mjs';
-import { g as getIp } from '../shared/better-auth.iKoUsdFE.mjs';
-import defu from 'defu';
+import { k as createEmailVerificationToken, w as wildcardMatch, u as updateUser, t as toAuthEndpoints, l as originCheckMiddleware, m as error, n as ok, q as accountInfo, x as getAccessToken, y as refreshToken, z as unlinkAccount, A as deleteUserCallback, B as listUserAccounts, C as linkSocialAccount, D as requestPasswordResetCallback, E as requestPasswordReset, F as forgetPasswordCallback, G as deleteUser, I as setPassword, J as changePassword, K as changeEmail, L as sendVerificationEmail, M as verifyEmail, N as resetPassword, O as forgetPassword, P as signInEmail, Q as signOut, R as callbackOAuth, S as signInSocial } from '../shared/better-auth.CpZXDeOc.mjs';
+export { o as originCheck, T as sendVerificationEmailFn } from '../shared/better-auth.CpZXDeOc.mjs';
+import { a as createAuthEndpoint, B as BASE_ERROR_CODES, l as listSessions, b as getSession, r as revokeOtherSessions, d as revokeSessions, e as revokeSession } from '../shared/better-auth.D_jpufHc.mjs';
+export { c as createAuthMiddleware, f as freshSessionMiddleware, g as getSessionFromCtx, h as getSessionQuerySchema, o as optionsMiddleware, j as requestOnlySessionMiddleware, i as sensitiveSessionMiddleware, s as sessionMiddleware } from '../shared/better-auth.D_jpufHc.mjs';
+import * as z from 'zod';
+import { s as setSessionCookie } from '../shared/better-auth.L4mY8Wf-.mjs';
+import { a as isDevelopment } from '../shared/better-auth.CiuwFiHM.mjs';
+import '@better-auth/core/db';
+import { f as parseUserInput } from '../shared/better-auth.BZghgUMh.mjs';
+import { a as logger } from '../shared/better-auth.DgGir396.mjs';
 import '@better-auth/utils/random';
-import '../shared/better-auth.dn8_oqOu.mjs';
 import '@better-auth/utils/hash';
-import '@noble/ciphers/chacha';
-import '@noble/ciphers/utils';
-import '@noble/ciphers/webcrypto';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
 import '@better-auth/utils/base64';
 import 'jose';
-import '@noble/hashes/scrypt';
-import '@better-auth/utils';
+import '@noble/hashes/scrypt.js';
 import '@better-auth/utils/hex';
-import '@noble/hashes/utils';
+import '@noble/hashes/utils.js';
 import '../shared/better-auth.B4Qoxdgc.mjs';
-import '../social-providers/index.mjs';
-import '@better-fetch/fetch';
-import '../shared/better-auth.DufyW0qf.mjs';
+import 'kysely';
+import { s as safeJSONParse } from '../shared/better-auth.BTrSrKsi.mjs';
+import { g as getIp } from '../shared/better-auth.BQOp-6ij.mjs';
 import '../shared/better-auth.CW6D9eSx.mjs';
+import '../crypto/index.mjs';
 import '../shared/better-auth.DdzSJf-n.mjs';
-import '../shared/better-auth.tB5eU6EY.mjs';
+import '@better-fetch/fetch';
+import '../shared/better-auth.BAQSo96z.mjs';
+import 'jose/errors';
 import '../shared/better-auth.BUPPRXfK.mjs';
 import '@better-auth/utils/hmac';
-import '../shared/better-auth.DDEbWX-S.mjs';
-import '../shared/better-auth.VTXNLFMT.mjs';
-import 'jose/errors';
 import '@better-auth/utils/binary';
+import 'defu';
+import '../shared/better-auth.D2xndZ2p.mjs';
 
 const signUpEmail = () => createAuthEndpoint(
   "/sign-up/email",
@@ -64,9 +64,17 @@ const signUpEmail = () => createAuthEndpoint(
                     type: "string",
                     description: "The password of the user"
                   },
+                  image: {
+                    type: "string",
+                    description: "The profile image URL of the user"
+                  },
                   callbackURL: {
                     type: "string",
                     description: "The URL to use for email verification callback"
+                  },
+                  rememberMe: {
+                    type: "boolean",
+                    description: "If this is false, the session will not be remembered. Default is `true`."
                   }
                 },
                 required: ["name", "email", "password"]
@@ -139,6 +147,21 @@ const signUpEmail = () => createAuthEndpoint(
                 }
               }
             }
+          },
+          "422": {
+            description: "Unprocessable Entity. User already exists or failed to create user.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -151,8 +174,8 @@ const signUpEmail = () => createAuthEndpoint(
       });
     }
     const body = ctx.body;
-    const { name, email, password, image, callbackURL, ...additionalFields } = body;
-    const isValidEmail = z.string().email().safeParse(email);
+    const { name, email, password, image, callbackURL, rememberMe, ...rest } = body;
+    const isValidEmail = z.email().safeParse(email);
     if (!isValidEmail.success) {
       throw new APIError("BAD_REQUEST", {
         message: BASE_ERROR_CODES.INVALID_EMAIL
@@ -176,22 +199,19 @@ const signUpEmail = () => createAuthEndpoint(
     if (dbUser?.user) {
       ctx.context.logger.info(`Sign-up attempt for existing email: ${email}`);
       throw new APIError("UNPROCESSABLE_ENTITY", {
-        message: BASE_ERROR_CODES.USER_ALREADY_EXISTS
+        message: BASE_ERROR_CODES.USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL
       });
     }
-    const additionalData = parseUserInput(
-      ctx.context.options,
-      additionalFields
-    );
     const hash = await ctx.context.password.hash(password);
     let createdUser;
     try {
+      const data = parseUserInput(ctx.context.options, rest, "create");
       createdUser = await ctx.context.internalAdapter.createUser(
         {
           email: email.toLowerCase(),
           name,
           image,
-          ...additionalData,
+          ...data,
           emailVerified: false
         },
         ctx
@@ -208,6 +228,7 @@ const signUpEmail = () => createAuthEndpoint(
       if (e instanceof APIError) {
         throw e;
       }
+      ctx.context.logger?.error("Failed to create user", e);
       throw new APIError("UNPROCESSABLE_ENTITY", {
         message: BASE_ERROR_CODES.FAILED_TO_CREATE_USER,
         details: e
@@ -235,13 +256,22 @@ const signUpEmail = () => createAuthEndpoint(
         ctx.context.options.emailVerification?.expiresIn
       );
       const url = `${ctx.context.baseURL}/verify-email?token=${token}&callbackURL=${body.callbackURL || "/"}`;
-      await ctx.context.options.emailVerification?.sendVerificationEmail?.(
+      const args = ctx.request ? [
         {
           user: createdUser,
           url,
           token
         },
         ctx.request
+      ] : [
+        {
+          user: createdUser,
+          url,
+          token
+        }
+      ];
+      await ctx.context.options.emailVerification?.sendVerificationEmail?.(
+        ...args
       );
     }
     if (ctx.context.options.emailAndPassword.autoSignIn === false || ctx.context.options.emailAndPassword.requireEmailVerification) {
@@ -260,17 +290,22 @@ const signUpEmail = () => createAuthEndpoint(
     }
     const session = await ctx.context.internalAdapter.createSession(
       createdUser.id,
-      ctx
+      ctx,
+      rememberMe === false
     );
     if (!session) {
       throw new APIError("BAD_REQUEST", {
         message: BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION
       });
     }
-    await setSessionCookie(ctx, {
-      session,
-      user: createdUser
-    });
+    await setSessionCookie(
+      ctx,
+      {
+        session,
+        user: createdUser
+      },
+      rememberMe === false
+    );
     return ctx.json({
       token: session.token,
       user: {
@@ -311,8 +346,8 @@ function getRetryAfter(lastRequest, window) {
   const windowInMs = window * 1e3;
   return Math.ceil((lastRequest + windowInMs - now) / 1e3);
 }
-function createDBStorage(ctx, modelName) {
-  const model = ctx.options.rateLimit?.modelName || "rateLimit";
+function createDBStorage(ctx) {
+  const model = "rateLimit";
   const db = ctx.adapter;
   return {
     get: async (key) => {
@@ -330,7 +365,7 @@ function createDBStorage(ctx, modelName) {
       try {
         if (_update) {
           await db.updateMany({
-            model: "rateLimit",
+            model,
             where: [{ field: "key", value: key }],
             update: {
               count: value.count,
@@ -339,7 +374,7 @@ function createDBStorage(ctx, modelName) {
           });
         } else {
           await db.create({
-            model: "rateLimit",
+            model,
             data: {
               key,
               count: value.count,
@@ -354,23 +389,27 @@ function createDBStorage(ctx, modelName) {
   };
 }
 const memory = /* @__PURE__ */ new Map();
-function getRateLimitStorage(ctx) {
+function getRateLimitStorage(ctx, rateLimitSettings) {
   if (ctx.options.rateLimit?.customStorage) {
     return ctx.options.rateLimit.customStorage;
   }
-  if (ctx.rateLimit.storage === "secondary-storage") {
+  const storage = ctx.rateLimit.storage;
+  if (storage === "secondary-storage") {
     return {
       get: async (key) => {
-        const stringified = await ctx.options.secondaryStorage?.get(key);
-        return stringified ? JSON.parse(stringified) : void 0;
+        const data = await ctx.options.secondaryStorage?.get(key);
+        return data ? safeJSONParse(data) : void 0;
       },
-      set: async (key, value) => {
-        await ctx.options.secondaryStorage?.set?.(key, JSON.stringify(value));
+      set: async (key, value, _update) => {
+        const ttl = rateLimitSettings?.window ?? ctx.options.rateLimit?.window ?? 10;
+        await ctx.options.secondaryStorage?.set?.(
+          key,
+          JSON.stringify(value),
+          ttl
+        );
       }
     };
-  }
-  const storage = ctx.rateLimit.storage;
-  if (storage === "memory") {
+  } else if (storage === "memory") {
     return {
       async get(key) {
         return memory.get(key);
@@ -380,7 +419,7 @@ function getRateLimitStorage(ctx) {
       }
     };
   }
-  return createDBStorage(ctx, ctx.rateLimit.modelName);
+  return createDBStorage(ctx);
 }
 async function onRequestRateLimit(req, ctx) {
   if (!ctx.rateLimit.enabled) {
@@ -430,9 +469,14 @@ async function onRequestRateLimit(req, ctx) {
         window = resolved.window;
         max = resolved.max;
       }
+      if (resolved === false) {
+        return;
+      }
     }
   }
-  const storage = getRateLimitStorage(ctx);
+  const storage = getRateLimitStorage(ctx, {
+    window
+  });
   const data = await storage.get(key);
   const now = Date.now();
   if (!data) {
@@ -482,189 +526,108 @@ function getDefaultSpecialRules() {
   return specialRules;
 }
 
-function toAuthEndpoints(endpoints, ctx) {
-  const api = {};
-  for (const [key, endpoint] of Object.entries(endpoints)) {
-    api[key] = async (context) => {
-      const authContext = await ctx;
-      let internalContext = {
-        ...context,
-        context: {
-          ...authContext,
-          returned: void 0,
-          responseHeaders: void 0,
-          session: null
-        },
-        path: endpoint.path,
-        headers: context?.headers ? new Headers(context?.headers) : void 0
-      };
-      const { beforeHooks, afterHooks } = getHooks(authContext);
-      const before = await runBeforeHooks(internalContext, beforeHooks);
-      if ("context" in before && before.context && typeof before.context === "object") {
-        const { headers, ...rest } = before.context;
-        if (headers) {
-          headers.forEach((value, key2) => {
-            internalContext.headers.set(key2, value);
+function checkEndpointConflicts(options, logger2) {
+  const endpointRegistry = /* @__PURE__ */ new Map();
+  options.plugins?.forEach((plugin) => {
+    if (plugin.endpoints) {
+      for (const [key, endpoint] of Object.entries(plugin.endpoints)) {
+        if (endpoint && "path" in endpoint) {
+          const path = endpoint.path;
+          let methods = [];
+          if (endpoint.options && "method" in endpoint.options) {
+            if (Array.isArray(endpoint.options.method)) {
+              methods = endpoint.options.method;
+            } else if (typeof endpoint.options.method === "string") {
+              methods = [endpoint.options.method];
+            }
+          }
+          if (methods.length === 0) {
+            methods = ["*"];
+          }
+          if (!endpointRegistry.has(path)) {
+            endpointRegistry.set(path, []);
+          }
+          endpointRegistry.get(path).push({
+            pluginId: plugin.id,
+            endpointKey: key,
+            methods
           });
         }
-        internalContext = defu(rest, internalContext);
-      } else if (before) {
-        return before;
-      }
-      internalContext.asResponse = false;
-      internalContext.returnHeaders = true;
-      const result = await endpoint(internalContext).catch((e) => {
-        if (e instanceof APIError) {
-          return {
-            response: e,
-            headers: e.headers ? new Headers(e.headers) : null
-          };
-        }
-        throw e;
-      });
-      internalContext.context.returned = result.response;
-      internalContext.context.responseHeaders = result.headers;
-      const after = await runAfterHooks(internalContext, afterHooks);
-      if (after.response) {
-        result.response = after.response;
-      }
-      if (result.response instanceof APIError && !context?.asResponse) {
-        throw result.response;
-      }
-      const response = context?.asResponse ? toResponse(result.response, {
-        headers: result.headers
-      }) : context?.returnHeaders ? {
-        headers: result.headers,
-        response: result.response
-      } : result.response;
-      return response;
-    };
-    api[key].path = endpoint.path;
-    api[key].options = endpoint.options;
-  }
-  return api;
-}
-async function runBeforeHooks(context, hooks) {
-  let modifiedContext = {};
-  for (const hook of hooks) {
-    if (hook.matcher(context)) {
-      const result = await hook.handler({
-        ...context,
-        returnHeaders: false
-      });
-      if (result && typeof result === "object") {
-        if ("context" in result && typeof result.context === "object") {
-          const { headers, ...rest } = result.context;
-          if (headers instanceof Headers) {
-            if (modifiedContext.headers) {
-              headers.forEach((value, key) => {
-                modifiedContext.headers?.set(key, value);
-              });
-            } else {
-              modifiedContext.headers = headers;
-            }
-          }
-          modifiedContext = defu(rest, modifiedContext);
-          continue;
-        }
-        return result;
       }
     }
-  }
-  return { context: modifiedContext };
-}
-async function runAfterHooks(context, hooks) {
-  for (const hook of hooks) {
-    if (hook.matcher(context)) {
-      const result = await hook.handler(context).catch((e) => {
-        if (e instanceof APIError) {
-          return {
-            response: e,
-            headers: e.headers ? new Headers(e.headers) : null
-          };
-        }
-        throw e;
-      });
-      if (result.headers) {
-        result.headers.forEach((value, key) => {
-          if (!context.context.responseHeaders) {
-            context.context.responseHeaders = new Headers({
-              [key]: value
-            });
-          } else {
-            if (key.toLowerCase() === "set-cookie") {
-              context.context.responseHeaders.append(key, value);
-            } else {
-              context.context.responseHeaders.set(key, value);
-            }
+  });
+  const conflicts = [];
+  for (const [path, entries] of endpointRegistry.entries()) {
+    if (entries.length > 1) {
+      const methodMap = /* @__PURE__ */ new Map();
+      let hasConflict = false;
+      for (const entry of entries) {
+        for (const method of entry.methods) {
+          if (!methodMap.has(method)) {
+            methodMap.set(method, []);
           }
+          methodMap.get(method).push(entry.pluginId);
+          if (methodMap.get(method).length > 1) {
+            hasConflict = true;
+          }
+          if (method === "*" && entries.length > 1) {
+            hasConflict = true;
+          } else if (method !== "*" && methodMap.has("*")) {
+            hasConflict = true;
+          }
+        }
+      }
+      if (hasConflict) {
+        const uniquePlugins = [...new Set(entries.map((e) => e.pluginId))];
+        const conflictingMethods = [];
+        for (const [method, plugins] of methodMap.entries()) {
+          if (plugins.length > 1 || method === "*" && entries.length > 1 || method !== "*" && methodMap.has("*")) {
+            conflictingMethods.push(method);
+          }
+        }
+        conflicts.push({
+          path,
+          plugins: uniquePlugins,
+          conflictingMethods
         });
       }
-      if (result.response) {
-        context.context.returned = result.response;
-      }
     }
   }
-  return {
-    response: context.context.returned,
-    headers: context.context.responseHeaders
-  };
-}
-function getHooks(authContext) {
-  const plugins = authContext.options.plugins || [];
-  const beforeHooks = [];
-  const afterHooks = [];
-  if (authContext.options.hooks?.before) {
-    beforeHooks.push({
-      matcher: () => true,
-      handler: authContext.options.hooks.before
-    });
-  }
-  if (authContext.options.hooks?.after) {
-    afterHooks.push({
-      matcher: () => true,
-      handler: authContext.options.hooks.after
-    });
-  }
-  const pluginBeforeHooks = plugins.map((plugin) => {
-    if (plugin.hooks?.before) {
-      return plugin.hooks.before;
-    }
-  }).filter((plugin) => plugin !== void 0).flat();
-  const pluginAfterHooks = plugins.map((plugin) => {
-    if (plugin.hooks?.after) {
-      return plugin.hooks.after;
-    }
-  }).filter((plugin) => plugin !== void 0).flat();
-  pluginBeforeHooks.length && beforeHooks.push(...pluginBeforeHooks);
-  pluginAfterHooks.length && afterHooks.push(...pluginAfterHooks);
-  return {
-    beforeHooks,
-    afterHooks
-  };
-}
+  if (conflicts.length > 0) {
+    const conflictMessages = conflicts.map(
+      (conflict) => `  - "${conflict.path}" [${conflict.conflictingMethods.join(", ")}] used by plugins: ${conflict.plugins.join(", ")}`
+    ).join("\n");
+    logger2.error(
+      `Endpoint path conflicts detected! Multiple plugins are trying to use the same endpoint paths with conflicting HTTP methods:
+${conflictMessages}
 
+To resolve this, you can:
+	1. Use only one of the conflicting plugins
+	2. Configure the plugins to use different paths (if supported)
+	3. Ensure plugins use different HTTP methods for the same path
+`
+    );
+  }
+}
 function getEndpoints(ctx, options) {
-  const pluginEndpoints = options.plugins?.reduce(
-    (acc, plugin) => {
-      return {
-        ...acc,
-        ...plugin.endpoints
-      };
-    },
-    {}
-  );
+  const pluginEndpoints = options.plugins?.reduce((acc, plugin) => {
+    return {
+      ...acc,
+      ...plugin.endpoints
+    };
+  }, {}) ?? {};
   const middlewares = options.plugins?.map(
     (plugin) => plugin.middlewares?.map((m) => {
-      const middleware = async (context) => {
+      const middleware = (async (context) => {
+        const authContext = await ctx;
         return m.middleware({
           ...context,
           context: {
-            ...ctx,
+            ...authContext,
             ...context.context
           }
         });
-      };
+      });
       middleware.options = m.middleware.options;
       return {
         path: m.path,
@@ -689,6 +652,8 @@ function getEndpoints(ctx, options) {
     updateUser: updateUser(),
     deleteUser,
     forgetPasswordCallback,
+    requestPasswordReset,
+    requestPasswordResetCallback,
     listSessions: listSessions(),
     revokeSession,
     revokeSessions,
@@ -792,4 +757,4 @@ const router = (ctx, options) => {
   });
 };
 
-export { accountInfo, callbackOAuth, changeEmail, changePassword, createAuthEndpoint, createEmailVerificationToken, deleteUser, deleteUserCallback, error, forgetPassword, forgetPasswordCallback, getAccessToken, getEndpoints, getSession, linkSocialAccount, listSessions, listUserAccounts, ok, originCheckMiddleware, refreshToken, resetPassword, revokeOtherSessions, revokeSession, revokeSessions, router, sendVerificationEmail, setPassword, signInEmail, signInSocial, signOut, signUpEmail, unlinkAccount, updateUser, verifyEmail };
+export { accountInfo, callbackOAuth, changeEmail, changePassword, checkEndpointConflicts, createAuthEndpoint, createEmailVerificationToken, deleteUser, deleteUserCallback, error, forgetPassword, forgetPasswordCallback, getAccessToken, getEndpoints, getSession, linkSocialAccount, listSessions, listUserAccounts, ok, originCheckMiddleware, refreshToken, requestPasswordReset, requestPasswordResetCallback, resetPassword, revokeOtherSessions, revokeSession, revokeSessions, router, sendVerificationEmail, setPassword, signInEmail, signInSocial, signOut, signUpEmail, unlinkAccount, updateUser, verifyEmail };

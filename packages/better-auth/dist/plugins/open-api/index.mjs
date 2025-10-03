@@ -1,57 +1,55 @@
-import { ZodObject, ZodSchema, ZodOptional } from 'zod';
+import * as z from 'zod';
 import { getEndpoints } from '../../api/index.mjs';
-import '../../shared/better-auth.Cc72UxUH.mjs';
-import '../../shared/better-auth.8zoxzg-F.mjs';
+import '@better-auth/core/db';
+import '../../shared/better-auth.BZghgUMh.mjs';
+import '../../shared/better-auth.CiuwFiHM.mjs';
+import '../../shared/better-auth.DgGir396.mjs';
 import '@better-auth/utils/random';
 import { APIError } from 'better-call';
 import '@better-auth/utils/hash';
-import '@noble/ciphers/chacha';
-import '@noble/ciphers/utils';
-import '@noble/ciphers/webcrypto';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
 import '@better-auth/utils/base64';
 import 'jose';
-import '@noble/hashes/scrypt';
-import '@better-auth/utils';
+import '@noble/hashes/scrypt.js';
 import '@better-auth/utils/hex';
-import '@noble/hashes/utils';
+import '@noble/hashes/utils.js';
 import '../../shared/better-auth.B4Qoxdgc.mjs';
-import '../../shared/better-auth.Cqykj82J.mjs';
-import { g as getAuthTables } from '../../shared/better-auth.DORkW_Ge.mjs';
+import { g as getAuthTables } from '../../shared/better-auth.DhziC0ap.mjs';
 import 'kysely';
-import { a as createAuthEndpoint } from '../../shared/better-auth.c4QO78Xh.mjs';
+import '../../shared/better-auth.CpZXDeOc.mjs';
+import { a as createAuthEndpoint } from '../../shared/better-auth.D_jpufHc.mjs';
 import '@better-auth/utils/hmac';
-import 'defu';
-import '../../cookies/index.mjs';
+import '@better-auth/utils/binary';
+import '../../shared/better-auth.L4mY8Wf-.mjs';
 import '../../shared/better-auth.DdzSJf-n.mjs';
 import '../../shared/better-auth.CW6D9eSx.mjs';
-import '../../shared/better-auth.tB5eU6EY.mjs';
-import '../../shared/better-auth.VTXNLFMT.mjs';
-import '../../shared/better-auth.iKoUsdFE.mjs';
-import '../../shared/better-auth.dn8_oqOu.mjs';
-import '../../social-providers/index.mjs';
+import '../../shared/better-auth.BTrSrKsi.mjs';
+import '../../shared/better-auth.BAQSo96z.mjs';
+import '../../shared/better-auth.BQOp-6ij.mjs';
+import '../../crypto/index.mjs';
 import '@better-fetch/fetch';
-import '../../shared/better-auth.DufyW0qf.mjs';
-import '../../shared/better-auth.BUPPRXfK.mjs';
-import '../../shared/better-auth.DDEbWX-S.mjs';
 import 'jose/errors';
-import '@better-auth/utils/binary';
+import '../../shared/better-auth.BUPPRXfK.mjs';
+import 'defu';
+import '../../shared/better-auth.D2xndZ2p.mjs';
 
-const paths = {};
+const allowedType = /* @__PURE__ */ new Set(["string", "number", "boolean", "array", "object"]);
 function getTypeFromZodType(zodType) {
-  switch (zodType.constructor.name) {
-    case "ZodString":
-      return "string";
-    case "ZodNumber":
-      return "number";
-    case "ZodBoolean":
-      return "boolean";
-    case "ZodObject":
-      return "object";
-    case "ZodArray":
-      return "array";
-    default:
-      return "string";
+  const type = zodType.type;
+  return allowedType.has(type) ? type : "string";
+}
+function getFieldSchema(field) {
+  const schema = {
+    type: field.type === "date" ? "string" : field.type
+  };
+  if (field.defaultValue !== void 0) {
+    schema.default = typeof field.defaultValue === "function" ? "Generated at runtime" : field.defaultValue;
   }
+  if (field.input === false) {
+    schema.readOnly = true;
+  }
+  return schema;
 }
 function getParameters(options) {
   const parameters = [];
@@ -59,18 +57,17 @@ function getParameters(options) {
     parameters.push(...options.metadata.openapi.parameters);
     return parameters;
   }
-  if (options.query instanceof ZodObject) {
+  if (options.query instanceof z.ZodObject) {
     Object.entries(options.query.shape).forEach(([key, value]) => {
-      if (value instanceof ZodSchema) {
+      if (value instanceof z.ZodType) {
         parameters.push({
           name: key,
           in: "query",
           schema: {
-            type: getTypeFromZodType(value),
+            ...processZodType(value),
             ..."minLength" in value && value.minLength ? {
               minLength: value.minLength
-            } : {},
-            description: value.description
+            } : {}
           }
         });
       }
@@ -83,24 +80,21 @@ function getRequestBody(options) {
     return options.metadata.openapi.requestBody;
   }
   if (!options.body) return void 0;
-  if (options.body instanceof ZodObject || options.body instanceof ZodOptional) {
+  if (options.body instanceof z.ZodObject || options.body instanceof z.ZodOptional) {
     const shape = options.body.shape;
     if (!shape) return void 0;
     const properties = {};
     const required = [];
     Object.entries(shape).forEach(([key, value]) => {
-      if (value instanceof ZodSchema) {
-        properties[key] = {
-          type: getTypeFromZodType(value),
-          description: value.description
-        };
-        if (!(value instanceof ZodOptional)) {
+      if (value instanceof z.ZodType) {
+        properties[key] = processZodType(value);
+        if (!(value instanceof z.ZodOptional)) {
           required.push(key);
         }
       }
     });
     return {
-      required: options.body instanceof ZodOptional ? false : options.body ? true : false,
+      required: options.body instanceof z.ZodOptional ? false : options.body ? true : false,
       content: {
         "application/json": {
           schema: {
@@ -113,6 +107,42 @@ function getRequestBody(options) {
     };
   }
   return void 0;
+}
+function processZodType(zodType) {
+  if (zodType instanceof z.ZodOptional) {
+    const innerType = zodType._def.innerType;
+    const innerSchema = processZodType(innerType);
+    return {
+      ...innerSchema,
+      nullable: true
+    };
+  }
+  if (zodType instanceof z.ZodObject) {
+    const shape = zodType.shape;
+    if (shape) {
+      const properties = {};
+      const required = [];
+      Object.entries(shape).forEach(([key, value]) => {
+        if (value instanceof z.ZodType) {
+          properties[key] = processZodType(value);
+          if (!(value instanceof z.ZodOptional)) {
+            required.push(key);
+          }
+        }
+      });
+      return {
+        type: "object",
+        properties,
+        ...required.length > 0 ? { required } : {},
+        description: zodType.description
+      };
+    }
+  }
+  const baseSchema = {
+    type: getTypeFromZodType(zodType),
+    description: zodType.description
+  };
+  return baseSchema;
 }
 function getResponse(responses) {
   return {
@@ -222,17 +252,22 @@ async function generator(ctx, options) {
   const tables = getAuthTables(options);
   const models = Object.entries(tables).reduce((acc, [key, value]) => {
     const modelName = key.charAt(0).toUpperCase() + key.slice(1);
+    const fields = value.fields;
+    const required = [];
+    const properties = {
+      id: { type: "string" }
+    };
+    Object.entries(fields).forEach(([fieldKey, fieldValue]) => {
+      if (!fieldValue) return;
+      properties[fieldKey] = getFieldSchema(fieldValue);
+      if (fieldValue.required && fieldValue.input !== false) {
+        required.push(fieldKey);
+      }
+    });
     acc[modelName] = {
       type: "object",
-      properties: Object.entries(value.fields).reduce(
-        (acc2, [key2, value2]) => {
-          acc2[key2] = {
-            type: value2.type
-          };
-          return acc2;
-        },
-        { id: { type: "string" } }
-      )
+      properties,
+      ...required.length > 0 ? { required } : {}
     };
     return acc;
   }, {});
@@ -241,6 +276,7 @@ async function generator(ctx, options) {
       ...models
     }
   };
+  const paths = {};
   Object.entries(baseEndpoints.api).forEach(([_, value]) => {
     if (ctx.options.disabledPaths?.includes(value.path)) return;
     const options2 = value.options;
@@ -407,7 +443,7 @@ const logo = `<svg width="75" height="75" viewBox="0 0 75 75" fill="none" xmlns=
 </svg>
 `;
 
-const getHTML = (apiReference) => `<!doctype html>
+const getHTML = (apiReference, theme) => `<!doctype html>
 <html>
   <head>
     <title>Scalar API Reference</title>
@@ -425,7 +461,7 @@ const getHTML = (apiReference) => `<!doctype html>
 	 <script>
       var configuration = {
 	  	favicon: "data:image/svg+xml;utf8,${encodeURIComponent(logo)}",
-	   	theme: "saturn",
+	   	theme: "${theme || "default"}",
         metaData: {
 			title: "Better Auth API",
 			description: "API Reference for your Better Auth Instance",
@@ -466,7 +502,7 @@ const openAPI = (options) => {
             throw new APIError("NOT_FOUND");
           }
           const schema = await generator(ctx.context, ctx.context.options);
-          return new Response(getHTML(schema), {
+          return new Response(getHTML(schema, options?.theme), {
             headers: {
               "Content-Type": "text/html"
             }

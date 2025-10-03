@@ -1,57 +1,114 @@
 'use strict';
 
-const zod = require('zod');
-const account = require('../../shared/better-auth.iyK63nvn.cjs');
+const z = require('zod');
+const session = require('../../shared/better-auth.B0k5C6Ik.cjs');
 const betterCall = require('better-call');
-const cookies_index = require('../../cookies/index.cjs');
-require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
-require('@better-auth/utils/base64');
+const cookies_index = require('../../shared/better-auth.anw-08Z3.cjs');
+const hash = require('@better-auth/utils/hash');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
+const base64 = require('@better-auth/utils/base64');
 require('jose');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+require('@noble/hashes/scrypt.js');
 require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
+require('@noble/hashes/utils.js');
 const random = require('../../shared/better-auth.CYeOI8C-.cjs');
-require('../../shared/better-auth.DcWKCjjf.cjs');
-require('../../shared/better-auth.DiSjtgs9.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
-require('defu');
+const socialProviders_index = require('../../shared/better-auth.l_Ru3SGW.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
+require('@better-auth/core/db');
+require('../../shared/better-auth.Bu93hUoT.cjs');
+require('../../shared/better-auth.BToNb2fI.cjs');
 require('@better-auth/utils/random');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
-require('../../social-providers/index.cjs');
-require('@better-fetch/fetch');
-require('../../shared/better-auth.6XyKj7DG.cjs');
+require('kysely');
 require('../../shared/better-auth.C1hdVENX.cjs');
-require('../../shared/better-auth.ANpbi45u.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
-require('../../shared/better-auth.Bg6iw3ig.cjs');
+require('../../shared/better-auth.Jlhc86WK.cjs');
+require('../../shared/better-auth.uykCWCYS.cjs');
 require('@better-auth/utils/hmac');
-require('../../shared/better-auth.BMYo0QR-.cjs');
-require('../../shared/better-auth.C-R0J0n1.cjs');
-require('jose/errors');
 require('@better-auth/utils/binary');
+require('../../shared/better-auth.ANpbi45u.cjs');
+require('../../shared/better-auth.DxBcELEX.cjs');
+require('../../crypto/index.cjs');
+require('@better-fetch/fetch');
+require('jose/errors');
+require('../../shared/better-auth.Bg6iw3ig.cjs');
+require('defu');
+
+function _interopNamespaceCompat(e) {
+	if (e && typeof e === 'object' && 'default' in e) return e;
+	const n = Object.create(null);
+	if (e) {
+		for (const k in e) {
+			n[k] = e[k];
+		}
+	}
+	n.default = e;
+	return n;
+}
+
+const z__namespace = /*#__PURE__*/_interopNamespaceCompat(z);
+
+const defaultKeyHasher = async (otp) => {
+  const hash$1 = await hash.createHash("SHA-256").digest(
+    new TextEncoder().encode(otp)
+  );
+  const hashed = base64.base64Url.encode(new Uint8Array(hash$1), {
+    padding: false
+  });
+  return hashed;
+};
 
 const magicLink = (options) => {
+  const opts = {
+    storeToken: "plain",
+    ...options
+  };
+  async function storeToken(ctx, token) {
+    if (opts.storeToken === "hashed") {
+      return await defaultKeyHasher(token);
+    }
+    if (typeof opts.storeToken === "object" && "type" in opts.storeToken && opts.storeToken.type === "custom-hasher") {
+      return await opts.storeToken.hash(token);
+    }
+    return token;
+  }
   return {
     id: "magic-link",
     endpoints: {
-      signInMagicLink: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/sign-in/magic-link`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.signInMagicLink`
+       *
+       * **client:**
+       * `authClient.signIn.magicLink`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/sign-in#api-method-sign-in-magic-link)
+       */
+      signInMagicLink: session.createAuthEndpoint(
         "/sign-in/magic-link",
         {
           method: "POST",
           requireHeaders: true,
-          body: zod.z.object({
-            email: zod.z.string({
+          body: z__namespace.object({
+            email: z__namespace.string().meta({
               description: "Email address to send the magic link"
             }).email(),
-            name: zod.z.string({
-              description: "User display name. Only used if the user is registering for the first time."
+            name: z__namespace.string().meta({
+              description: 'User display name. Only used if the user is registering for the first time. Eg: "my-name"'
             }).optional(),
-            callbackURL: zod.z.string({
+            callbackURL: z__namespace.string().meta({
               description: "URL to redirect after magic link verification"
+            }).optional(),
+            newUserCallbackURL: z__namespace.string().meta({
+              description: "URL to redirect after new user signup. Only used if the user is registering for the first time."
+            }).optional(),
+            errorCallbackURL: z__namespace.string().meta({
+              description: "URL to redirect after error."
             }).optional()
           }),
           metadata: {
@@ -79,32 +136,48 @@ const magicLink = (options) => {
         },
         async (ctx) => {
           const { email } = ctx.body;
-          if (options.disableSignUp) {
+          if (opts.disableSignUp) {
             const user = await ctx.context.internalAdapter.findUserByEmail(email);
             if (!user) {
               throw new betterCall.APIError("BAD_REQUEST", {
-                message: account.BASE_ERROR_CODES.USER_NOT_FOUND
+                message: session.BASE_ERROR_CODES.USER_NOT_FOUND
               });
             }
           }
-          const verificationToken = options?.generateToken ? await options.generateToken(email) : random.generateRandomString(32, "a-z", "A-Z");
+          const verificationToken = opts?.generateToken ? await opts.generateToken(email) : random.generateRandomString(32, "a-z", "A-Z");
+          const storedToken = await storeToken(ctx, verificationToken);
           await ctx.context.internalAdapter.createVerificationValue(
             {
-              identifier: verificationToken,
+              identifier: storedToken,
               value: JSON.stringify({ email, name: ctx.body.name }),
               expiresAt: new Date(
-                Date.now() + (options.expiresIn || 60 * 5) * 1e3
+                Date.now() + (opts.expiresIn || 60 * 5) * 1e3
               )
             },
             ctx
           );
-          const url = `${ctx.context.baseURL}/magic-link/verify?token=${verificationToken}&callbackURL=${encodeURIComponent(
-            ctx.body.callbackURL || "/"
-          )}`;
+          const realBaseURL = new URL(ctx.context.baseURL);
+          const pathname = realBaseURL.pathname === "/" ? "" : realBaseURL.pathname;
+          const basePath = pathname ? "" : ctx.context.options.basePath || "";
+          const url = new URL(
+            `${pathname}${basePath}/magic-link/verify`,
+            realBaseURL.origin
+          );
+          url.searchParams.set("token", verificationToken);
+          url.searchParams.set("callbackURL", ctx.body.callbackURL || "/");
+          if (ctx.body.newUserCallbackURL) {
+            url.searchParams.set(
+              "newUserCallbackURL",
+              ctx.body.newUserCallbackURL
+            );
+          }
+          if (ctx.body.errorCallbackURL) {
+            url.searchParams.set("errorCallbackURL", ctx.body.errorCallbackURL);
+          }
           await options.sendMagicLink(
             {
               email,
-              url,
+              url: url.toString(),
               token: verificationToken
             },
             ctx.request
@@ -114,21 +187,48 @@ const magicLink = (options) => {
           });
         }
       ),
-      magicLinkVerify: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * GET `/magic-link/verify`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.magicLinkVerify`
+       *
+       * **client:**
+       * `authClient.magicLink.verify`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/magic-link#api-method-magic-link-verify)
+       */
+      magicLinkVerify: session.createAuthEndpoint(
         "/magic-link/verify",
         {
           method: "GET",
-          query: zod.z.object({
-            token: zod.z.string({
+          query: z__namespace.object({
+            token: z__namespace.string().meta({
               description: "Verification token"
             }),
-            callbackURL: zod.z.string({
-              description: "URL to redirect after magic link verification, if not provided will return session"
+            callbackURL: z__namespace.string().meta({
+              description: 'URL to redirect after magic link verification, if not provided the user will be redirected to the root URL. Eg: "/dashboard"'
+            }).optional(),
+            errorCallbackURL: z__namespace.string().meta({
+              description: "URL to redirect after error."
+            }).optional(),
+            newUserCallbackURL: z__namespace.string().meta({
+              description: "URL to redirect after new user signup. Only used if the user is registering for the first time."
             }).optional()
           }),
           use: [
-            account.originCheck((ctx) => {
+            socialProviders_index.originCheck((ctx) => {
               return ctx.query.callbackURL ? decodeURIComponent(ctx.query.callbackURL) : "/";
+            }),
+            socialProviders_index.originCheck((ctx) => {
+              return ctx.query.newUserCallbackURL ? decodeURIComponent(ctx.query.newUserCallbackURL) : "/";
+            }),
+            socialProviders_index.originCheck((ctx) => {
+              return ctx.query.errorCallbackURL ? decodeURIComponent(ctx.query.errorCallbackURL) : "/";
             })
           ],
           requireHeaders: true,
@@ -160,25 +260,40 @@ const magicLink = (options) => {
         },
         async (ctx) => {
           const token = ctx.query.token;
-          const callbackURL = ctx.query.callbackURL ? decodeURIComponent(ctx.query.callbackURL) : "/";
-          const toRedirectTo = callbackURL?.startsWith("http") ? callbackURL : callbackURL ? `${ctx.context.options.baseURL}${callbackURL}` : ctx.context.options.baseURL;
-          const tokenValue = await ctx.context.internalAdapter.findVerificationValue(token);
+          const callbackURL = new URL(
+            ctx.query.callbackURL ? decodeURIComponent(ctx.query.callbackURL) : "/",
+            ctx.context.baseURL
+          ).toString();
+          const errorCallbackURL = new URL(
+            ctx.query.errorCallbackURL ? decodeURIComponent(ctx.query.errorCallbackURL) : callbackURL,
+            ctx.context.baseURL
+          ).toString();
+          const newUserCallbackURL = new URL(
+            ctx.query.newUserCallbackURL ? decodeURIComponent(ctx.query.newUserCallbackURL) : callbackURL,
+            ctx.context.baseURL
+          ).toString();
+          callbackURL?.startsWith("http") ? callbackURL : callbackURL ? `${ctx.context.options.baseURL}${callbackURL}` : ctx.context.options.baseURL;
+          const storedToken = await storeToken(ctx, token);
+          const tokenValue = await ctx.context.internalAdapter.findVerificationValue(
+            storedToken
+          );
           if (!tokenValue) {
-            throw ctx.redirect(`${toRedirectTo}?error=INVALID_TOKEN`);
+            throw ctx.redirect(`${errorCallbackURL}?error=INVALID_TOKEN`);
           }
           if (tokenValue.expiresAt < /* @__PURE__ */ new Date()) {
             await ctx.context.internalAdapter.deleteVerificationValue(
               tokenValue.id
             );
-            throw ctx.redirect(`${toRedirectTo}?error=EXPIRED_TOKEN`);
+            throw ctx.redirect(`${errorCallbackURL}?error=EXPIRED_TOKEN`);
           }
           await ctx.context.internalAdapter.deleteVerificationValue(
             tokenValue.id
           );
           const { email, name } = JSON.parse(tokenValue.value);
+          let isNewUser = false;
           let user = await ctx.context.internalAdapter.findUserByEmail(email).then((res) => res?.user);
           if (!user) {
-            if (!options.disableSignUp) {
+            if (!opts.disableSignUp) {
               const newUser = await ctx.context.internalAdapter.createUser(
                 {
                   email,
@@ -187,15 +302,16 @@ const magicLink = (options) => {
                 },
                 ctx
               );
+              isNewUser = true;
               user = newUser;
               if (!user) {
                 throw ctx.redirect(
-                  `${toRedirectTo}?error=failed_to_create_user`
+                  `${errorCallbackURL}?error=failed_to_create_user`
                 );
               }
             } else {
               throw ctx.redirect(
-                `${toRedirectTo}?error=new_user_signup_disabled`
+                `${errorCallbackURL}?error=new_user_signup_disabled`
               );
             }
           }
@@ -214,7 +330,7 @@ const magicLink = (options) => {
           );
           if (!session) {
             throw ctx.redirect(
-              `${toRedirectTo}?error=failed_to_create_session`
+              `${errorCallbackURL}?error=failed_to_create_session`
             );
           }
           await cookies_index.setSessionCookie(ctx, {
@@ -235,6 +351,9 @@ const magicLink = (options) => {
               }
             });
           }
+          if (isNewUser) {
+            throw ctx.redirect(newUserCallbackURL);
+          }
           throw ctx.redirect(callbackURL);
         }
       )
@@ -244,8 +363,8 @@ const magicLink = (options) => {
         pathMatcher(path) {
           return path.startsWith("/sign-in/magic-link") || path.startsWith("/magic-link/verify");
         },
-        window: options.rateLimit?.window || 60,
-        max: options.rateLimit?.max || 5
+        window: opts.rateLimit?.window || 60,
+        max: opts.rateLimit?.max || 5
       }
     ]
   };

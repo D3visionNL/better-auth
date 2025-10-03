@@ -1,59 +1,71 @@
 'use strict';
 
-const zod = require('zod');
+const z = require('zod');
 const api_index = require('../../api/index.cjs');
-require('../../shared/better-auth.DcWKCjjf.cjs');
-require('../../shared/better-auth.DiSjtgs9.cjs');
+require('@better-auth/core/db');
+require('../../shared/better-auth.Bu93hUoT.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
+require('../../shared/better-auth.BToNb2fI.cjs');
 require('@better-auth/utils/random');
 const betterCall = require('better-call');
 require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
 require('@better-auth/utils/base64');
 require('jose');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+require('@noble/hashes/scrypt.js');
 require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
+require('@noble/hashes/utils.js');
 require('../../shared/better-auth.CYeOI8C-.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
-const getTables = require('../../shared/better-auth.BEphVDyL.cjs');
+const getTables = require('../../shared/better-auth.S3hDEI-1.cjs');
 require('kysely');
-const account = require('../../shared/better-auth.iyK63nvn.cjs');
+require('../../shared/better-auth.l_Ru3SGW.cjs');
+const session = require('../../shared/better-auth.B0k5C6Ik.cjs');
 require('@better-auth/utils/hmac');
-require('defu');
-require('../../cookies/index.cjs');
+require('@better-auth/utils/binary');
+require('../../shared/better-auth.anw-08Z3.cjs');
 require('../../shared/better-auth.ANpbi45u.cjs');
 require('../../shared/better-auth.C1hdVENX.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
-require('../../shared/better-auth.C-R0J0n1.cjs');
-require('../../shared/better-auth.B7cZ2juS.cjs');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
-require('../../social-providers/index.cjs');
+require('../../shared/better-auth.Jlhc86WK.cjs');
+require('../../shared/better-auth.DxBcELEX.cjs');
+require('../../shared/better-auth.D1rR7ww4.cjs');
+require('../../crypto/index.cjs');
 require('@better-fetch/fetch');
-require('../../shared/better-auth.6XyKj7DG.cjs');
-require('../../shared/better-auth.Bg6iw3ig.cjs');
-require('../../shared/better-auth.BMYo0QR-.cjs');
 require('jose/errors');
-require('@better-auth/utils/binary');
+require('../../shared/better-auth.Bg6iw3ig.cjs');
+require('defu');
+require('../../shared/better-auth.uykCWCYS.cjs');
 
-const paths = {};
+function _interopNamespaceCompat(e) {
+	if (e && typeof e === 'object' && 'default' in e) return e;
+	const n = Object.create(null);
+	if (e) {
+		for (const k in e) {
+			n[k] = e[k];
+		}
+	}
+	n.default = e;
+	return n;
+}
+
+const z__namespace = /*#__PURE__*/_interopNamespaceCompat(z);
+
+const allowedType = /* @__PURE__ */ new Set(["string", "number", "boolean", "array", "object"]);
 function getTypeFromZodType(zodType) {
-  switch (zodType.constructor.name) {
-    case "ZodString":
-      return "string";
-    case "ZodNumber":
-      return "number";
-    case "ZodBoolean":
-      return "boolean";
-    case "ZodObject":
-      return "object";
-    case "ZodArray":
-      return "array";
-    default:
-      return "string";
+  const type = zodType.type;
+  return allowedType.has(type) ? type : "string";
+}
+function getFieldSchema(field) {
+  const schema = {
+    type: field.type === "date" ? "string" : field.type
+  };
+  if (field.defaultValue !== void 0) {
+    schema.default = typeof field.defaultValue === "function" ? "Generated at runtime" : field.defaultValue;
   }
+  if (field.input === false) {
+    schema.readOnly = true;
+  }
+  return schema;
 }
 function getParameters(options) {
   const parameters = [];
@@ -61,18 +73,17 @@ function getParameters(options) {
     parameters.push(...options.metadata.openapi.parameters);
     return parameters;
   }
-  if (options.query instanceof zod.ZodObject) {
+  if (options.query instanceof z__namespace.ZodObject) {
     Object.entries(options.query.shape).forEach(([key, value]) => {
-      if (value instanceof zod.ZodSchema) {
+      if (value instanceof z__namespace.ZodType) {
         parameters.push({
           name: key,
           in: "query",
           schema: {
-            type: getTypeFromZodType(value),
+            ...processZodType(value),
             ..."minLength" in value && value.minLength ? {
               minLength: value.minLength
-            } : {},
-            description: value.description
+            } : {}
           }
         });
       }
@@ -85,24 +96,21 @@ function getRequestBody(options) {
     return options.metadata.openapi.requestBody;
   }
   if (!options.body) return void 0;
-  if (options.body instanceof zod.ZodObject || options.body instanceof zod.ZodOptional) {
+  if (options.body instanceof z__namespace.ZodObject || options.body instanceof z__namespace.ZodOptional) {
     const shape = options.body.shape;
     if (!shape) return void 0;
     const properties = {};
     const required = [];
     Object.entries(shape).forEach(([key, value]) => {
-      if (value instanceof zod.ZodSchema) {
-        properties[key] = {
-          type: getTypeFromZodType(value),
-          description: value.description
-        };
-        if (!(value instanceof zod.ZodOptional)) {
+      if (value instanceof z__namespace.ZodType) {
+        properties[key] = processZodType(value);
+        if (!(value instanceof z__namespace.ZodOptional)) {
           required.push(key);
         }
       }
     });
     return {
-      required: options.body instanceof zod.ZodOptional ? false : options.body ? true : false,
+      required: options.body instanceof z__namespace.ZodOptional ? false : options.body ? true : false,
       content: {
         "application/json": {
           schema: {
@@ -115,6 +123,42 @@ function getRequestBody(options) {
     };
   }
   return void 0;
+}
+function processZodType(zodType) {
+  if (zodType instanceof z__namespace.ZodOptional) {
+    const innerType = zodType._def.innerType;
+    const innerSchema = processZodType(innerType);
+    return {
+      ...innerSchema,
+      nullable: true
+    };
+  }
+  if (zodType instanceof z__namespace.ZodObject) {
+    const shape = zodType.shape;
+    if (shape) {
+      const properties = {};
+      const required = [];
+      Object.entries(shape).forEach(([key, value]) => {
+        if (value instanceof z__namespace.ZodType) {
+          properties[key] = processZodType(value);
+          if (!(value instanceof z__namespace.ZodOptional)) {
+            required.push(key);
+          }
+        }
+      });
+      return {
+        type: "object",
+        properties,
+        ...required.length > 0 ? { required } : {},
+        description: zodType.description
+      };
+    }
+  }
+  const baseSchema = {
+    type: getTypeFromZodType(zodType),
+    description: zodType.description
+  };
+  return baseSchema;
 }
 function getResponse(responses) {
   return {
@@ -224,17 +268,22 @@ async function generator(ctx, options) {
   const tables = getTables.getAuthTables(options);
   const models = Object.entries(tables).reduce((acc, [key, value]) => {
     const modelName = key.charAt(0).toUpperCase() + key.slice(1);
+    const fields = value.fields;
+    const required = [];
+    const properties = {
+      id: { type: "string" }
+    };
+    Object.entries(fields).forEach(([fieldKey, fieldValue]) => {
+      if (!fieldValue) return;
+      properties[fieldKey] = getFieldSchema(fieldValue);
+      if (fieldValue.required && fieldValue.input !== false) {
+        required.push(fieldKey);
+      }
+    });
     acc[modelName] = {
       type: "object",
-      properties: Object.entries(value.fields).reduce(
-        (acc2, [key2, value2]) => {
-          acc2[key2] = {
-            type: value2.type
-          };
-          return acc2;
-        },
-        { id: { type: "string" } }
-      )
+      properties,
+      ...required.length > 0 ? { required } : {}
     };
     return acc;
   }, {});
@@ -243,6 +292,7 @@ async function generator(ctx, options) {
       ...models
     }
   };
+  const paths = {};
   Object.entries(baseEndpoints.api).forEach(([_, value]) => {
     if (ctx.options.disabledPaths?.includes(value.path)) return;
     const options2 = value.options;
@@ -409,7 +459,7 @@ const logo = `<svg width="75" height="75" viewBox="0 0 75 75" fill="none" xmlns=
 </svg>
 `;
 
-const getHTML = (apiReference) => `<!doctype html>
+const getHTML = (apiReference, theme) => `<!doctype html>
 <html>
   <head>
     <title>Scalar API Reference</title>
@@ -427,7 +477,7 @@ const getHTML = (apiReference) => `<!doctype html>
 	 <script>
       var configuration = {
 	  	favicon: "data:image/svg+xml;utf8,${encodeURIComponent(logo)}",
-	   	theme: "saturn",
+	   	theme: "${theme || "default"}",
         metaData: {
 			title: "Better Auth API",
 			description: "API Reference for your Better Auth Instance",
@@ -445,7 +495,7 @@ const openAPI = (options) => {
   return {
     id: "open-api",
     endpoints: {
-      generateOpenAPISchema: account.createAuthEndpoint(
+      generateOpenAPISchema: session.createAuthEndpoint(
         "/open-api/generate-schema",
         {
           method: "GET"
@@ -455,7 +505,7 @@ const openAPI = (options) => {
           return ctx.json(schema);
         }
       ),
-      openAPIReference: account.createAuthEndpoint(
+      openAPIReference: session.createAuthEndpoint(
         path,
         {
           method: "GET",
@@ -468,7 +518,7 @@ const openAPI = (options) => {
             throw new betterCall.APIError("NOT_FOUND");
           }
           const schema = await generator(ctx.context, ctx.context.options);
-          return new Response(getHTML(schema), {
+          return new Response(getHTML(schema, options?.theme), {
             headers: {
               "Content-Type": "text/html"
             }

@@ -1,13 +1,15 @@
+import { U as User, S as Session, d as AuthContext, I as InferOptionSchema, H as HookEndpointContext } from '../../shared/better-auth.jRxKMAeG.cjs';
 import * as better_call from 'better-call';
 import { EndpointContext } from 'better-call';
-import { U as User, S as Session, p as AuthContext, I as InferOptionSchema, H as HookEndpointContext } from '../../shared/better-auth.C67OuOdK.cjs';
-import '../../shared/better-auth.Bi8FQwDD.cjs';
+import '../../shared/better-auth.v_lf-jeY.cjs';
+import '../../shared/better-auth.DTtXpZYr.cjs';
 import 'zod';
-import '../../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface UserWithAnonymous extends User {
     isAnonymous: boolean;
@@ -44,7 +46,7 @@ interface AnonymousOptions {
      */
     generateName?: (ctx: EndpointContext<"/sign-in/anonymous", {
         method: "POST";
-    }, AuthContext>) => string;
+    }, AuthContext>) => Promise<string> | string;
     /**
      * Custom schema for the anonymous plugin
      */
@@ -54,8 +56,8 @@ declare const schema: {
     user: {
         fields: {
             isAnonymous: {
-                type: "boolean";
-                required: false;
+                type: string;
+                required: boolean;
             };
         };
     };
@@ -151,8 +153,8 @@ declare const anonymous: (options?: AnonymousOptions) => {
         user: {
             fields: {
                 isAnonymous: {
-                    type: "boolean";
-                    required: false;
+                    type: string;
+                    required: boolean;
                 };
             };
         };
@@ -164,4 +166,5 @@ declare const anonymous: (options?: AnonymousOptions) => {
     };
 };
 
-export { type AnonymousOptions, type UserWithAnonymous, anonymous };
+export { anonymous };
+export type { AnonymousOptions, UserWithAnonymous };

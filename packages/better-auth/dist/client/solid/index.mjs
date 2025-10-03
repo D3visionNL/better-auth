@@ -1,14 +1,14 @@
-import { g as getClientConfig, c as createDynamicPathProxy } from '../../shared/better-auth.FvRECEI1.mjs';
+import { g as getClientConfig, c as createDynamicPathProxy } from '../../shared/better-auth.WSg8tg20.mjs';
 import { c as capitalizeFirstLetter } from '../../shared/better-auth.D-2CmEwz.mjs';
 import { createStore, reconcile } from 'solid-js/store';
 import { onCleanup } from 'solid-js';
 import '@better-fetch/fetch';
-import '../../shared/better-auth.VTXNLFMT.mjs';
-import '../../shared/better-auth.8zoxzg-F.mjs';
+import '../../shared/better-auth.BAQSo96z.mjs';
+import '../../shared/better-auth.CiuwFiHM.mjs';
 import '../../shared/better-auth.DdzSJf-n.mjs';
 import 'nanostores';
-import '../../shared/better-auth.CQvoVIBD.mjs';
-import '../../shared/better-auth.ffWeg50w.mjs';
+import '../../shared/better-auth.BYWGbmZ5.mjs';
+import '../../shared/better-auth.msGOU0m9.mjs';
 
 function useStore(store) {
   const unbindActivation = store.listen(() => {

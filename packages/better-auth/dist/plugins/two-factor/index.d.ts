@@ -1,13 +1,15 @@
-import { z } from 'zod';
 import * as better_call from 'better-call';
-import { U as User, I as InferOptionSchema, l as AuthEndpoint, H as HookEndpointContext } from '../../shared/better-auth.BNRr97iY.js';
-import { L as LiteralString } from '../../shared/better-auth.Bi8FQwDD.js';
+import * as z from 'zod';
+import { U as User, I as InferOptionSchema, t as AuthEndpoint, H as HookEndpointContext } from '../../shared/better-auth.HOXfa1Ev.js';
+import { L as LiteralString } from '../../shared/better-auth.DTtXpZYr.js';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
-import '../../shared/better-auth.ByC0y0O-.js';
-import 'jose';
+import '../../shared/better-auth.4SXCyo06.js';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface BackupCodeOptions {
     /**
@@ -22,7 +24,17 @@ interface BackupCodeOptions {
      * @default 10
      */
     length?: number;
+    /**
+     * An optional custom function to generate backup codes
+     */
     customBackupCodesGenerate?: () => string[];
+    /**
+     * How to store the backup codes in the database, whether encrypted or plain.
+     */
+    storeBackupCodes?: "plain" | "encrypted" | {
+        encrypt: (token: string) => Promise<string>;
+        decrypt: (token: string) => Promise<string>;
+    };
 }
 
 interface OTPOptions {
@@ -67,6 +79,12 @@ interface OTPOptions {
      * @default 5
      */
     allowedAttempts?: number;
+    storeOTP?: "plain" | "encrypted" | "hashed" | {
+        hash: (token: string) => Promise<string>;
+    } | {
+        encrypt: (token: string) => Promise<string>;
+        decrypt: (token: string) => Promise<string>;
+    };
 }
 
 type TOTPOptions = {
@@ -99,29 +117,29 @@ declare const schema: {
     user: {
         fields: {
             twoFactorEnabled: {
-                type: "boolean";
-                required: false;
-                defaultValue: false;
-                input: false;
+                type: string;
+                required: boolean;
+                defaultValue: boolean;
+                input: boolean;
             };
         };
     };
     twoFactor: {
         fields: {
             secret: {
-                type: "string";
-                required: true;
-                returned: false;
+                type: string;
+                required: boolean;
+                returned: boolean;
             };
             backupCodes: {
-                type: "string";
-                required: true;
-                returned: false;
+                type: string;
+                required: boolean;
+                returned: boolean;
             };
             userId: {
-                type: "string";
-                required: true;
-                returned: false;
+                type: string;
+                required: boolean;
+                returned: boolean;
                 references: {
                     model: string;
                     field: string;
@@ -218,6 +236,21 @@ declare const twoFactorClient: (options?: {
 declare const twoFactor: (options?: TwoFactorOptions) => {
     id: "two-factor";
     endpoints: {
+        /**
+         * ### Endpoint
+         *
+         * POST `/two-factor/enable`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.enableTwoFactor`
+         *
+         * **client:**
+         * `authClient.twoFactor.enable`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/2fa#api-method-two-factor-enable)
+         */
         enableTwoFactor: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -257,13 +290,7 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 body: z.ZodObject<{
                     password: z.ZodString;
                     issuer: z.ZodOptional<z.ZodString>;
-                }, "strip", z.ZodTypeAny, {
-                    password: string;
-                    issuer?: string | undefined;
-                }, {
-                    password: string;
-                    issuer?: string | undefined;
-                }>;
+                }, z.core.$strip>;
                 use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
                     session: {
                         session: Record<string, any> & {
@@ -278,11 +305,11 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -323,6 +350,21 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
             };
             path: "/two-factor/enable";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/two-factor/disable`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.disableTwoFactor`
+         *
+         * **client:**
+         * `authClient.twoFactor.disable`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/2fa#api-method-two-factor-disable)
+         */
         disableTwoFactor: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -358,11 +400,7 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 method: "POST";
                 body: z.ZodObject<{
                     password: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    password: string;
-                }, {
-                    password: string;
-                }>;
+                }, z.core.$strip>;
                 use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
                     session: {
                         session: Record<string, any> & {
@@ -377,11 +415,11 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -418,8 +456,8 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
                     code: string;
-                    trustDevice?: boolean | undefined;
                     disableSession?: boolean | undefined;
+                    trustDevice?: boolean | undefined;
                 };
             } & {
                 method?: "POST" | undefined;
@@ -471,15 +509,7 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                     code: z.ZodString;
                     disableSession: z.ZodOptional<z.ZodBoolean>;
                     trustDevice: z.ZodOptional<z.ZodBoolean>;
-                }, "strip", z.ZodTypeAny, {
-                    code: string;
-                    trustDevice?: boolean | undefined;
-                    disableSession?: boolean | undefined;
-                }, {
-                    code: string;
-                    trustDevice?: boolean | undefined;
-                    disableSession?: boolean | undefined;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -614,11 +644,7 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 method: "POST";
                 body: z.ZodObject<{
                     password: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    password: string;
-                }, {
-                    password: string;
-                }>;
+                }, z.core.$strip>;
                 use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
                     session: {
                         session: Record<string, any> & {
@@ -633,11 +659,11 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -682,7 +708,7 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
         viewBackupCodes: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
-                    userId: string;
+                    userId: unknown;
                 };
             } & {
                 method?: "GET" | undefined;
@@ -706,21 +732,17 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 headers: Headers;
                 response: {
                     status: boolean;
-                    backupCodes: string[];
+                    backupCodes: string;
                 };
             } : {
                 status: boolean;
-                backupCodes: string[];
+                backupCodes: string;
             }>;
             options: {
                 method: "GET";
                 body: z.ZodObject<{
-                    userId: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    userId: string;
-                }, {
-                    userId: string;
-                }>;
+                    userId: z.ZodCoercedString<unknown>;
+                }, z.core.$strip>;
                 metadata: {
                     SERVER_ONLY: true;
                 };
@@ -764,11 +786,7 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 method: "POST";
                 body: z.ZodOptional<z.ZodObject<{
                     trustDevice: z.ZodOptional<z.ZodBoolean>;
-                }, "strip", z.ZodTypeAny, {
-                    trustDevice?: boolean | undefined;
-                }, {
-                    trustDevice?: boolean | undefined;
-                }>>;
+                }, z.core.$strip>>;
                 metadata: {
                     openapi: {
                         summary: string;
@@ -852,13 +870,7 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 body: z.ZodObject<{
                     code: z.ZodString;
                     trustDevice: z.ZodOptional<z.ZodBoolean>;
-                }, "strip", z.ZodTypeAny, {
-                    code: string;
-                    trustDevice?: boolean | undefined;
-                }, {
-                    code: string;
-                    trustDevice?: boolean | undefined;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         summary: string;
@@ -967,11 +979,7 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 method: "POST";
                 body: z.ZodObject<{
                     secret: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    secret: string;
-                }, {
-                    secret: string;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         summary: string;
@@ -1048,22 +1056,18 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
                 }>)[];
                 body: z.ZodObject<{
                     password: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    password: string;
-                }, {
-                    password: string;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         summary: string;
@@ -1147,13 +1151,7 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
                 body: z.ZodObject<{
                     code: z.ZodString;
                     trustDevice: z.ZodOptional<z.ZodBoolean>;
-                }, "strip", z.ZodTypeAny, {
-                    code: string;
-                    trustDevice?: boolean | undefined;
-                }, {
-                    code: string;
-                    trustDevice?: boolean | undefined;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         summary: string;
@@ -1196,29 +1194,29 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
         user: {
             fields: {
                 twoFactorEnabled: {
-                    type: "boolean";
-                    required: false;
-                    defaultValue: false;
-                    input: false;
+                    type: string;
+                    required: boolean;
+                    defaultValue: boolean;
+                    input: boolean;
                 };
             };
         };
         twoFactor: {
             fields: {
                 secret: {
-                    type: "string";
-                    required: true;
-                    returned: false;
+                    type: string;
+                    required: boolean;
+                    returned: boolean;
                 };
                 backupCodes: {
-                    type: "string";
-                    required: true;
-                    returned: false;
+                    type: string;
+                    required: boolean;
+                    returned: boolean;
                 };
                 userId: {
-                    type: "string";
-                    required: true;
-                    returned: false;
+                    type: string;
+                    required: boolean;
+                    returned: boolean;
                     references: {
                         model: string;
                         field: string;
@@ -1245,4 +1243,5 @@ declare const twoFactor: (options?: TwoFactorOptions) => {
     };
 };
 
-export { TWO_FACTOR_ERROR_CODES, type TwoFactorOptions, type TwoFactorProvider, type TwoFactorTable, type UserWithTwoFactor, twoFactor, twoFactorClient };
+export { TWO_FACTOR_ERROR_CODES, twoFactor, twoFactorClient };
+export type { TwoFactorOptions, TwoFactorProvider, TwoFactorTable, UserWithTwoFactor };

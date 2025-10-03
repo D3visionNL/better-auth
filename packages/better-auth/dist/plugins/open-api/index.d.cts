@@ -1,13 +1,15 @@
 import * as better_call from 'better-call';
 import { OpenAPIParameter, OpenAPISchemaType } from 'better-call';
-import { p as AuthContext, B as BetterAuthOptions } from '../../shared/better-auth.C67OuOdK.cjs';
-import { L as LiteralString } from '../../shared/better-auth.Bi8FQwDD.cjs';
+import { d as AuthContext, B as BetterAuthOptions } from '../../shared/better-auth.jRxKMAeG.cjs';
+import { DBFieldType as DBFieldType$1, DBFieldAttributeConfig as DBFieldAttributeConfig$1 } from '@better-auth/core/db';
+import { L as LiteralString } from '../../shared/better-auth.DTtXpZYr.cjs';
+import '../../shared/better-auth.v_lf-jeY.cjs';
 import 'zod';
-import '../../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
 import 'kysely';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface Path {
     get?: {
@@ -71,6 +73,16 @@ interface Path {
         };
     };
 }
+type FieldSchema = {
+    type: DBFieldType$1;
+    default?: DBFieldAttributeConfig$1["defaultValue"] | "Generated at runtime";
+    readOnly?: boolean;
+};
+type OpenAPIModelSchema = {
+    type: "object";
+    properties: Record<string, FieldSchema>;
+    required?: string[];
+};
 declare function generator(ctx: AuthContext, options: BetterAuthOptions): Promise<{
     openapi: string;
     info: {
@@ -92,7 +104,9 @@ declare function generator(ctx: AuthContext, options: BetterAuthOptions): Promis
                 description: string;
             };
         };
-        schemas: {};
+        schemas: {
+            [x: string]: OpenAPIModelSchema;
+        };
     };
     security: {
         apiKeyCookie: never[];
@@ -108,6 +122,7 @@ declare function generator(ctx: AuthContext, options: BetterAuthOptions): Promis
     paths: Record<string, Path>;
 }>;
 
+type ScalarTheme = "alternate" | "default" | "moon" | "purple" | "solarized" | "bluePlanet" | "saturn" | "kepler" | "mars" | "deepSpace" | "laserwave" | "none";
 interface OpenAPIOptions {
     /**
      * The path to the OpenAPI reference page
@@ -124,6 +139,12 @@ interface OpenAPIOptions {
      * @default false
      */
     disableDefaultReference?: boolean;
+    /**
+     * Theme of the OpenAPI reference page.
+     *
+     * @default "default"
+     */
+    theme?: ScalarTheme;
 }
 declare const openAPI: <O extends OpenAPIOptions>(options?: O) => {
     id: "open-api";
@@ -172,7 +193,17 @@ declare const openAPI: <O extends OpenAPIOptions>(options?: O) => {
                                 description: string;
                             };
                         };
-                        schemas: {};
+                        schemas: {
+                            [x: string]: {
+                                type: "object";
+                                properties: Record<string, {
+                                    type: DBFieldType;
+                                    default?: DBFieldAttributeConfig | "Generated at runtime";
+                                    readOnly?: boolean;
+                                }>;
+                                required?: string[];
+                            };
+                        };
                     };
                     security: {
                         apiKeyCookie: never[];
@@ -208,7 +239,17 @@ declare const openAPI: <O extends OpenAPIOptions>(options?: O) => {
                             description: string;
                         };
                     };
-                    schemas: {};
+                    schemas: {
+                        [x: string]: {
+                            type: "object";
+                            properties: Record<string, {
+                                type: DBFieldType;
+                                default?: DBFieldAttributeConfig | "Generated at runtime";
+                                readOnly?: boolean;
+                            }>;
+                            required?: string[];
+                        };
+                    };
                 };
                 security: {
                     apiKeyCookie: never[];
@@ -268,4 +309,5 @@ declare const openAPI: <O extends OpenAPIOptions>(options?: O) => {
     };
 };
 
-export { type OpenAPIOptions, type Path, generator, openAPI };
+export { generator, openAPI };
+export type { OpenAPIOptions, Path };

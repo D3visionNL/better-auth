@@ -3,36 +3,49 @@
 const fetch = require('@better-fetch/fetch');
 const betterCall = require('better-call');
 const jose = require('jose');
-const zod = require('zod');
-const account = require('../../shared/better-auth.iyK63nvn.cjs');
-const cookies_index = require('../../cookies/index.cjs');
-require('../../shared/better-auth.DcWKCjjf.cjs');
-require('../../shared/better-auth.DiSjtgs9.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
-require('defu');
-const refreshAccessToken = require('../../shared/better-auth.6XyKj7DG.cjs');
+const z = require('zod');
+const socialProviders_index = require('../../shared/better-auth.l_Ru3SGW.cjs');
+const session = require('../../shared/better-auth.B0k5C6Ik.cjs');
+const cookies_index = require('../../shared/better-auth.anw-08Z3.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
+require('@better-auth/core/db');
+require('../../shared/better-auth.Bu93hUoT.cjs');
+require('../../shared/better-auth.BToNb2fI.cjs');
+require('@better-auth/utils/random');
+require('kysely');
 require('@better-auth/utils/hash');
 require('@better-auth/utils/base64');
-const state = require('../../shared/better-auth.CWJ7qc0w.cjs');
-require('@better-auth/utils/random');
-require('../../social-providers/index.cjs');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
+require('@noble/hashes/scrypt.js');
 require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
+require('@noble/hashes/utils.js');
 require('../../shared/better-auth.CYeOI8C-.cjs');
-require('../../shared/better-auth.ANpbi45u.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
 require('../../shared/better-auth.C1hdVENX.cjs');
+require('../../crypto/index.cjs');
+require('../../shared/better-auth.ANpbi45u.cjs');
+require('../../shared/better-auth.DxBcELEX.cjs');
+require('jose/errors');
+require('../../shared/better-auth.Jlhc86WK.cjs');
 require('../../shared/better-auth.Bg6iw3ig.cjs');
 require('@better-auth/utils/hmac');
-require('../../shared/better-auth.BMYo0QR-.cjs');
-require('../../shared/better-auth.C-R0J0n1.cjs');
-require('jose/errors');
 require('@better-auth/utils/binary');
+require('defu');
+require('../../shared/better-auth.uykCWCYS.cjs');
+
+function _interopNamespaceCompat(e) {
+	if (e && typeof e === 'object' && 'default' in e) return e;
+	const n = Object.create(null);
+	if (e) {
+		for (const k in e) {
+			n[k] = e[k];
+		}
+	}
+	n.default = e;
+	return n;
+}
+
+const z__namespace = /*#__PURE__*/_interopNamespaceCompat(z);
 
 async function getUserInfo(tokens, finalUserInfoUrl) {
   if (tokens.idToken) {
@@ -58,8 +71,9 @@ async function getUserInfo(tokens, finalUserInfoUrl) {
     }
   });
   return {
+    // @ts-expect-error sub is optional in the type
     id: userInfo.data?.sub,
-    emailVerified: userInfo.data?.email_verified,
+    emailVerified: userInfo.data?.email_verified ?? false,
     email: userInfo.data?.email,
     image: userInfo.data?.picture,
     name: userInfo.data?.name,
@@ -79,7 +93,7 @@ const genericOAuth = (options) => {
           id: c.providerId,
           name: c.providerId,
           createAuthorizationURL(data) {
-            return refreshAccessToken.createAuthorizationURL({
+            return socialProviders_index.createAuthorizationURL({
               id: c.providerId,
               options: {
                 clientId: c.clientId,
@@ -110,7 +124,7 @@ const genericOAuth = (options) => {
                 message: "Invalid OAuth configuration. Token URL not found."
               });
             }
-            return refreshAccessToken.validateAuthorizationCode({
+            return socialProviders_index.validateAuthorizationCode({
               headers: c.authorizationHeaders,
               code: data.code,
               codeVerifier: data.codeVerifier,
@@ -120,7 +134,8 @@ const genericOAuth = (options) => {
                 clientSecret: c.clientSecret,
                 redirectURI: c.redirectURI
               },
-              tokenEndpoint: finalTokenUrl
+              tokenEndpoint: finalTokenUrl,
+              authentication: c.authentication
             });
           },
           async refreshAccessToken(refreshToken) {
@@ -139,7 +154,7 @@ const genericOAuth = (options) => {
                 message: "Invalid OAuth configuration. Token URL not found."
               });
             }
-            return refreshAccessToken.refreshAccessToken({
+            return socialProviders_index.refreshAccessToken({
               refreshToken,
               options: {
                 clientId: c.clientId,
@@ -175,31 +190,46 @@ const genericOAuth = (options) => {
       };
     },
     endpoints: {
-      signInWithOAuth2: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/sign-in/oauth2`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.signInWithOAuth2`
+       *
+       * **client:**
+       * `authClient.signIn.oauth2`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/sign-in#api-method-sign-in-oauth2)
+       */
+      signInWithOAuth2: session.createAuthEndpoint(
         "/sign-in/oauth2",
         {
           method: "POST",
-          body: zod.z.object({
-            providerId: zod.z.string({
+          body: z__namespace.object({
+            providerId: z__namespace.string().meta({
               description: "The provider ID for the OAuth provider"
             }),
-            callbackURL: zod.z.string({
+            callbackURL: z__namespace.string().meta({
               description: "The URL to redirect to after sign in"
             }).optional(),
-            errorCallbackURL: zod.z.string({
+            errorCallbackURL: z__namespace.string().meta({
               description: "The URL to redirect to if an error occurs"
             }).optional(),
-            newUserCallbackURL: zod.z.string({
-              description: "The URL to redirect to after login if the user is new"
+            newUserCallbackURL: z__namespace.string().meta({
+              description: 'The URL to redirect to after login if the user is new. Eg: "/welcome"'
             }).optional(),
-            disableRedirect: zod.z.boolean({
+            disableRedirect: z__namespace.boolean().meta({
               description: "Disable redirect"
             }).optional(),
-            scopes: zod.z.array(zod.z.string(), {
-              message: "Scopes to be passed to the provider authorization request."
+            scopes: z__namespace.array(z__namespace.string()).meta({
+              description: "Scopes to be passed to the provider authorization request."
             }).optional(),
-            requestSignUp: zod.z.boolean({
-              description: "Explicitly request sign-up. Useful when disableImplicitSignUp is true for this provider"
+            requestSignUp: z__namespace.boolean().meta({
+              description: "Explicitly request sign-up. Useful when disableImplicitSignUp is true for this provider. Eg: false"
             }).optional()
           }),
           metadata: {
@@ -285,15 +315,16 @@ const genericOAuth = (options) => {
             }
             finalAuthUrl = withAdditionalParams.toString();
           }
-          const { state: state$1, codeVerifier } = await state.generateState(ctx);
-          const authUrl = await refreshAccessToken.createAuthorizationURL({
+          const additionalParams = typeof authorizationUrlParams === "function" ? authorizationUrlParams(ctx) : authorizationUrlParams;
+          const { state, codeVerifier } = await socialProviders_index.generateState(ctx);
+          const authUrl = await socialProviders_index.createAuthorizationURL({
             id: providerId,
             options: {
               clientId,
               redirectURI
             },
             authorizationEndpoint: finalAuthUrl,
-            state: state$1,
+            state,
             codeVerifier: pkce ? codeVerifier : void 0,
             scopes: ctx.body.scopes ? [...ctx.body.scopes, ...scopes || []] : scopes || [],
             redirectURI: `${ctx.context.baseURL}/oauth2/callback/${providerId}`,
@@ -301,7 +332,7 @@ const genericOAuth = (options) => {
             accessType,
             responseType,
             responseMode,
-            additionalParams: authorizationUrlParams
+            additionalParams
           });
           return ctx.json({
             url: authUrl.toString(),
@@ -309,25 +340,26 @@ const genericOAuth = (options) => {
           });
         }
       ),
-      oAuth2Callback: account.createAuthEndpoint(
+      oAuth2Callback: session.createAuthEndpoint(
         "/oauth2/callback/:providerId",
         {
           method: "GET",
-          query: zod.z.object({
-            code: zod.z.string({
+          query: z__namespace.object({
+            code: z__namespace.string().meta({
               description: "The OAuth2 code"
             }).optional(),
-            error: zod.z.string({
+            error: z__namespace.string().meta({
               description: "The error message, if any"
             }).optional(),
-            error_description: zod.z.string({
+            error_description: z__namespace.string().meta({
               description: "The error description, if any"
             }).optional(),
-            state: zod.z.string({
+            state: z__namespace.string().meta({
               description: "The state parameter from the OAuth2 request"
             }).optional()
           }),
           metadata: {
+            client: false,
             openapi: {
               description: "OAuth2 callback",
               responses: {
@@ -366,7 +398,7 @@ const genericOAuth = (options) => {
             });
           }
           let tokens = void 0;
-          const parsedState = await state.parseState(ctx);
+          const parsedState = await socialProviders_index.parseState(ctx);
           const {
             callbackURL,
             codeVerifier,
@@ -378,7 +410,13 @@ const genericOAuth = (options) => {
           const code = ctx.query.code;
           function redirectOnError(error) {
             const defaultErrorURL2 = ctx.context.options.onAPIError?.errorURL || `${ctx.context.baseURL}/error`;
-            throw ctx.redirect(`${errorURL || defaultErrorURL2}?error=${error}`);
+            let url = errorURL || defaultErrorURL2;
+            if (url.includes("?")) {
+              url = `${url}&error=${error}`;
+            } else {
+              url = `${url}?error=${error}`;
+            }
+            throw ctx.redirect(url);
           }
           let finalTokenUrl = provider.tokenUrl;
           let finalUserInfoUrl = provider.userInfoUrl;
@@ -398,7 +436,8 @@ const genericOAuth = (options) => {
                 message: "Invalid OAuth configuration."
               });
             }
-            tokens = await refreshAccessToken.validateAuthorizationCode({
+            const additionalParams = typeof provider.tokenUrlParams === "function" ? provider.tokenUrlParams(ctx) : provider.tokenUrlParams;
+            tokens = await socialProviders_index.validateAuthorizationCode({
               headers: provider.authorizationHeaders,
               code,
               codeVerifier: provider.pkce ? codeVerifier : void 0,
@@ -409,7 +448,8 @@ const genericOAuth = (options) => {
                 redirectURI: provider.redirectURI
               },
               tokenEndpoint: finalTokenUrl,
-              authentication: provider.authentication
+              authentication: provider.authentication,
+              additionalParams
             });
           } catch (e) {
             ctx.context.logger.error(
@@ -423,21 +463,37 @@ const genericOAuth = (options) => {
               message: "Invalid OAuth configuration."
             });
           }
-          const userInfo = provider.getUserInfo ? await provider.getUserInfo(tokens) : await getUserInfo(tokens, finalUserInfoUrl);
-          if (!userInfo) {
-            throw redirectOnError("user_info_is_missing");
-          }
-          const mapUser = provider.mapProfileToUser ? await provider.mapProfileToUser(userInfo) : userInfo;
-          if (!mapUser?.email) {
-            ctx.context.logger.error("Unable to get user info", userInfo);
-            throw redirectOnError("email_is_missing");
-          }
+          const userInfo = await (async function handleUserInfo() {
+            const userInfo2 = provider.getUserInfo ? await provider.getUserInfo(tokens) : await getUserInfo(tokens, finalUserInfoUrl);
+            if (!userInfo2) {
+              throw redirectOnError("user_info_is_missing");
+            }
+            const mapUser = provider.mapProfileToUser ? await provider.mapProfileToUser(userInfo2) : userInfo2;
+            const email = mapUser.email ? mapUser.email.toLowerCase() : userInfo2.email?.toLowerCase();
+            if (!email) {
+              ctx.context.logger.error("Unable to get user info", userInfo2);
+              throw redirectOnError("email_is_missing");
+            }
+            const id = mapUser.id ? String(mapUser.id) : String(userInfo2.id);
+            const name = mapUser.name ? mapUser.name : userInfo2.name;
+            if (!name) {
+              ctx.context.logger.error("Unable to get user info", userInfo2);
+              throw redirectOnError("name_is_missing");
+            }
+            return {
+              ...userInfo2,
+              ...mapUser,
+              email,
+              id,
+              name
+            };
+          })();
           if (link) {
-            if (ctx.context.options.account?.accountLinking?.allowDifferentEmails !== true && link.email !== mapUser.email.toLowerCase()) {
+            if (ctx.context.options.account?.accountLinking?.allowDifferentEmails !== true && link.email !== userInfo.email) {
               return redirectOnError("email_doesn't_match");
             }
             const existingAccount = await ctx.context.internalAdapter.findAccountByProviderId(
-              userInfo.id,
+              String(userInfo.id),
               provider.providerId
             );
             if (existingAccount) {
@@ -485,11 +541,8 @@ const genericOAuth = (options) => {
             }
             throw ctx.redirect(toRedirectTo2);
           }
-          const result = await account.handleOAuthUserInfo(ctx, {
-            userInfo: {
-              ...userInfo,
-              ...mapUser
-            },
+          const result = await socialProviders_index.handleOAuthUserInfo(ctx, {
+            userInfo,
             account: {
               providerId: provider.providerId,
               accountId: userInfo.id,
@@ -518,15 +571,47 @@ const genericOAuth = (options) => {
           throw ctx.redirect(toRedirectTo);
         }
       ),
-      oAuth2LinkAccount: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/oauth2/link`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.oAuth2LinkAccount`
+       *
+       * **client:**
+       * `authClient.oauth2.link`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/generic-oauth#api-method-oauth2-link)
+       */
+      oAuth2LinkAccount: session.createAuthEndpoint(
         "/oauth2/link",
         {
           method: "POST",
-          body: zod.z.object({
-            providerId: zod.z.string(),
-            callbackURL: zod.z.string()
+          body: z__namespace.object({
+            providerId: z__namespace.string(),
+            /**
+             * Callback URL to redirect to after the user has signed in.
+             */
+            callbackURL: z__namespace.string(),
+            /**
+             * Additional scopes to request when linking the account.
+             * This is useful for requesting additional permissions when
+             * linking a social account compared to the initial authentication.
+             */
+            scopes: z__namespace.array(z__namespace.string()).meta({
+              description: "Additional scopes to request when linking the account"
+            }).optional(),
+            /**
+             * The URL to redirect to if there is an error during the link process.
+             */
+            errorCallbackURL: z__namespace.string().meta({
+              description: "The URL to redirect to if there is an error during the link process"
+            }).optional()
           }),
-          use: [account.sessionMiddleware],
+          use: [session.sessionMiddleware],
           metadata: {
             openapi: {
               description: "Link an OAuth2 account to the current user session",
@@ -559,13 +644,13 @@ const genericOAuth = (options) => {
           }
         },
         async (c) => {
-          const session = c.context.session;
+          const session$1 = c.context.session;
           const provider = options.config.find(
             (p) => p.providerId === c.body.providerId
           );
           if (!provider) {
             throw new betterCall.APIError("NOT_FOUND", {
-              message: account.BASE_ERROR_CODES.PROVIDER_NOT_FOUND
+              message: session.BASE_ERROR_CODES.PROVIDER_NOT_FOUND
             });
           }
           const {
@@ -606,24 +691,25 @@ const genericOAuth = (options) => {
               message: ERROR_CODES.INVALID_OAUTH_CONFIGURATION
             });
           }
-          const state$1 = await state.generateState(c, {
-            userId: session.user.id,
-            email: session.user.email
+          const state = await socialProviders_index.generateState(c, {
+            userId: session$1.user.id,
+            email: session$1.user.email
           });
-          const url = await refreshAccessToken.createAuthorizationURL({
+          const additionalParams = typeof authorizationUrlParams === "function" ? authorizationUrlParams(c) : authorizationUrlParams;
+          const url = await socialProviders_index.createAuthorizationURL({
             id: providerId,
             options: {
               clientId,
               redirectURI: redirectURI || `${c.context.baseURL}/oauth2/callback/${providerId}`
             },
             authorizationEndpoint: finalAuthUrl,
-            state: state$1.state,
-            codeVerifier: pkce ? state$1.codeVerifier : void 0,
-            scopes: scopes || [],
-            redirectURI: `${c.context.baseURL}/oauth2/callback/${providerId}`,
+            state: state.state,
+            codeVerifier: pkce ? state.codeVerifier : void 0,
+            scopes: c.body.scopes || scopes || [],
+            redirectURI: redirectURI || `${c.context.baseURL}/oauth2/callback/${providerId}`,
             prompt,
             accessType,
-            additionalParams: authorizationUrlParams
+            additionalParams
           });
           return c.json({
             url: url.toString(),

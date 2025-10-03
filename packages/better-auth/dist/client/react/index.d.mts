@@ -4,17 +4,19 @@ export * from 'nanostores';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchError } from '@better-fetch/fetch';
 export * from '@better-fetch/fetch';
-import { ClientOptions, BetterAuthClientPlugin, IsSignal, InferClientAPI, InferActions, InferErrorCodes } from '../../types/index.mjs';
-import { U as UnionToIntersection, P as PrettifyDeep } from '../../shared/better-auth.Bi8FQwDD.mjs';
+import { C as ClientOptions, B as BetterAuthClientPlugin, I as IsSignal, a as InferClientAPI, b as InferActions, S as SessionQueryParams, c as InferErrorCodes } from '../../shared/better-auth._MpIJZS0.mjs';
+import { U as UnionToIntersection, P as PrettifyDeep } from '../../shared/better-auth.DTtXpZYr.mjs';
 import { DependencyList } from 'react';
-import { f as BASE_ERROR_CODES } from '../../shared/better-auth.kHOzQ3TU.mjs';
+import { b as BASE_ERROR_CODES } from '../../shared/better-auth.DUREkDBM.mjs';
 import 'better-call';
+import '../../shared/better-auth.XefKa8DI.mjs';
 import 'zod';
-import '../../shared/better-auth.CggyDr6H.mjs';
-import 'jose';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 type StoreKeys<T> = T extends {
     setKey: (k: infer K, v: any) => unknown;
@@ -35,7 +37,7 @@ interface UseStoreOptions<SomeStore> {
 /**
  * Subscribe to store changes and get store's value.
  *
- * Can be user with store builder too.
+ * Can be used with store builder too.
  *
  * ```js
  * import { useStore } from 'nanostores/react'
@@ -78,7 +80,9 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
         } ? S : Res : never;
         isPending: boolean;
         error: BetterFetchError | null;
-        refetch: () => void;
+        refetch: (queryParams?: {
+            query?: SessionQueryParams;
+        }) => void;
     };
     $Infer: {
         Session: NonNullable<InferClientAPI<Option> extends {
@@ -100,39 +104,44 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
             id: string;
             name: string;
             hooks: {
+                onSuccess: ((context: _better_fetch_fetch.SuccessContext<any>) => Promise<void> | void) | undefined;
+                onError: ((context: _better_fetch_fetch.ErrorContext) => Promise<void> | void) | undefined;
+                onRequest: (<T extends Record<string, any>>(context: _better_fetch_fetch.RequestContext<T>) => Promise<_better_fetch_fetch.RequestContext | void> | _better_fetch_fetch.RequestContext | void) | undefined;
+                onResponse: ((context: _better_fetch_fetch.ResponseContext) => Promise<Response | void | _better_fetch_fetch.ResponseContext> | Response | _better_fetch_fetch.ResponseContext | void) | undefined;
+            };
+        } | {
+            id: string;
+            name: string;
+            hooks: {
                 onSuccess(context: _better_fetch_fetch.SuccessContext<any>): void;
             };
         })[];
+        redirect?: RequestRedirect | undefined;
+        method: string;
         headers?: (HeadersInit & (HeadersInit | {
             accept: "application/json" | "text/plain" | "application/octet-stream";
             "content-type": "application/json" | "text/plain" | "application/x-www-form-urlencoded" | "multipart/form-data" | "application/octet-stream";
             authorization: "Bearer" | "Basic";
         })) | undefined;
-        cache?: RequestCache;
+        cache?: RequestCache | undefined;
         credentials?: RequestCredentials;
-        integrity?: string;
-        keepalive?: boolean;
-        method: string;
-        mode?: RequestMode;
-        priority?: RequestPriority;
-        redirect?: RequestRedirect;
-        referrer?: string;
-        referrerPolicy?: ReferrerPolicy;
-        signal?: AbortSignal | null;
-        window?: null;
-        onRequest?: <T extends Record<string, any>>(context: _better_fetch_fetch.RequestContext<T>) => Promise<_better_fetch_fetch.RequestContext | void> | _better_fetch_fetch.RequestContext | void;
-        onResponse?: (context: _better_fetch_fetch.ResponseContext) => Promise<Response | void | _better_fetch_fetch.ResponseContext> | Response | _better_fetch_fetch.ResponseContext | void;
-        onSuccess?: ((context: _better_fetch_fetch.SuccessContext<any>) => Promise<void> | void) | undefined;
-        onError?: (context: _better_fetch_fetch.ErrorContext) => Promise<void> | void;
-        onRetry?: (response: _better_fetch_fetch.ResponseContext) => Promise<void> | void;
+        integrity?: string | undefined;
+        keepalive?: boolean | undefined;
+        mode?: RequestMode | undefined;
+        priority?: RequestPriority | undefined;
+        referrer?: string | undefined;
+        referrerPolicy?: ReferrerPolicy | undefined;
+        signal?: (AbortSignal | null) | undefined;
+        window?: null | undefined;
+        onRetry?: ((response: _better_fetch_fetch.ResponseContext) => Promise<void> | void) | undefined;
         hookOptions?: {
             cloneResponse?: boolean;
-        };
-        timeout?: number;
+        } | undefined;
+        timeout?: number | undefined;
         customFetchImpl: _better_fetch_fetch.FetchEsque;
         baseURL: string;
-        throw?: boolean;
-        auth?: {
+        throw?: boolean | undefined;
+        auth?: ({
             type: "Bearer";
             token: string | Promise<string | undefined> | (() => string | Promise<string | undefined> | undefined) | undefined;
         } | {
@@ -143,17 +152,17 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
             type: "Custom";
             prefix: string | (() => string | undefined) | undefined;
             value: string | (() => string | undefined) | undefined;
-        };
+        }) | undefined;
         body?: any;
         query?: any;
         params?: any;
-        duplex?: "full" | "half";
+        duplex?: "full" | "half" | undefined;
         jsonParser: (text: string) => Promise<any> | any;
-        retry?: _better_fetch_fetch.RetryOptions;
-        retryAttempt?: number;
-        output?: _better_fetch_fetch.StandardSchemaV1 | typeof Blob | typeof File;
-        errorSchema?: _better_fetch_fetch.StandardSchemaV1;
-        disableValidation?: boolean;
+        retry?: _better_fetch_fetch.RetryOptions | undefined;
+        retryAttempt?: number | undefined;
+        output?: (_better_fetch_fetch.StandardSchemaV1 | typeof Blob | typeof File) | undefined;
+        errorSchema?: _better_fetch_fetch.StandardSchemaV1 | undefined;
+        disableValidation?: boolean | undefined;
     }, unknown, unknown, {}>;
     $store: {
         notify: (signal?: Omit<string, "$sessionSignal"> | "$sessionSignal") => void;

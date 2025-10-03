@@ -1,37 +1,69 @@
+import { OrganizationOptions, organization, InferMember, InferInvitation, Team, Organization, Member, Invitation, TeamMember, OrganizationRole } from '../../plugins/organization/index.mjs';
+import { AccessControl, Role, Statements } from '../../plugins/access/index.mjs';
 import * as nanostores from 'nanostores';
 import { atom } from 'nanostores';
-import { AccessControl, Role, Statements } from '../../plugins/access/index.mjs';
+import { a as Prettify } from '../../shared/better-auth.DTtXpZYr.mjs';
+import { B as BetterAuthOptions, U as User, n as BetterAuthPlugin } from '../../shared/better-auth.DUREkDBM.mjs';
+import { DBFieldAttribute } from '@better-auth/core/db';
+import { e as Store, C as ClientOptions, S as SessionQueryParams } from '../../shared/better-auth._MpIJZS0.mjs';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetch, BetterFetchOption } from '@better-fetch/fetch';
-import { organization, InferMember, InferInvitation, Team, Organization, Member, Invitation } from '../../plugins/organization/index.mjs';
-import { b as Prettify } from '../../shared/better-auth.Bi8FQwDD.mjs';
 import { username } from '../../plugins/username/index.mjs';
+import { Session } from 'inspector';
 import { Passkey, passkey } from '../../plugins/passkey/index.mjs';
 export { twoFactorClient } from '../../plugins/two-factor/index.mjs';
 import { magicLink } from '../../plugins/magic-link/index.mjs';
 import { phoneNumber } from '../../plugins/phone-number/index.mjs';
 import { anonymous } from '../../plugins/anonymous/index.mjs';
-import { a1 as FieldAttribute, B as BetterAuthOptions, h as BetterAuthPlugin } from '../../shared/better-auth.kHOzQ3TU.mjs';
 import { admin } from '../../plugins/admin/index.mjs';
 import { genericOAuth } from '../../plugins/generic-oauth/index.mjs';
 import { jwt } from '../../plugins/jwt/index.mjs';
 import { multiSession } from '../../plugins/multi-session/index.mjs';
 import { emailOTP } from '../../plugins/email-otp/index.mjs';
-import { Store } from '../../types/index.mjs';
+import { Auth } from 'better-auth';
 import { sso } from '../../plugins/sso/index.mjs';
 import { oidcProvider } from '../../plugins/oidc-provider/index.mjs';
-import { a as apiKey } from '../../shared/better-auth.DCH7RxHm.mjs';
+import { a as apiKey } from '../../shared/better-auth.CPxTiBk4.mjs';
 import { oneTimeToken } from '../../plugins/one-time-token/index.mjs';
+import { siwe } from '../../plugins/siwe/index.mjs';
+export { deviceAuthorizationClient } from '../../plugins/device-authorization/index.mjs';
 export * from '@simplewebauthn/server';
+export { global } from '@simplewebauthn/server';
 import 'zod';
 import 'better-call';
 import '../../plugins/organization/access/index.mjs';
-import '../../shared/better-auth.CggyDr6H.mjs';
-import 'jose';
+import '../../shared/better-auth.XefKa8DI.mjs';
 import 'kysely';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
+import 'jose';
 
+type PermissionExclusive = {
+    /**
+     * @deprecated Use `permissions` instead
+     */
+    permission: {
+        [key: string]: string[];
+    };
+    permissions?: never;
+} | {
+    permissions: {
+        [key: string]: string[];
+    };
+    permission?: never;
+};
+type HasPermissionBaseInput = {
+    role: string;
+    options: OrganizationOptions;
+    allowCreatorAllPermissions?: boolean;
+} & PermissionExclusive;
+
+/**
+ * Using the same `hasPermissionFn` function, but without the need for a `ctx` parameter or the `organizationId` parameter.
+ */
+declare const clientSideHasPermission: (input: HasPermissionBaseInput) => boolean;
 interface OrganizationClientOptions {
     ac?: AccessControl;
     roles?: {
@@ -40,98 +72,141 @@ interface OrganizationClientOptions {
     teams?: {
         enabled: boolean;
     };
+    schema?: {
+        organization?: {
+            additionalFields?: {
+                [key: string]: DBFieldAttribute;
+            };
+        };
+        member?: {
+            additionalFields?: {
+                [key: string]: DBFieldAttribute;
+            };
+        };
+        invitation?: {
+            additionalFields?: {
+                [key: string]: DBFieldAttribute;
+            };
+        };
+        team?: {
+            additionalFields?: {
+                [key: string]: DBFieldAttribute;
+            };
+        };
+        organizationRole?: {
+            additionalFields?: {
+                [key: string]: DBFieldAttribute;
+            };
+        };
+    };
+    dynamicAccessControl?: {
+        enabled: boolean;
+    };
 }
-declare const organizationClient: <O extends OrganizationClientOptions>(options?: O) => {
+declare const organizationClient: <CO extends OrganizationClientOptions>(options?: CO) => {
     id: "organization";
     $InferServerPlugin: ReturnType<typeof organization<{
-        ac: O["ac"] extends AccessControl ? O["ac"] : AccessControl<{
+        ac: CO["ac"] extends AccessControl ? CO["ac"] : AccessControl<{
             readonly organization: readonly ["update", "delete"];
             readonly member: readonly ["create", "update", "delete"];
             readonly invitation: readonly ["create", "cancel"];
             readonly team: readonly ["create", "update", "delete"];
+            readonly ac: readonly ["create", "read", "update", "delete"];
         }>;
-        roles: O["roles"] extends Record<string, Role> ? O["roles"] : {
+        roles: CO["roles"] extends Record<string, Role> ? CO["roles"] : {
             admin: Role;
             member: Role;
             owner: Role;
         };
         teams: {
-            enabled: O["teams"] extends {
+            enabled: CO["teams"] extends {
+                enabled: true;
+            } ? true : false;
+        };
+        schema: CO["schema"];
+        dynamicAccessControl: {
+            enabled: CO["dynamicAccessControl"] extends {
                 enabled: true;
             } ? true : false;
         };
     }>>;
-    getActions: ($fetch: _better_fetch_fetch.BetterFetch) => {
+    getActions: ($fetch: _better_fetch_fetch.BetterFetch, _$store: Store, co: ClientOptions | undefined) => {
         $Infer: {
-            ActiveOrganization: O["teams"] extends {
+            ActiveOrganization: CO["teams"] extends {
                 enabled: true;
             } ? {
-                members: InferMember<O>[];
-                invitations: InferInvitation<O>[];
+                members: InferMember<CO>[];
+                invitations: InferInvitation<CO>[];
                 teams: Team[];
             } & {
                 id: string;
                 name: string;
-                createdAt: Date;
                 slug: string;
-                metadata?: any;
+                createdAt: Date;
                 logo?: string | null | undefined;
+                metadata?: any;
             } : {
-                members: InferMember<O>[];
-                invitations: InferInvitation<O>[];
+                members: InferMember<CO>[];
+                invitations: InferInvitation<CO>[];
             } & {
                 id: string;
                 name: string;
-                createdAt: Date;
                 slug: string;
-                metadata?: any;
+                createdAt: Date;
                 logo?: string | null | undefined;
+                metadata?: any;
             };
             Organization: Organization;
-            Invitation: InferInvitation<O>;
-            Member: InferMember<O>;
+            Invitation: InferInvitation<CO>;
+            Member: InferMember<CO>;
             Team: Team;
         };
         organization: {
-            checkRolePermission: <R extends O extends {
+            checkRolePermission: <R extends CO extends {
                 roles: any;
-            } ? keyof O["roles"] : "admin" | "member" | "owner">(data: ({
+            } ? keyof CO["roles"] : "admin" | "member" | "owner">(data: ({
                 /**
                  * @deprecated Use `permissions` instead
                  */
-                permission: { [key in keyof (O["ac"] extends AccessControl<infer S extends Statements> ? S : {
+                permission: { [key in keyof (CO["ac"] extends AccessControl<infer S extends Statements> ? S : {
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
                     readonly team: readonly ["create", "update", "delete"];
-                })]?: ((O["ac"] extends AccessControl<infer S extends Statements> ? S : {
+                    readonly ac: readonly ["create", "read", "update", "delete"];
+                })]?: ((CO["ac"] extends AccessControl<infer S extends Statements> ? S : {
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
                     readonly team: readonly ["create", "update", "delete"];
-                })[key] extends readonly unknown[] ? (O["ac"] extends AccessControl<infer S extends Statements> ? S : {
+                    readonly ac: readonly ["create", "read", "update", "delete"];
+                })[key] extends readonly unknown[] ? (CO["ac"] extends AccessControl<infer S extends Statements> ? S : {
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
                     readonly team: readonly ["create", "update", "delete"];
+                    readonly ac: readonly ["create", "read", "update", "delete"];
                 })[key][number] : never)[] | undefined; };
                 permissions?: never;
             } | {
-                permissions: { [key in keyof (O["ac"] extends AccessControl<infer S extends Statements> ? S : {
+                permissions: { [key in keyof (CO["ac"] extends AccessControl<infer S extends Statements> ? S : {
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
                     readonly team: readonly ["create", "update", "delete"];
-                })]?: ((O["ac"] extends AccessControl<infer S extends Statements> ? S : {
+                    readonly ac: readonly ["create", "read", "update", "delete"];
+                })]?: ((CO["ac"] extends AccessControl<infer S extends Statements> ? S : {
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
                     readonly team: readonly ["create", "update", "delete"];
-                })[key] extends readonly unknown[] ? (O["ac"] extends AccessControl<infer S extends Statements> ? S : {
+                    readonly ac: readonly ["create", "read", "update", "delete"];
+                })[key] extends readonly unknown[] ? (CO["ac"] extends AccessControl<infer S extends Statements> ? S : {
                     readonly organization: readonly ["update", "delete"];
                     readonly member: readonly ["create", "update", "delete"];
                     readonly invitation: readonly ["create", "cancel"];
                     readonly team: readonly ["create", "update", "delete"];
+                    readonly ac: readonly ["create", "read", "update", "delete"];
                 })[key][number] : never)[] | undefined; };
                 permission?: never;
             }) & {
@@ -143,14 +218,15 @@ declare const organizationClient: <O extends OrganizationClientOptions>(options?
         $listOrg: nanostores.PreinitializedWritableAtom<boolean> & object;
         $activeOrgSignal: nanostores.PreinitializedWritableAtom<boolean> & object;
         $activeMemberSignal: nanostores.PreinitializedWritableAtom<boolean> & object;
+        $activeMemberRoleSignal: nanostores.PreinitializedWritableAtom<boolean> & object;
         activeOrganization: nanostores.PreinitializedWritableAtom<{
             data: Prettify<{
                 id: string;
                 name: string;
-                createdAt: Date;
                 slug: string;
-                metadata?: any;
+                createdAt: Date;
                 logo?: string | null | undefined;
+                metadata?: any;
             } & {
                 members: (Member & {
                     user: {
@@ -165,39 +241,56 @@ declare const organizationClient: <O extends OrganizationClientOptions>(options?
             error: null | _better_fetch_fetch.BetterFetchError;
             isPending: boolean;
             isRefetching: boolean;
-            refetch: () => void;
+            refetch: (queryParams?: {
+                query?: SessionQueryParams;
+            } | undefined) => void;
         }> & object;
         listOrganizations: nanostores.PreinitializedWritableAtom<{
             data: {
                 id: string;
                 name: string;
-                createdAt: Date;
                 slug: string;
-                metadata?: any;
+                createdAt: Date;
                 logo?: string | null | undefined;
+                metadata?: any;
             }[] | null;
             error: null | _better_fetch_fetch.BetterFetchError;
             isPending: boolean;
             isRefetching: boolean;
-            refetch: () => void;
+            refetch: (queryParams?: {
+                query?: SessionQueryParams;
+            } | undefined) => void;
         }> & object;
         activeMember: nanostores.PreinitializedWritableAtom<{
             data: {
                 id: string;
-                createdAt: Date;
-                userId: string;
                 organizationId: string;
+                userId: string;
                 role: string;
-                teamId?: string | undefined;
+                createdAt: Date;
             } | null;
             error: null | _better_fetch_fetch.BetterFetchError;
             isPending: boolean;
             isRefetching: boolean;
-            refetch: () => void;
+            refetch: (queryParams?: {
+                query?: SessionQueryParams;
+            } | undefined) => void;
+        }> & object;
+        activeMemberRole: nanostores.PreinitializedWritableAtom<{
+            data: {
+                role: string;
+            } | null;
+            error: null | _better_fetch_fetch.BetterFetchError;
+            isPending: boolean;
+            isRefetching: boolean;
+            refetch: (queryParams?: {
+                query?: SessionQueryParams;
+            } | undefined) => void;
         }> & object;
     };
     pathMethods: {
         "/organization/get-full-organization": "GET";
+        "/organization/list-user-teams": "GET";
     };
     atomListeners: ({
         matcher(path: string): path is "/organization/create" | "/organization/update" | "/organization/delete";
@@ -211,8 +304,104 @@ declare const organizationClient: <O extends OrganizationClientOptions>(options?
     } | {
         matcher(path: string): boolean;
         signal: "$activeMemberSignal";
+    } | {
+        matcher(path: string): boolean;
+        signal: "$activeMemberRoleSignal";
     })[];
 };
+declare const inferOrgAdditionalFields: <O extends {
+    options: BetterAuthOptions;
+}, S extends OrganizationOptions["schema"] = undefined>(schema?: S) => undefined extends S ? O extends Object ? O extends {
+    session?: {
+        fields?: {
+            activeOrganizationId?: string;
+            activeTeamId?: string;
+        };
+    };
+    organization?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<Organization, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+    member?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<Member, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+    invitation?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<Invitation, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+    team?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<Team, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+    teamMember?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<TeamMember, "id">]?: string; };
+    };
+    organizationRole?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<OrganizationRole, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+} ? O : ((O extends {
+    options: any;
+} ? O : {
+    options: {
+        plugins: [];
+    };
+})["options"]["plugins"][number] extends infer T ? T extends (O extends {
+    options: any;
+} ? O : {
+    options: {
+        plugins: [];
+    };
+})["options"]["plugins"][number] ? T extends {
+    id: "organization";
+} ? T : never : never : never) extends {
+    options: {
+        schema: infer S_1;
+    };
+} ? S_1 extends {
+    session?: {
+        fields?: {
+            activeOrganizationId?: string;
+            activeTeamId?: string;
+        };
+    };
+    organization?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<Organization, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+    member?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<Member, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+    invitation?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<Invitation, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+    team?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<Team, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+    teamMember?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<TeamMember, "id">]?: string; };
+    };
+    organizationRole?: {
+        modelName?: string;
+        fields?: { [key in keyof Omit<OrganizationRole, "id">]?: string; };
+        additionalFields?: { [key in string]: DBFieldAttribute; };
+    };
+} | undefined ? S_1 : undefined : undefined : undefined : S;
 
 declare const usernameClient: () => {
     id: "username";
@@ -228,7 +417,6 @@ declare const getPasskeyActions: ($fetch: BetterFetch, { $listPasskeys, }: {
          */
         passkey: (opts?: {
             autoFill?: boolean;
-            email?: string;
             fetchOptions?: BetterFetchOption;
         }, options?: BetterFetchOption) => Promise<{
             data: null;
@@ -237,7 +425,21 @@ declare const getPasskeyActions: ($fetch: BetterFetch, { $listPasskeys, }: {
                 status: number;
                 statusText: string;
             };
-        } | undefined>;
+        } | {
+            data: {
+                session: Session;
+                user: User;
+            };
+            error: null;
+        } | {
+            data: null;
+            error: {
+                code: string;
+                message: string;
+                status: number;
+                statusText: string;
+            };
+        }>;
     };
     passkey: {
         /**
@@ -268,6 +470,14 @@ declare const getPasskeyActions: ($fetch: BetterFetch, { $listPasskeys, }: {
                 status: number;
                 statusText: string;
             };
+        } | {
+            data: null;
+            error: {
+                code: string;
+                message: string;
+                status: number;
+                statusText: string;
+            };
         } | undefined>;
     };
     /**
@@ -287,7 +497,6 @@ declare const passkeyClient: () => {
              */
             passkey: (opts?: {
                 autoFill?: boolean;
-                email?: string;
                 fetchOptions?: BetterFetchOption;
             }, options?: BetterFetchOption) => Promise<{
                 data: null;
@@ -296,7 +505,21 @@ declare const passkeyClient: () => {
                     status: number;
                     statusText: string;
                 };
-            } | undefined>;
+            } | {
+                data: {
+                    session: Session;
+                    user: User;
+                };
+                error: null;
+            } | {
+                data: null;
+                error: {
+                    code: string;
+                    message: string;
+                    status: number;
+                    statusText: string;
+                };
+            }>;
         };
         passkey: {
             /**
@@ -327,6 +550,14 @@ declare const passkeyClient: () => {
                     status: number;
                     statusText: string;
                 };
+            } | {
+                data: null;
+                error: {
+                    code: string;
+                    message: string;
+                    status: number;
+                    statusText: string;
+                };
             } | undefined>;
         };
         /**
@@ -342,7 +573,9 @@ declare const passkeyClient: () => {
             error: null | _better_fetch_fetch.BetterFetchError;
             isPending: boolean;
             isRefetching: boolean;
-            refetch: () => void;
+            refetch: (queryParams?: {
+                query?: SessionQueryParams;
+            } | undefined) => void;
         }> & object;
         $listPasskeys: nanostores.PreinitializedWritableAtom<any> & object;
     };
@@ -380,10 +613,10 @@ declare const anonymousClient: () => {
 
 declare const inferAdditionalFields: <T, S extends {
     user?: {
-        [key: string]: FieldAttribute;
+        [key: string]: DBFieldAttribute;
     };
     session?: {
-        [key: string]: FieldAttribute;
+        [key: string]: DBFieldAttribute;
     };
 } = {}>(schema?: S) => {
     id: "additional-fields-client";
@@ -391,10 +624,10 @@ declare const inferAdditionalFields: <T, S extends {
         options: BetterAuthOptions;
     } ? T["options"] : never) extends never ? S extends {
         user?: {
-            [key: string]: FieldAttribute;
+            [key: string]: DBFieldAttribute;
         };
         session?: {
-            [key: string]: FieldAttribute;
+            [key: string]: DBFieldAttribute;
         };
     } ? {
         id: "additional-fields-client";
@@ -430,10 +663,10 @@ declare const inferAdditionalFields: <T, S extends {
         options: BetterAuthOptions;
     } ? T["options"] : never) extends never ? S extends {
         user?: {
-            [key: string]: FieldAttribute;
+            [key: string]: DBFieldAttribute;
         };
         session?: {
-            [key: string]: FieldAttribute;
+            [key: string]: DBFieldAttribute;
         };
     } ? {
         id: "additional-fields-client";
@@ -478,7 +711,7 @@ declare const adminClient: <O extends AdminClientOptions>(options?: O) => {
     id: "admin-client";
     $InferServerPlugin: ReturnType<typeof admin<{
         ac: O["ac"] extends AccessControl ? O["ac"] : AccessControl<{
-            readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
+            readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
             readonly session: readonly ["list", "revoke", "delete"];
         }>;
         roles: O["roles"] extends Record<string, Role> ? O["roles"] : {
@@ -486,7 +719,7 @@ declare const adminClient: <O extends AdminClientOptions>(options?: O) => {
             user: Role;
         };
     }>>;
-    getActions: ($fetch: _better_fetch_fetch.BetterFetch) => {
+    getActions: () => {
         admin: {
             checkRolePermission: <R extends O extends {
                 roles: any;
@@ -495,25 +728,25 @@ declare const adminClient: <O extends AdminClientOptions>(options?: O) => {
                  * @deprecated Use `permissions` instead
                  */
                 permission: { [key in keyof (O["ac"] extends AccessControl<infer S extends Statements> ? S : {
-                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
+                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
                     readonly session: readonly ["list", "revoke", "delete"];
                 })]?: ((O["ac"] extends AccessControl<infer S extends Statements> ? S : {
-                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
+                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
                     readonly session: readonly ["list", "revoke", "delete"];
                 })[key] extends readonly unknown[] ? (O["ac"] extends AccessControl<infer S extends Statements> ? S : {
-                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
+                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
                     readonly session: readonly ["list", "revoke", "delete"];
                 })[key][number] : never)[] | undefined; };
                 permissions?: never;
             } | {
                 permissions: { [key in keyof (O["ac"] extends AccessControl<infer S extends Statements> ? S : {
-                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
+                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
                     readonly session: readonly ["list", "revoke", "delete"];
                 })]?: ((O["ac"] extends AccessControl<infer S extends Statements> ? S : {
-                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
+                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
                     readonly session: readonly ["list", "revoke", "delete"];
                 })[key] extends readonly unknown[] ? (O["ac"] extends AccessControl<infer S extends Statements> ? S : {
-                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"];
+                    readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
                     readonly session: readonly ["list", "revoke", "delete"];
                 })[key][number] : never)[] | undefined; };
                 permission?: never;
@@ -633,7 +866,7 @@ declare const oneTapClient: (options: GoogleOneTapOptions) => {
     getAtoms($fetch: _better_fetch_fetch.BetterFetch): {};
 };
 
-declare const customSessionClient: <A extends {
+declare const customSessionClient: <A extends Auth | {
     options: BetterAuthOptions;
 }>() => {
     id: "infer-server-plugin";
@@ -680,4 +913,45 @@ declare const oneTimeTokenClient: () => {
     $InferServerPlugin: ReturnType<typeof oneTimeToken>;
 };
 
-export { type GoogleOneTapActionOptions, type GoogleOneTapOptions, InferServerPlugin, adminClient, anonymousClient, apiKeyClient, customSessionClient, emailOTPClient, genericOAuthClient, getPasskeyActions, inferAdditionalFields, jwtClient, magicLinkClient, multiSessionClient, oidcClient, oneTapClient, oneTimeTokenClient, organizationClient, passkeyClient, phoneNumberClient, ssoClient, usernameClient };
+declare const siweClient: () => {
+    id: "siwe";
+    $InferServerPlugin: ReturnType<typeof siwe>;
+};
+
+/**
+ * Configuration for the client-side last login method plugin
+ */
+interface LastLoginMethodClientConfig {
+    /**
+     * Name of the cookie to read the last login method from
+     * @default "better-auth.last_used_login_method"
+     */
+    cookieName?: string;
+}
+/**
+ * Client-side plugin to retrieve the last used login method
+ */
+declare const lastLoginMethodClient: (config?: LastLoginMethodClientConfig) => {
+    id: "last-login-method-client";
+    getActions(): {
+        /**
+         * Get the last used login method from cookies
+         * @returns The last used login method or null if not found
+         */
+        getLastUsedLoginMethod: () => string | null;
+        /**
+         * Clear the last used login method cookie
+         * This sets the cookie with an expiration date in the past
+         */
+        clearLastUsedLoginMethod: () => void;
+        /**
+         * Check if a specific login method was the last used
+         * @param method The method to check
+         * @returns True if the method was the last used, false otherwise
+         */
+        isLastUsedLoginMethod: (method: string) => boolean;
+    };
+};
+
+export { InferServerPlugin, adminClient, anonymousClient, apiKeyClient, clientSideHasPermission, customSessionClient, emailOTPClient, genericOAuthClient, getPasskeyActions, inferAdditionalFields, inferOrgAdditionalFields, jwtClient, lastLoginMethodClient, magicLinkClient, multiSessionClient, oidcClient, oneTapClient, oneTimeTokenClient, organizationClient, passkeyClient, phoneNumberClient, siweClient, ssoClient, usernameClient };
+export type { GoogleOneTapActionOptions, GoogleOneTapOptions, LastLoginMethodClientConfig };

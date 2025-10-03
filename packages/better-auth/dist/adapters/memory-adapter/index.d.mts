@@ -1,12 +1,14 @@
-import { A as AdapterDebugLogs, B as BetterAuthOptions, a as Adapter } from '../../shared/better-auth.kHOzQ3TU.mjs';
-import '../../shared/better-auth.Bi8FQwDD.mjs';
+import { A as AdapterDebugLogs, B as BetterAuthOptions, a as Adapter } from '../../shared/better-auth.DUREkDBM.mjs';
+import '../../shared/better-auth.XefKa8DI.mjs';
+import '../../shared/better-auth.DTtXpZYr.mjs';
 import 'zod';
-import '../../shared/better-auth.CggyDr6H.mjs';
-import 'jose';
 import 'kysely';
 import 'better-call';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface MemoryDB {
     [key: string]: any[];
@@ -16,4 +18,5 @@ interface MemoryAdapterConfig {
 }
 declare const memoryAdapter: (db: MemoryDB, config?: MemoryAdapterConfig) => (options: BetterAuthOptions) => Adapter;
 
-export { type MemoryAdapterConfig, type MemoryDB, memoryAdapter };
+export { memoryAdapter };
+export type { MemoryAdapterConfig, MemoryDB };

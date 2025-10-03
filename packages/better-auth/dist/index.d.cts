@@ -1,17 +1,23 @@
-export { D as Account, a as Adapter, J as AdapterInstance, F as AdapterSchemaCreation, x as AdditionalSessionFieldsInput, y as AdditionalSessionFieldsOutput, v as AdditionalUserFieldsInput, w as AdditionalUserFieldsOutput, n as Auth, p as AuthContext, g as AuthPluginSchema, B as BetterAuthOptions, h as BetterAuthPlugin, O as FilterActions, N as FilteredAPI, G as GenericEndpointContext, H as HookEndpointContext, Q as InferAPI, I as InferOptionSchema, i as InferPluginErrorCodes, z as InferPluginTypes, r as InferSession, P as InferSessionAPI, q as InferUser, _ as LogHandlerParams, T as LogLevel, Z as Logger, M as Models, R as RateLimit, L as SecondaryStorage, S as Session, U as User, V as Verification, W as Where, t as WithJsDoc, u as betterAuth, $ as createLogger, E as init, X as levels, a0 as logger, Y as shouldPublishLog } from './shared/better-auth.C67OuOdK.cjs';
-export { AtomListener, BetterAuthClientPlugin, ClientOptions, InferActions, InferAdditionalFromClient, InferClientAPI, InferErrorCodes, InferPluginsFromClient, InferSessionFromClient, InferUserFromClient, IsSignal, Store } from './types/index.cjs';
+import { B as BetterAuthOptions, T as TelemetryContext, w as TelemetryEvent, M as Models } from './shared/better-auth.jRxKMAeG.cjs';
+export { v as Account, a as Adapter, P as AdapterInstance, O as AdapterSchemaCreation, D as AdditionalSessionFieldsInput, E as AdditionalSessionFieldsOutput, y as AdditionalUserFieldsInput, z as AdditionalUserFieldsOutput, c as Auth, d as AuthContext, m as AuthPluginSchema, n as BetterAuthPlugin, Y as FilterActions, X as FilteredAPI, G as GenericEndpointContext, H as HookEndpointContext, h as InferAPI, I as InferOptionSchema, o as InferPluginErrorCodes, F as InferPluginTypes, f as InferSession, Z as InferSessionAPI, e as InferUser, a3 as InternalLogger, a2 as LogHandlerParams, _ as LogLevel, a1 as Logger, R as RateLimit, Q as SecondaryStorage, S as Session, N as TransactionAdapter, U as User, V as Verification, L as Where, W as WithJsDoc, x as betterAuth, a4 as createLogger, J as init, $ as levels, a5 as logger, a0 as shouldPublishLog } from './shared/better-auth.jRxKMAeG.cjs';
+export { A as AtomListener, B as BetterAuthClientPlugin, C as ClientOptions, b as InferActions, i as InferAdditionalFromClient, a as InferClientAPI, c as InferErrorCodes, f as InferPluginsFromClient, g as InferSessionFromClient, h as InferUserFromClient, I as IsSignal, S as SessionQueryParams, e as Store } from './shared/better-auth.D9g9O-KJ.cjs';
 export { H as HIDE_METADATA } from './shared/better-auth.DEHJp1rk.cjs';
-export { g as generateState, p as parseState } from './shared/better-auth.6zfoBGSG.cjs';
+export { g as generateState, p as parseState } from './shared/better-auth.DVly4N6Q.cjs';
 export * from 'better-call';
-export * from 'zod';
-export { D as DeepPartial, E as Expand, H as HasRequiredKeys, a as LiteralNumber, L as LiteralString, d as LiteralUnion, O as OmitId, c as PreserveJSDoc, b as Prettify, P as PrettifyDeep, R as RequiredKeysOf, S as StripEmptyObjects, U as UnionToIntersection, W as WithoutEmpty } from './shared/better-auth.Bi8FQwDD.cjs';
-export { O as OAuth2Tokens, a as OAuthProvider, P as ProviderOptions } from './shared/better-auth.BgtukYVC.cjs';
+export { APIError } from 'better-call';
+export * from 'zod/v4';
+export * from 'zod/v4/core';
+import { b as LiteralUnion } from './shared/better-auth.DTtXpZYr.cjs';
+export { A as Awaitable, D as DeepPartial, E as Expand, H as HasRequiredKeys, d as LiteralNumber, L as LiteralString, O as OmitId, e as PreserveJSDoc, a as Prettify, P as PrettifyDeep, c as Primitive, R as RequiredKeysOf, S as StripEmptyObjects, U as UnionToIntersection, W as WithoutEmpty } from './shared/better-auth.DTtXpZYr.cjs';
+export { O as OAuth2Tokens, a as OAuth2UserInfo, b as OAuthProvider, P as ProviderOptions } from './shared/better-auth.v_lf-jeY.cjs';
 import 'kysely';
+import '@better-auth/core/db';
+import 'zod';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
 import '@better-fetch/fetch';
 import 'nanostores';
-import 'jose';
 
 declare function capitalizeFirstLetter(str: string): string;
 
@@ -24,4 +30,210 @@ declare class MissingDependencyError extends BetterAuthError {
     constructor(pkgName: string);
 }
 
-export { BetterAuthError, MissingDependencyError, capitalizeFirstLetter, generateId };
+declare function createTelemetry$1(options: BetterAuthOptions, context?: TelemetryContext): Promise<{
+    publish: (event: TelemetryEvent) => Promise<void>;
+}>;
+
+declare const createTelemetry: typeof createTelemetry$1;
+
+declare function getTelemetryAuthConfig(options: BetterAuthOptions, context?: TelemetryContext): {
+    database: string | undefined;
+    adapter: string | undefined;
+    emailVerification: {
+        sendVerificationEmail: boolean;
+        sendOnSignUp: boolean;
+        sendOnSignIn: boolean;
+        autoSignInAfterVerification: boolean;
+        expiresIn: number | undefined;
+        onEmailVerification: boolean;
+        afterEmailVerification: boolean;
+    };
+    emailAndPassword: {
+        enabled: boolean;
+        disableSignUp: boolean;
+        requireEmailVerification: boolean;
+        maxPasswordLength: number | undefined;
+        minPasswordLength: number | undefined;
+        sendResetPassword: boolean;
+        resetPasswordTokenExpiresIn: number | undefined;
+        onPasswordReset: boolean;
+        password: {
+            hash: boolean;
+            verify: boolean;
+        };
+        autoSignIn: boolean;
+        revokeSessionsOnPasswordReset: boolean;
+    };
+    socialProviders: ({
+        id?: undefined;
+        mapProfileToUser?: undefined;
+        disableDefaultScope?: undefined;
+        disableIdTokenSignIn?: undefined;
+        disableImplicitSignUp?: undefined;
+        disableSignUp?: undefined;
+        getUserInfo?: undefined;
+        overrideUserInfoOnSignIn?: undefined;
+        prompt?: undefined;
+        verifyIdToken?: undefined;
+        scope?: undefined;
+        refreshAccessToken?: undefined;
+    } | {
+        id: string;
+        mapProfileToUser: boolean;
+        disableDefaultScope: boolean;
+        disableIdTokenSignIn: boolean;
+        disableImplicitSignUp: boolean | undefined;
+        disableSignUp: boolean | undefined;
+        getUserInfo: boolean;
+        overrideUserInfoOnSignIn: boolean;
+        prompt: "select_account" | "consent" | "login" | "none" | "select_account consent" | undefined;
+        verifyIdToken: boolean;
+        scope: string[] | undefined;
+        refreshAccessToken: boolean;
+    })[];
+    plugins: string[] | undefined;
+    user: {
+        modelName: string | undefined;
+        fields: Partial<Record<"name" | "emailVerified" | "email" | "image" | "createdAt" | "updatedAt", string>> | undefined;
+        additionalFields: {
+            [key: string]: DBFieldAttribute;
+        } | undefined;
+        changeEmail: {
+            enabled: boolean | undefined;
+            sendChangeEmailVerification: boolean;
+        };
+    };
+    verification: {
+        modelName: string | undefined;
+        disableCleanup: boolean | undefined;
+        fields: Partial<Record<"createdAt" | "updatedAt" | "value" | "expiresAt" | "identifier", string>> | undefined;
+    };
+    session: {
+        modelName: string | undefined;
+        additionalFields: {
+            [key: string]: DBFieldAttribute;
+        } | undefined;
+        cookieCache: {
+            enabled: boolean | undefined;
+            maxAge: number | undefined;
+        };
+        disableSessionRefresh: boolean | undefined;
+        expiresIn: number | undefined;
+        fields: Partial<Record<"token" | "createdAt" | "updatedAt" | "expiresAt" | "userId" | "ipAddress" | "userAgent", string>> | undefined;
+        freshAge: number | undefined;
+        preserveSessionInDatabase: boolean | undefined;
+        storeSessionInDatabase: boolean | undefined;
+        updateAge: number | undefined;
+    };
+    account: {
+        modelName: string | undefined;
+        fields: Partial<Record<"scope" | "accessToken" | "refreshToken" | "accessTokenExpiresAt" | "refreshTokenExpiresAt" | "idToken" | "createdAt" | "updatedAt" | "userId" | "providerId" | "accountId" | "password", string>> | undefined;
+        encryptOAuthTokens: boolean | undefined;
+        updateAccountOnSignIn: boolean | undefined;
+        accountLinking: {
+            enabled: boolean | undefined;
+            trustedProviders: LiteralUnion<"apple" | "atlassian" | "cognito" | "discord" | "facebook" | "figma" | "github" | "microsoft" | "google" | "huggingface" | "slack" | "spotify" | "twitch" | "twitter" | "dropbox" | "kick" | "linear" | "linkedin" | "gitlab" | "tiktok" | "reddit" | "roblox" | "salesforce" | "vk" | "zoom" | "notion" | "kakao" | "naver" | "line" | "paypal" | "email-password", string>[] | undefined;
+            updateUserInfoOnLink: boolean | undefined;
+            allowUnlinkingAll: boolean | undefined;
+        };
+    };
+    hooks: {
+        after: boolean;
+        before: boolean;
+    };
+    secondaryStorage: boolean;
+    advanced: {
+        cookiePrefix: boolean;
+        cookies: boolean;
+        crossSubDomainCookies: {
+            domain: boolean;
+            enabled: boolean | undefined;
+            additionalCookies: string[] | undefined;
+        };
+        database: {
+            useNumberId: boolean;
+            generateId: false | ((options: {
+                model: LiteralUnion<Models, string>;
+                size?: number;
+            }) => string | false) | undefined;
+            defaultFindManyLimit: number | undefined;
+        };
+        useSecureCookies: boolean | undefined;
+        ipAddress: {
+            disableIpTracking: boolean | undefined;
+            ipAddressHeaders: string[] | undefined;
+        };
+        disableCSRFCheck: boolean | undefined;
+        cookieAttributes: {
+            expires: Date | undefined;
+            secure: boolean | undefined;
+            sameSite: "none" | "Strict" | "Lax" | "None" | "strict" | "lax" | undefined;
+            domain: boolean;
+            path: string | undefined;
+            httpOnly: boolean | undefined;
+        };
+    };
+    trustedOrigins: number | undefined;
+    rateLimit: {
+        storage: "database" | "memory" | "secondary-storage" | undefined;
+        modelName: string | undefined;
+        window: number | undefined;
+        customStorage: boolean;
+        enabled: boolean | undefined;
+        max: number | undefined;
+    };
+    onAPIError: {
+        errorURL: string | undefined;
+        onError: boolean;
+        throw: boolean | undefined;
+    };
+    logger: {
+        disabled: boolean | undefined;
+        level: "error" | "info" | "warn" | "debug" | undefined;
+        log: boolean;
+    };
+    databaseHooks: {
+        user: {
+            create: {
+                after: boolean;
+                before: boolean;
+            };
+            update: {
+                after: boolean;
+                before: boolean;
+            };
+        };
+        session: {
+            create: {
+                after: boolean;
+                before: boolean;
+            };
+            update: {
+                after: boolean;
+                before: boolean;
+            };
+        };
+        account: {
+            create: {
+                after: boolean;
+                before: boolean;
+            };
+            update: {
+                after: boolean;
+                before: boolean;
+            };
+        };
+        verification: {
+            create: {
+                after: boolean;
+                before: boolean;
+            };
+            update: {
+                after: boolean;
+                before: boolean;
+            };
+        };
+    };
+};
+
+export { BetterAuthError, BetterAuthOptions, LiteralUnion, MissingDependencyError, Models, TelemetryEvent, capitalizeFirstLetter, createTelemetry, generateId, getTelemetryAuthConfig };

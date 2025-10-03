@@ -1,43 +1,54 @@
 'use strict';
 
-const zod = require('zod');
+const z = require('zod');
 require('better-call');
-const account = require('../../shared/better-auth.iyK63nvn.cjs');
-const env = require('../../shared/better-auth.DiSjtgs9.cjs');
+const socialProviders_index = require('../../shared/better-auth.l_Ru3SGW.cjs');
+const session = require('../../shared/better-auth.B0k5C6Ik.cjs');
+const env = require('../../shared/better-auth.B6fIklBU.cjs');
 require('@better-auth/utils/base64');
 require('@better-auth/utils/hmac');
-const url = require('../../shared/better-auth.C-R0J0n1.cjs');
-require('../../shared/better-auth.DcWKCjjf.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
-require('defu');
-const crypto_index = require('../../crypto/index.cjs');
-require('../../cookies/index.cjs');
-require('../../shared/better-auth.ANpbi45u.cjs');
-require('../../shared/better-auth.C1hdVENX.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
-require('@better-auth/utils/random');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
-require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
-require('jose');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
-require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
-require('../../shared/better-auth.CYeOI8C-.cjs');
-require('../../social-providers/index.cjs');
-require('@better-fetch/fetch');
-require('../../shared/better-auth.6XyKj7DG.cjs');
-require('../../shared/better-auth.Bg6iw3ig.cjs');
-require('../../shared/better-auth.BMYo0QR-.cjs');
-require('jose/errors');
+require('../../shared/better-auth.BToNb2fI.cjs');
+const url = require('../../shared/better-auth.DxBcELEX.cjs');
 require('@better-auth/utils/binary');
-require('../../shared/better-auth.YUF6P-PB.cjs');
+require('@better-auth/core/db');
+require('../../shared/better-auth.Bu93hUoT.cjs');
+require('@better-auth/utils/random');
+const crypto_index = require('../../crypto/index.cjs');
+require('kysely');
+require('../../shared/better-auth.C1hdVENX.cjs');
+require('@better-auth/utils/hash');
+require('@better-fetch/fetch');
+require('jose');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
+require('@noble/hashes/scrypt.js');
+require('@better-auth/utils/hex');
+require('@noble/hashes/utils.js');
+require('../../shared/better-auth.CYeOI8C-.cjs');
+require('../../shared/better-auth.anw-08Z3.cjs');
+require('../../shared/better-auth.ANpbi45u.cjs');
+require('../../shared/better-auth.Jlhc86WK.cjs');
+require('jose/errors');
+require('../../shared/better-auth.Bg6iw3ig.cjs');
+require('defu');
+require('../../shared/better-auth.uykCWCYS.cjs');
+
+function _interopNamespaceCompat(e) {
+	if (e && typeof e === 'object' && 'default' in e) return e;
+	const n = Object.create(null);
+	if (e) {
+		for (const k in e) {
+			n[k] = e[k];
+		}
+	}
+	n.default = e;
+	return n;
+}
+
+const z__namespace = /*#__PURE__*/_interopNamespaceCompat(z);
 
 function getVenderBaseURL() {
-  const vercel = env.env.VERCEL_URL;
+  const vercel = env.env.VERCEL_URL ? `https://${env.env.VERCEL_URL}` : void 0;
   const netlify = env.env.NETLIFY_URL;
   const render = env.env.RENDER_URL;
   const aws = env.env.AWS_LAMBDA_FUNCTION_NAME;
@@ -46,22 +57,39 @@ function getVenderBaseURL() {
   return vercel || netlify || render || aws || google || azure;
 }
 const oAuthProxy = (opts) => {
+  const resolveCurrentURL = (ctx) => {
+    return new URL(
+      opts?.currentURL || ctx.request?.url || getVenderBaseURL() || ctx.context.baseURL
+    );
+  };
+  const checkSkipProxy = (ctx) => {
+    const skipProxy = ctx.request?.headers.get("x-skip-oauth-proxy");
+    if (skipProxy) {
+      return true;
+    }
+    const productionURL = opts?.productionURL || env.env.BETTER_AUTH_URL;
+    if (productionURL === ctx.context.options.baseURL) {
+      return true;
+    }
+    return false;
+  };
   return {
     id: "oauth-proxy",
+    options: opts,
     endpoints: {
-      oAuthProxy: account.createAuthEndpoint(
+      oAuthProxy: session.createAuthEndpoint(
         "/oauth-proxy-callback",
         {
           method: "GET",
-          query: zod.z.object({
-            callbackURL: zod.z.string({
+          query: z__namespace.object({
+            callbackURL: z__namespace.string().meta({
               description: "The URL to redirect to after the proxy"
             }),
-            cookies: zod.z.string({
+            cookies: z__namespace.string().meta({
               description: "The cookies to set after the proxy"
             })
           }),
-          use: [account.originCheck((ctx) => ctx.query.callbackURL)],
+          use: [socialProviders_index.originCheck((ctx) => ctx.query.callbackURL)],
           metadata: {
             openapi: {
               description: "OAuth Proxy Callback",
@@ -100,8 +128,20 @@ const oAuthProxy = (opts) => {
           const decryptedCookies = await crypto_index.symmetricDecrypt({
             key: ctx.context.secret,
             data: cookies
+          }).catch((e) => {
+            ctx.context.logger.error(e);
+            return null;
           });
-          ctx.setHeader("set-cookie", decryptedCookies);
+          const error = ctx.context.options.onAPIError?.errorURL || `${ctx.context.options.baseURL}/api/auth/error`;
+          if (!decryptedCookies) {
+            throw ctx.redirect(
+              `${error}?error=OAuthProxy - Invalid cookies or secret`
+            );
+          }
+          const isSecureContext = resolveCurrentURL(ctx).protocol === "https:";
+          const prefix = ctx.context.options.advanced?.cookiePrefix || "better-auth";
+          const cookieToSet = isSecureContext ? decryptedCookies : decryptedCookies.replace("Secure;", "").replace(`__Secure-${prefix}`, prefix);
+          ctx.setHeader("set-cookie", cookieToSet);
           throw ctx.redirect(ctx.query.callbackURL);
         }
       )
@@ -112,7 +152,7 @@ const oAuthProxy = (opts) => {
           matcher(context) {
             return context.path?.startsWith("/callback") || context.path?.startsWith("/oauth2/callback");
           },
-          handler: account.createAuthMiddleware(async (ctx) => {
+          handler: session.createAuthMiddleware(async (ctx) => {
             const headers = ctx.context.responseHeaders;
             const location = headers?.get("location");
             if (location?.includes("/oauth-proxy-callback?callbackURL")) {
@@ -121,7 +161,8 @@ const oAuthProxy = (opts) => {
               }
               const locationURL = new URL(location);
               const origin = locationURL.origin;
-              if (origin === url.getOrigin(ctx.context.baseURL)) {
+              const productionURL = opts?.productionURL || ctx.context.options.baseURL || ctx.context.baseURL;
+              if (origin === url.getOrigin(productionURL)) {
                 const newLocation = locationURL.searchParams.get("callbackURL");
                 if (!newLocation) {
                   return;
@@ -147,15 +188,37 @@ const oAuthProxy = (opts) => {
       ],
       before: [
         {
+          matcher() {
+            return true;
+          },
+          handler: session.createAuthMiddleware(async (ctx) => {
+            const skipProxy = checkSkipProxy(ctx);
+            if (skipProxy || ctx.path !== "/callback/:id") {
+              return;
+            }
+            return {
+              context: {
+                context: {
+                  oauthConfig: {
+                    skipStateCookieCheck: true
+                  }
+                }
+              }
+            };
+          })
+        },
+        {
           matcher(context) {
             return context.path?.startsWith("/sign-in/social") || context.path?.startsWith("/sign-in/oauth2");
           },
-          handler: account.createAuthMiddleware(async (ctx) => {
-            const url = new URL(
-              opts?.currentURL || ctx.request?.url || getVenderBaseURL() || ctx.context.baseURL
-            );
-            const productionURL = opts?.productionURL || env.env.BETTER_AUTH_URL;
-            if (productionURL === ctx.context.options.baseURL) {
+          handler: session.createAuthMiddleware(async (ctx) => {
+            const skipProxy = checkSkipProxy(ctx);
+            console.log("skipProxy", skipProxy);
+            if (skipProxy) {
+              return;
+            }
+            const url = resolveCurrentURL(ctx);
+            if (!ctx.body) {
               return;
             }
             ctx.body.callbackURL = `${url.origin}${ctx.context.options.basePath || "/api/auth"}/oauth-proxy-callback?callbackURL=${encodeURIComponent(

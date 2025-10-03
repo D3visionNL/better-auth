@@ -1,13 +1,13 @@
 import { shallowRef, getCurrentScope, onScopeDispose, readonly, getCurrentInstance } from 'vue';
-import { g as getClientConfig, c as createDynamicPathProxy } from '../../shared/better-auth.FvRECEI1.mjs';
+import { g as getClientConfig, c as createDynamicPathProxy } from '../../shared/better-auth.WSg8tg20.mjs';
 import { c as capitalizeFirstLetter } from '../../shared/better-auth.D-2CmEwz.mjs';
 import '@better-fetch/fetch';
-import '../../shared/better-auth.VTXNLFMT.mjs';
-import '../../shared/better-auth.8zoxzg-F.mjs';
+import '../../shared/better-auth.BAQSo96z.mjs';
+import '../../shared/better-auth.CiuwFiHM.mjs';
 import '../../shared/better-auth.DdzSJf-n.mjs';
 import 'nanostores';
-import '../../shared/better-auth.CQvoVIBD.mjs';
-import '../../shared/better-auth.ffWeg50w.mjs';
+import '../../shared/better-auth.BYWGbmZ5.mjs';
+import '../../shared/better-auth.msGOU0m9.mjs';
 
 function registerStore(store) {
   let instance = getCurrentInstance();
@@ -35,13 +35,14 @@ function getAtomKey(str) {
 }
 function createAuthClient(options) {
   const {
+    baseURL,
     pluginPathMethods,
     pluginsActions,
     pluginsAtoms,
     $fetch,
     $store,
     atomListeners
-  } = getClientConfig(options);
+  } = getClientConfig(options, false);
   let resolvedHooks = {};
   for (const [key, value] of Object.entries(pluginsAtoms)) {
     resolvedHooks[getAtomKey(key)] = () => useStore(value);
@@ -49,11 +50,7 @@ function createAuthClient(options) {
   function useSession(useFetch) {
     if (useFetch) {
       const ref = useStore(pluginsAtoms.$sessionSignal);
-      const baseURL = options?.fetchOptions?.baseURL || options?.baseURL;
-      let authPath = baseURL ? new URL(baseURL).pathname : "/api/auth";
-      authPath = authPath === "/" ? "/api/auth" : authPath;
-      authPath = authPath.endsWith("/") ? authPath.slice(0, -1) : authPath;
-      return useFetch(`${authPath}/get-session`, {
+      return useFetch(`${baseURL}/get-session`, {
         ref
       }).then((res) => {
         return {

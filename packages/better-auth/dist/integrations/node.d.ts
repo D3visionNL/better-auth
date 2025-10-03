@@ -1,14 +1,16 @@
 import * as http from 'http';
 import { IncomingHttpHeaders } from 'http';
-import { n as Auth } from '../shared/better-auth.BNRr97iY.js';
-import '../shared/better-auth.Bi8FQwDD.js';
+import { c as Auth } from '../shared/better-auth.HOXfa1Ev.js';
+import '../shared/better-auth.4SXCyo06.js';
+import '../shared/better-auth.DTtXpZYr.js';
 import 'zod';
-import '../shared/better-auth.ByC0y0O-.js';
-import 'jose';
 import 'kysely';
 import 'better-call';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 declare const toNodeHandler: (auth: {
     handler: Auth["handler"];

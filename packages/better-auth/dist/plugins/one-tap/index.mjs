@@ -1,36 +1,35 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { APIError } from 'better-call';
-import { a as createAuthEndpoint } from '../../shared/better-auth.c4QO78Xh.mjs';
-import { setSessionCookie } from '../../cookies/index.mjs';
-import '../../shared/better-auth.Cc72UxUH.mjs';
-import '../../shared/better-auth.8zoxzg-F.mjs';
-import '../../shared/better-auth.Cqykj82J.mjs';
-import 'defu';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import '../../shared/better-auth.CpZXDeOc.mjs';
+import { a as createAuthEndpoint } from '../../shared/better-auth.D_jpufHc.mjs';
+import { s as setSessionCookie } from '../../shared/better-auth.L4mY8Wf-.mjs';
+import '../../shared/better-auth.CiuwFiHM.mjs';
+import '@better-auth/core/db';
+import '../../shared/better-auth.BZghgUMh.mjs';
+import '../../shared/better-auth.DgGir396.mjs';
 import '@better-auth/utils/random';
-import '../../shared/better-auth.dn8_oqOu.mjs';
 import '@better-auth/utils/hash';
-import '@noble/ciphers/chacha';
-import '@noble/ciphers/utils';
-import '@noble/ciphers/webcrypto';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
 import '@better-auth/utils/base64';
-import '@noble/hashes/scrypt';
-import '@better-auth/utils';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
+import '@noble/hashes/scrypt.js';
 import '@better-auth/utils/hex';
-import '@noble/hashes/utils';
+import '@noble/hashes/utils.js';
 import '../../shared/better-auth.B4Qoxdgc.mjs';
-import '../../social-providers/index.mjs';
-import '@better-fetch/fetch';
-import '../../shared/better-auth.DufyW0qf.mjs';
+import 'kysely';
 import '../../shared/better-auth.CW6D9eSx.mjs';
+import '../../crypto/index.mjs';
 import '../../shared/better-auth.DdzSJf-n.mjs';
-import '../../shared/better-auth.tB5eU6EY.mjs';
+import '@better-fetch/fetch';
+import '../../shared/better-auth.BAQSo96z.mjs';
+import 'jose/errors';
+import '../../shared/better-auth.BTrSrKsi.mjs';
 import '../../shared/better-auth.BUPPRXfK.mjs';
 import '@better-auth/utils/hmac';
-import '../../shared/better-auth.DDEbWX-S.mjs';
-import '../../shared/better-auth.VTXNLFMT.mjs';
-import 'jose/errors';
 import '@better-auth/utils/binary';
+import 'defu';
+import '../../shared/better-auth.D2xndZ2p.mjs';
 
 function toBoolean(value) {
   return value === "true" || value === true;
@@ -44,7 +43,7 @@ const oneTap = (options) => ({
       {
         method: "POST",
         body: z.object({
-          idToken: z.string({
+          idToken: z.string().meta({
             description: "Google ID token, which the client obtains from the One Tap API"
           })
         }),

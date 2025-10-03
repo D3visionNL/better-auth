@@ -9,7 +9,9 @@ const defaultStatements = {
     "ban",
     "impersonate",
     "delete",
-    "set-password"
+    "set-password",
+    "get",
+    "update"
   ],
   session: ["list", "revoke", "delete"]
 };
@@ -22,7 +24,9 @@ const adminAc = defaultAc.newRole({
     "ban",
     "impersonate",
     "delete",
-    "set-password"
+    "set-password",
+    "get",
+    "update"
   ],
   session: ["list", "revoke", "delete"]
 });

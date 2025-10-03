@@ -1,126 +1,91 @@
 'use strict';
 
-const schema$1 = require('../../shared/better-auth.BG6vHVNT.cjs');
-const jose = require('jose');
-require('better-call');
-const account = require('../../shared/better-auth.iyK63nvn.cjs');
-require('zod');
+const sign = require('../../shared/better-auth.CMwM5enp.cjs');
+const betterCall = require('better-call');
+require('../../shared/better-auth.l_Ru3SGW.cjs');
+const session = require('../../shared/better-auth.B0k5C6Ik.cjs');
+const z = require('zod');
 const index = require('../../shared/better-auth.ANpbi45u.cjs');
-require('../../shared/better-auth.DiSjtgs9.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
 require('@better-auth/utils/base64');
 require('@better-auth/utils/hmac');
-const schema = require('../../shared/better-auth.DcWKCjjf.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
-require('defu');
-const crypto_index = require('../../crypto/index.cjs');
-require('../../cookies/index.cjs');
-require('../../shared/better-auth.C1hdVENX.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
-require('../../shared/better-auth.C-R0J0n1.cjs');
-require('@better-auth/utils/random');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
-require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
-require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
-require('../../shared/better-auth.CYeOI8C-.cjs');
-require('../../social-providers/index.cjs');
-require('@better-fetch/fetch');
-require('../../shared/better-auth.6XyKj7DG.cjs');
-require('../../shared/better-auth.Bg6iw3ig.cjs');
-require('../../shared/better-auth.BMYo0QR-.cjs');
-require('jose/errors');
+require('../../shared/better-auth.BToNb2fI.cjs');
 require('@better-auth/utils/binary');
-require('../../shared/better-auth.YUF6P-PB.cjs');
+require('@better-auth/core/db');
+const schema$1 = require('../../shared/better-auth.Bu93hUoT.cjs');
+require('@better-auth/utils/random');
+require('@better-auth/utils/hash');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
+require('jose');
+require('@noble/hashes/scrypt.js');
+require('@better-auth/utils/hex');
+require('@noble/hashes/utils.js');
+require('../../shared/better-auth.CYeOI8C-.cjs');
+require('kysely');
+require('../../crypto/index.cjs');
+require('@better-auth/utils');
+require('../../shared/better-auth.C1hdVENX.cjs');
+require('@better-fetch/fetch');
+require('../../shared/better-auth.DxBcELEX.cjs');
+require('../../shared/better-auth.anw-08Z3.cjs');
+require('../../shared/better-auth.Jlhc86WK.cjs');
+require('jose/errors');
+require('../../shared/better-auth.Bg6iw3ig.cjs');
+require('defu');
+require('../../shared/better-auth.uykCWCYS.cjs');
 
-const getJwksAdapter = (adapter) => {
-  return {
-    getAllKeys: async () => {
-      return await adapter.findMany({
-        model: "jwks"
-      });
-    },
-    getLatestKey: async () => {
-      const key = await adapter.findMany({
-        model: "jwks",
-        sortBy: {
-          field: "createdAt",
-          direction: "desc"
-        },
-        limit: 1
-      });
-      return key[0];
-    },
-    createJwk: async (webKey) => {
-      const jwk = await adapter.create({
-        model: "jwks",
-        data: {
-          ...webKey,
-          createdAt: /* @__PURE__ */ new Date()
-        }
-      });
-      return jwk;
+function _interopNamespaceCompat(e) {
+	if (e && typeof e === 'object' && 'default' in e) return e;
+	const n = Object.create(null);
+	if (e) {
+		for (const k in e) {
+			n[k] = e[k];
+		}
+	}
+	n.default = e;
+	return n;
+}
+
+const z__namespace = /*#__PURE__*/_interopNamespaceCompat(z);
+
+const schema = {
+  jwks: {
+    fields: {
+      publicKey: {
+        type: "string",
+        required: true
+      },
+      privateKey: {
+        type: "string",
+        required: true
+      },
+      createdAt: {
+        type: "date",
+        required: true
+      }
     }
-  };
+  }
 };
 
-async function getJwtToken(ctx, options) {
-  const adapter = getJwksAdapter(ctx.context.adapter);
-  let key = await adapter.getLatestKey();
-  const privateKeyEncryptionEnabled = !options?.jwks?.disablePrivateKeyEncryption;
-  if (key === void 0) {
-    const { publicKey, privateKey: privateKey2 } = await jose.generateKeyPair(
-      options?.jwks?.keyPairConfig?.alg ?? "EdDSA",
-      options?.jwks?.keyPairConfig ?? {
-        crv: "Ed25519",
-        extractable: true
-      }
-    );
-    const publicWebKey = await jose.exportJWK(publicKey);
-    const privateWebKey2 = await jose.exportJWK(privateKey2);
-    const stringifiedPrivateWebKey = JSON.stringify(privateWebKey2);
-    let jwk = {
-      publicKey: JSON.stringify(publicWebKey),
-      privateKey: privateKeyEncryptionEnabled ? JSON.stringify(
-        await crypto_index.symmetricEncrypt({
-          key: ctx.context.secret,
-          data: stringifiedPrivateWebKey
-        })
-      ) : stringifiedPrivateWebKey,
-      createdAt: /* @__PURE__ */ new Date()
-    };
-    key = await adapter.createJwk(jwk);
-  }
-  let privateWebKey = privateKeyEncryptionEnabled ? await crypto_index.symmetricDecrypt({
-    key: ctx.context.secret,
-    data: JSON.parse(key.privateKey)
-  }).catch(() => {
-    throw new index.BetterAuthError(
-      "Failed to decrypt private private key. Make sure the secret currently in use is the same as the one used to encrypt the private key. If you are using a different secret, either cleanup your jwks or disable private key encryption."
-    );
-  }) : key.privateKey;
-  const privateKey = await jose.importJWK(
-    JSON.parse(privateWebKey),
-    options?.jwks?.keyPairConfig?.alg ?? "EdDSA"
-  );
-  const payload = !options?.jwt?.definePayload ? ctx.context.session.user : await options?.jwt.definePayload(ctx.context.session);
-  const jwt2 = await new jose.SignJWT(payload).setProtectedHeader({
-    alg: options?.jwks?.keyPairConfig?.alg ?? "EdDSA",
-    kid: key.id
-  }).setIssuedAt().setIssuer(options?.jwt?.issuer ?? ctx.context.options.baseURL).setAudience(options?.jwt?.audience ?? ctx.context.options.baseURL).setExpirationTime(options?.jwt?.expirationTime ?? "15m").setSubject(
-    await options?.jwt?.getSubject?.(ctx.context.session) ?? ctx.context.session.user.id
-  ).sign(privateKey);
-  return jwt2;
-}
 const jwt = (options) => {
+  if (options?.jwt?.sign && !options.jwks?.remoteUrl) {
+    throw new index.BetterAuthError(
+      "jwks_config",
+      "jwks.remoteUrl must be set when using jwt.sign"
+    );
+  }
+  if (options?.jwks?.remoteUrl && !options.jwks?.keyPairConfig?.alg) {
+    throw new index.BetterAuthError(
+      "jwks_config",
+      "must specify alg when using the oidc plugin and jwks.remoteUrl"
+    );
+  }
   return {
     id: "jwt",
+    options,
     endpoints: {
-      getJwks: account.createAuthEndpoint(
+      getJwks: session.createAuthEndpoint(
         "/jwks",
         {
           method: "GET",
@@ -199,56 +164,35 @@ const jwt = (options) => {
           }
         },
         async (ctx) => {
-          const adapter = getJwksAdapter(ctx.context.adapter);
+          if (options?.jwks?.remoteUrl) {
+            throw new betterCall.APIError("NOT_FOUND");
+          }
+          const adapter = sign.getJwksAdapter(ctx.context.adapter);
           const keySets = await adapter.getAllKeys();
           if (keySets.length === 0) {
-            const alg = options?.jwks?.keyPairConfig?.alg ?? "EdDSA";
-            const { publicKey, privateKey } = await jose.generateKeyPair(
-              alg,
-              options?.jwks?.keyPairConfig ?? {
-                crv: "Ed25519",
-                extractable: true
-              }
-            );
-            const publicWebKey = await jose.exportJWK(publicKey);
-            const privateWebKey = await jose.exportJWK(privateKey);
-            const stringifiedPrivateWebKey = JSON.stringify(privateWebKey);
-            const privateKeyEncryptionEnabled = !options?.jwks?.disablePrivateKeyEncryption;
-            let jwk = {
-              publicKey: JSON.stringify({ alg, ...publicWebKey }),
-              privateKey: privateKeyEncryptionEnabled ? JSON.stringify(
-                await crypto_index.symmetricEncrypt({
-                  key: ctx.context.secret,
-                  data: stringifiedPrivateWebKey
-                })
-              ) : stringifiedPrivateWebKey,
-              createdAt: /* @__PURE__ */ new Date()
-            };
-            await adapter.createJwk(jwk);
-            return ctx.json({
-              keys: [
-                {
-                  ...publicWebKey,
-                  alg,
-                  kid: jwk.id
-                }
-              ]
-            });
+            const key = await sign.createJwk(ctx, options);
+            keySets.push(key);
           }
+          const keyPairConfig = options?.jwks?.keyPairConfig;
+          const defaultCrv = keyPairConfig ? "crv" in keyPairConfig ? keyPairConfig.crv : void 0 : void 0;
           return ctx.json({
-            keys: keySets.map((keySet) => ({
-              ...JSON.parse(keySet.publicKey),
-              kid: keySet.id
-            }))
+            keys: keySets.map((keySet) => {
+              return {
+                alg: keySet.alg ?? options?.jwks?.keyPairConfig?.alg ?? "EdDSA",
+                crv: keySet.crv ?? defaultCrv,
+                ...JSON.parse(keySet.publicKey),
+                kid: keySet.id
+              };
+            })
           });
         }
       ),
-      getToken: account.createAuthEndpoint(
+      getToken: session.createAuthEndpoint(
         "/token",
         {
           method: "GET",
           requireHeaders: true,
-          use: [account.sessionMiddleware],
+          use: [session.sessionMiddleware],
           metadata: {
             openapi: {
               description: "Get a JWT token",
@@ -273,10 +217,36 @@ const jwt = (options) => {
           }
         },
         async (ctx) => {
-          const jwt2 = await getJwtToken(ctx, options);
+          const jwt2 = await sign.getJwtToken(ctx, options);
           return ctx.json({
             token: jwt2
           });
+        }
+      ),
+      signJWT: session.createAuthEndpoint(
+        "/sign-jwt",
+        {
+          method: "POST",
+          metadata: {
+            SERVER_ONLY: true,
+            $Infer: {
+              body: {}
+            }
+          },
+          body: z__namespace.object({
+            payload: z__namespace.record(z__namespace.string(), z__namespace.any()),
+            overrideOptions: z__namespace.record(z__namespace.string(), z__namespace.any()).optional()
+          })
+        },
+        async (c) => {
+          const jwt2 = await sign.signJWT(c, {
+            options: {
+              ...options,
+              ...c.body.overrideOptions
+            },
+            payload: c.body.payload
+          });
+          return c.json({ token: jwt2 });
         }
       )
     },
@@ -286,20 +256,35 @@ const jwt = (options) => {
           matcher(context) {
             return context.path === "/get-session";
           },
-          handler: account.createAuthMiddleware(async (ctx) => {
+          handler: session.createAuthMiddleware(async (ctx) => {
+            if (options?.disableSettingJwtHeader) {
+              return;
+            }
             const session = ctx.context.session || ctx.context.newSession;
             if (session && session.session) {
-              const jwt2 = await getJwtToken(ctx, options);
+              const jwt2 = await sign.getJwtToken(ctx, options);
+              const exposedHeaders = ctx.context.responseHeaders?.get(
+                "access-control-expose-headers"
+              ) || "";
+              const headersSet = new Set(
+                exposedHeaders.split(",").map((header) => header.trim()).filter(Boolean)
+              );
+              headersSet.add("set-auth-jwt");
               ctx.setHeader("set-auth-jwt", jwt2);
-              ctx.setHeader("Access-Control-Expose-Headers", "set-auth-jwt");
+              ctx.setHeader(
+                "Access-Control-Expose-Headers",
+                Array.from(headersSet).join(", ")
+              );
             }
           })
         }
       ]
     },
-    schema: schema.mergeSchema(schema$1.schema, options?.schema)
+    schema: schema$1.mergeSchema(schema, options?.schema)
   };
 };
 
-exports.getJwtToken = getJwtToken;
+exports.createJwk = sign.createJwk;
+exports.generateExportedKeyPair = sign.generateExportedKeyPair;
+exports.getJwtToken = sign.getJwtToken;
 exports.jwt = jwt;

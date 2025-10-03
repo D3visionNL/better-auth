@@ -1,3 +1,4 @@
+import { d as defineErrorCodes } from '../../shared/better-auth.D2xndZ2p.mjs';
 import { betterFetch } from '@better-fetch/fetch';
 
 const defaultEndpoints = [
@@ -8,23 +9,25 @@ const defaultEndpoints = [
 const Providers = {
   CLOUDFLARE_TURNSTILE: "cloudflare-turnstile",
   GOOGLE_RECAPTCHA: "google-recaptcha",
-  HCAPTCHA: "hcaptcha"
+  HCAPTCHA: "hcaptcha",
+  CAPTCHAFOX: "captchafox"
 };
 const siteVerifyMap = {
   [Providers.CLOUDFLARE_TURNSTILE]: "https://challenges.cloudflare.com/turnstile/v0/siteverify",
   [Providers.GOOGLE_RECAPTCHA]: "https://www.google.com/recaptcha/api/siteverify",
-  [Providers.HCAPTCHA]: "https://api.hcaptcha.com/siteverify"
+  [Providers.HCAPTCHA]: "https://api.hcaptcha.com/siteverify",
+  [Providers.CAPTCHAFOX]: "https://api.captchafox.com/siteverify"
 };
 
-const EXTERNAL_ERROR_CODES = {
+const EXTERNAL_ERROR_CODES = defineErrorCodes({
   VERIFICATION_FAILED: "Captcha verification failed",
   MISSING_RESPONSE: "Missing CAPTCHA response",
   UNKNOWN_ERROR: "Something went wrong"
-};
-const INTERNAL_ERROR_CODES = {
+});
+const INTERNAL_ERROR_CODES = defineErrorCodes({
   MISSING_SECRET_KEY: "Missing secret key",
   SERVICE_UNAVAILABLE: "CAPTCHA service unavailable"
-};
+});
 
 const middlewareResponse = ({ message, status }) => ({
   response: new Response(
@@ -140,6 +143,35 @@ const hCaptcha = async ({
   return void 0;
 };
 
+const captchaFox = async ({
+  siteVerifyURL,
+  captchaResponse,
+  secretKey,
+  siteKey,
+  remoteIP
+}) => {
+  const response = await betterFetch(siteVerifyURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: encodeToURLParams({
+      secret: secretKey,
+      response: captchaResponse,
+      ...siteKey && { sitekey: siteKey },
+      ...remoteIP && { remoteIp: remoteIP }
+    })
+  });
+  if (!response.data || response.error) {
+    throw new Error(INTERNAL_ERROR_CODES.SERVICE_UNAVAILABLE);
+  }
+  if (!response.data.success) {
+    return middlewareResponse({
+      message: EXTERNAL_ERROR_CODES.VERIFICATION_FAILED,
+      status: 403
+    });
+  }
+  return void 0;
+};
+
 const captcha = (options) => ({
   id: "captcha",
   onRequest: async (request, ctx) => {
@@ -176,6 +208,12 @@ const captcha = (options) => ({
       }
       if (options.provider === Providers.HCAPTCHA) {
         return await hCaptcha({
+          ...handlerParams,
+          siteKey: options.siteKey
+        });
+      }
+      if (options.provider === Providers.CAPTCHAFOX) {
+        return await captchaFox({
           ...handlerParams,
           siteKey: options.siteKey
         });

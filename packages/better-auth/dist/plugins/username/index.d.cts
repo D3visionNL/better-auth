@@ -1,46 +1,56 @@
-import { z } from 'zod';
 import * as better_call from 'better-call';
-import { I as InferOptionSchema, H as HookEndpointContext } from '../../shared/better-auth.C67OuOdK.cjs';
-import '../../shared/better-auth.Bi8FQwDD.cjs';
-import '../../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
+import { I as InferOptionSchema, d as AuthContext, G as GenericEndpointContext, H as HookEndpointContext } from '../../shared/better-auth.jRxKMAeG.cjs';
+import * as z from 'zod';
+import '../../shared/better-auth.v_lf-jeY.cjs';
+import '../../shared/better-auth.DTtXpZYr.cjs';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
-declare const schema: {
+declare const getSchema: (normalizer: {
+    username: (username: string) => string;
+    displayUsername: (displayUsername: string) => string;
+}) => {
     user: {
         fields: {
             username: {
-                type: "string";
-                required: false;
-                sortable: true;
-                unique: true;
-                returned: true;
+                type: string;
+                required: boolean;
+                sortable: boolean;
+                unique: boolean;
+                returned: boolean;
                 transform: {
-                    input(value: string | number | boolean | string[] | Date | number[] | null | undefined): string | undefined;
+                    input(value: any): any;
                 };
             };
             displayUsername: {
-                type: "string";
-                required: false;
+                type: string;
+                required: boolean;
+                transform: {
+                    input(value: any): any;
+                };
             };
         };
     };
 };
+type UsernameSchema = ReturnType<typeof getSchema>;
 
 declare const USERNAME_ERROR_CODES: {
-    INVALID_USERNAME_OR_PASSWORD: string;
-    EMAIL_NOT_VERIFIED: string;
-    UNEXPECTED_ERROR: string;
-    USERNAME_IS_ALREADY_TAKEN: string;
-    USERNAME_TOO_SHORT: string;
-    USERNAME_TOO_LONG: string;
-    INVALID_USERNAME: string;
+    readonly INVALID_USERNAME_OR_PASSWORD: "Invalid username or password";
+    readonly EMAIL_NOT_VERIFIED: "Email not verified";
+    readonly UNEXPECTED_ERROR: "Unexpected error";
+    readonly USERNAME_IS_ALREADY_TAKEN: "Username is already taken. Please try another.";
+    readonly USERNAME_TOO_SHORT: "Username is too short";
+    readonly USERNAME_TOO_LONG: "Username is too long";
+    readonly INVALID_USERNAME: "Username is invalid";
+    readonly INVALID_DISPLAY_USERNAME: "Display username is invalid";
 };
 
 type UsernameOptions = {
-    schema?: InferOptionSchema<typeof schema>;
+    schema?: InferOptionSchema<UsernameSchema>;
     /**
      * The minimum length of the username
      *
@@ -59,16 +69,108 @@ type UsernameOptions = {
      * By default, the username should only contain alphanumeric characters and underscores
      */
     usernameValidator?: (username: string) => boolean | Promise<boolean>;
+    /**
+     * A function to validate the display username
+     *
+     * By default, no validation is applied to display username
+     */
+    displayUsernameValidator?: (displayUsername: string) => boolean | Promise<boolean>;
+    /**
+     * A function to normalize the username
+     *
+     * @default (username) => username.toLowerCase()
+     */
+    usernameNormalization?: ((username: string) => string) | false;
+    /**
+     * A function to normalize the display username
+     *
+     * @default false
+     */
+    displayUsernameNormalization?: ((displayUsername: string) => string) | false;
+    /**
+     * The order of validation
+     *
+     * @default { username: "pre-normalization", displayUsername: "pre-normalization" }
+     */
+    validationOrder?: {
+        /**
+         * The order of username validation
+         *
+         * @default "pre-normalization"
+         */
+        username?: "pre-normalization" | "post-normalization";
+        /**
+         * The order of display username validation
+         *
+         * @default "pre-normalization"
+         */
+        displayUsername?: "pre-normalization" | "post-normalization";
+    };
 };
 declare const username: (options?: UsernameOptions) => {
     id: "username";
+    init(ctx: AuthContext): {
+        options: {
+            databaseHooks: {
+                user: {
+                    create: {
+                        before(user: {
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
+                            image?: string | null | undefined;
+                        } & Record<string, unknown>, context: GenericEndpointContext | undefined): Promise<{
+                            data: {
+                                displayUsername?: string | undefined;
+                                username?: string | undefined;
+                                id: string;
+                                createdAt: Date;
+                                updatedAt: Date;
+                                email: string;
+                                emailVerified: boolean;
+                                name: string;
+                                image?: string | null | undefined;
+                            };
+                        }>;
+                    };
+                    update: {
+                        before(user: Partial<{
+                            id: string;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
+                            image?: string | null | undefined;
+                        }> & Record<string, unknown>, context: GenericEndpointContext | undefined): Promise<{
+                            data: {
+                                displayUsername?: string | undefined;
+                                username?: string | undefined;
+                                id?: string | undefined;
+                                createdAt?: Date | undefined;
+                                updatedAt?: Date | undefined;
+                                email?: string | undefined;
+                                emailVerified?: boolean | undefined;
+                                name?: string | undefined;
+                                image?: string | null | undefined;
+                            };
+                        }>;
+                    };
+                };
+            };
+        };
+    };
     endpoints: {
         signInUsername: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
-                    password: string;
                     username: string;
+                    password: string;
                     rememberMe?: boolean | undefined;
+                    callbackURL?: string | undefined;
                 };
             } & {
                 method?: "POST" | undefined;
@@ -97,6 +199,7 @@ declare const username: (options?: UsernameOptions) => {
                         email: string;
                         emailVerified: boolean;
                         username: string;
+                        displayUsername: string;
                         name: string;
                         image: string | null | undefined;
                         createdAt: Date;
@@ -110,6 +213,7 @@ declare const username: (options?: UsernameOptions) => {
                     email: string;
                     emailVerified: boolean;
                     username: string;
+                    displayUsername: string;
                     name: string;
                     image: string | null | undefined;
                     createdAt: Date;
@@ -122,15 +226,8 @@ declare const username: (options?: UsernameOptions) => {
                     username: z.ZodString;
                     password: z.ZodString;
                     rememberMe: z.ZodOptional<z.ZodBoolean>;
-                }, "strip", z.ZodTypeAny, {
-                    password: string;
-                    username: string;
-                    rememberMe?: boolean | undefined;
-                }, {
-                    password: string;
-                    username: string;
-                    rememberMe?: boolean | undefined;
-                }>;
+                    callbackURL: z.ZodOptional<z.ZodString>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         summary: string;
@@ -156,6 +253,21 @@ declare const username: (options?: UsernameOptions) => {
                                     };
                                 };
                             };
+                            422: {
+                                description: string;
+                                content: {
+                                    "application/json": {
+                                        schema: {
+                                            type: "object";
+                                            properties: {
+                                                message: {
+                                                    type: string;
+                                                };
+                                            };
+                                        };
+                                    };
+                                };
+                            };
                         };
                     };
                 };
@@ -164,23 +276,67 @@ declare const username: (options?: UsernameOptions) => {
             };
             path: "/sign-in/username";
         };
+        isUsernameAvailable: {
+            <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
+                body: {
+                    username: string;
+                };
+            } & {
+                method?: "POST" | undefined;
+            } & {
+                query?: Record<string, any> | undefined;
+            } & {
+                params?: Record<string, any>;
+            } & {
+                request?: Request;
+            } & {
+                headers?: HeadersInit;
+            } & {
+                asResponse?: boolean;
+                returnHeaders?: boolean;
+                use?: better_call.Middleware[];
+                path?: string;
+            } & {
+                asResponse?: AsResponse | undefined;
+                returnHeaders?: ReturnHeaders | undefined;
+            }): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
+                headers: Headers;
+                response: {
+                    available: boolean;
+                };
+            } : {
+                available: boolean;
+            }>;
+            options: {
+                method: "POST";
+                body: z.ZodObject<{
+                    username: z.ZodString;
+                }, z.core.$strip>;
+            } & {
+                use: any[];
+            };
+            path: "/is-username-available";
+        };
     };
     schema: {
         user: {
             fields: {
                 username: {
-                    type: "string";
-                    required: false;
-                    sortable: true;
-                    unique: true;
-                    returned: true;
+                    type: string;
+                    required: boolean;
+                    sortable: boolean;
+                    unique: boolean;
+                    returned: boolean;
                     transform: {
-                        input(value: string | number | boolean | string[] | Date | number[] | null | undefined): string | undefined;
+                        input(value: any): any;
                     };
                 };
                 displayUsername: {
-                    type: "string";
-                    required: false;
+                    type: string;
+                    required: boolean;
+                    transform: {
+                        input(value: any): any;
+                    };
                 };
             };
         };
@@ -192,14 +348,16 @@ declare const username: (options?: UsernameOptions) => {
         }[];
     };
     $ERROR_CODES: {
-        INVALID_USERNAME_OR_PASSWORD: string;
-        EMAIL_NOT_VERIFIED: string;
-        UNEXPECTED_ERROR: string;
-        USERNAME_IS_ALREADY_TAKEN: string;
-        USERNAME_TOO_SHORT: string;
-        USERNAME_TOO_LONG: string;
-        INVALID_USERNAME: string;
+        readonly INVALID_USERNAME_OR_PASSWORD: "Invalid username or password";
+        readonly EMAIL_NOT_VERIFIED: "Email not verified";
+        readonly UNEXPECTED_ERROR: "Unexpected error";
+        readonly USERNAME_IS_ALREADY_TAKEN: "Username is already taken. Please try another.";
+        readonly USERNAME_TOO_SHORT: "Username is too short";
+        readonly USERNAME_TOO_LONG: "Username is too long";
+        readonly INVALID_USERNAME: "Username is invalid";
+        readonly INVALID_DISPLAY_USERNAME: "Display username is invalid";
     };
 };
 
-export { USERNAME_ERROR_CODES, type UsernameOptions, username };
+export { USERNAME_ERROR_CODES, username };
+export type { UsernameOptions };

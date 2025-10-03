@@ -1,12 +1,14 @@
 import * as better_call from 'better-call';
-import { H as HookEndpointContext } from '../shared/better-auth.C67OuOdK.cjs';
-import '../shared/better-auth.Bi8FQwDD.cjs';
+import { H as HookEndpointContext } from '../shared/better-auth.jRxKMAeG.cjs';
+import '../shared/better-auth.v_lf-jeY.cjs';
+import '../shared/better-auth.DTtXpZYr.cjs';
 import 'zod';
-import '../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 declare const reactStartCookies: () => {
     id: "react-start-cookies";

@@ -1,5 +1,4 @@
-import { L as LiteralString } from '../../shared/better-auth.Bi8FQwDD.js';
-import 'zod';
+import { L as LiteralString } from '../../shared/better-auth.DTtXpZYr.js';
 
 type SubArray<T extends unknown[] | readonly unknown[] | any[]> = T[number][];
 type Subset<K extends keyof R, R extends Record<string | LiteralString, readonly string[] | readonly LiteralString[]>> = {
@@ -39,4 +38,5 @@ declare function createAccessControl<const TStatements extends Statements>(s: TS
     statements: TStatements;
 };
 
-export { type AccessControl, type AuthorizeResponse, type Role, type Statements, type SubArray, type Subset, createAccessControl, role };
+export { createAccessControl, role };
+export type { AccessControl, AuthorizeResponse, Role, Statements, SubArray, Subset };

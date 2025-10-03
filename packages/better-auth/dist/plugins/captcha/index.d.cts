@@ -1,17 +1,20 @@
-import { p as AuthContext } from '../../shared/better-auth.C67OuOdK.cjs';
-import '../../shared/better-auth.Bi8FQwDD.cjs';
+import { d as AuthContext } from '../../shared/better-auth.jRxKMAeG.cjs';
+import '../../shared/better-auth.v_lf-jeY.cjs';
+import '../../shared/better-auth.DTtXpZYr.cjs';
 import 'zod';
-import '../../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
 import 'kysely';
 import 'better-call';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 declare const Providers: {
     readonly CLOUDFLARE_TURNSTILE: "cloudflare-turnstile";
     readonly GOOGLE_RECAPTCHA: "google-recaptcha";
     readonly HCAPTCHA: "hcaptcha";
+    readonly CAPTCHAFOX: "captchafox";
 };
 
 interface BaseCaptchaOptions {
@@ -30,7 +33,11 @@ interface HCaptchaOptions extends BaseCaptchaOptions {
     provider: typeof Providers.HCAPTCHA;
     siteKey?: string;
 }
-type CaptchaOptions = GoogleRecaptchaOptions | CloudflareTurnstileOptions | HCaptchaOptions;
+interface CaptchaFoxOptions extends BaseCaptchaOptions {
+    provider: typeof Providers.CAPTCHAFOX;
+    siteKey?: string;
+}
+type CaptchaOptions = GoogleRecaptchaOptions | CloudflareTurnstileOptions | HCaptchaOptions | CaptchaFoxOptions;
 
 declare const captcha: (options: CaptchaOptions) => {
     id: "captcha";

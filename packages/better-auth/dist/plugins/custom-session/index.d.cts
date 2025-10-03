@@ -1,18 +1,33 @@
 import * as better_call from 'better-call';
-import { z } from 'zod';
-import { B as BetterAuthOptions, q as InferUser, r as InferSession, G as GenericEndpointContext } from '../../shared/better-auth.C67OuOdK.cjs';
-import '../../shared/better-auth.Bi8FQwDD.cjs';
-import '../../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
+import { B as BetterAuthOptions, e as InferUser, f as InferSession, G as GenericEndpointContext, H as HookEndpointContext } from '../../shared/better-auth.jRxKMAeG.cjs';
+import * as z from 'zod';
+import '../../shared/better-auth.v_lf-jeY.cjs';
+import '../../shared/better-auth.DTtXpZYr.cjs';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
+type CustomSessionPluginOptions = {
+    /**
+     * This option is used to determine if the list-device-sessions endpoint should be mutated to the custom session data.
+     * @default false
+     */
+    shouldMutateListDeviceSessionsEndpoint?: boolean;
+};
 declare const customSession: <Returns extends Record<string, any>, O extends BetterAuthOptions = BetterAuthOptions>(fn: (session: {
     user: InferUser<O>;
     session: InferSession<O>;
-}, ctx: GenericEndpointContext) => Promise<Returns>, options?: O) => {
+}, ctx: GenericEndpointContext) => Promise<Returns>, options?: O, pluginOptions?: CustomSessionPluginOptions) => {
     id: "custom-session";
+    hooks: {
+        after: {
+            matcher: (ctx: HookEndpointContext) => boolean;
+            handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<Awaited<Returns>[] | undefined>;
+        }[];
+    };
     endpoints: {
         getSession: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
@@ -45,19 +60,9 @@ declare const customSession: <Returns extends Record<string, any>, O extends Bet
             options: {
                 method: "GET";
                 query: z.ZodOptional<z.ZodObject<{
-                    /**
-                     * If cookie cache is enabled, it will disable the cache
-                     * and fetch the session from the database
-                     */
-                    disableCookieCache: z.ZodOptional<z.ZodUnion<[z.ZodBoolean, z.ZodEffects<z.ZodString, boolean, string>]>>;
+                    disableCookieCache: z.ZodOptional<z.ZodUnion<[z.ZodBoolean, z.ZodPipe<z.ZodString, z.ZodTransform<boolean, string>>]>>;
                     disableRefresh: z.ZodOptional<z.ZodBoolean>;
-                }, "strip", z.ZodTypeAny, {
-                    disableCookieCache?: boolean | undefined;
-                    disableRefresh?: boolean | undefined;
-                }, {
-                    disableCookieCache?: string | boolean | undefined;
-                    disableRefresh?: boolean | undefined;
-                }>>;
+                }, z.core.$strip>>;
                 metadata: {
                     CUSTOM_SESSION: boolean;
                     openapi: {
@@ -90,3 +95,4 @@ declare const customSession: <Returns extends Record<string, any>, O extends Bet
 };
 
 export { customSession };
+export type { CustomSessionPluginOptions };

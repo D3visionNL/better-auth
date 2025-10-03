@@ -1,41 +1,13 @@
-import { g as getClientConfig, c as createDynamicPathProxy } from '../shared/better-auth.FvRECEI1.mjs';
-import { c as capitalizeFirstLetter } from '../shared/better-auth.D-2CmEwz.mjs';
-export { u as useAuthQuery } from '../shared/better-auth.CQvoVIBD.mjs';
+export { c as createAuthClient } from '../shared/better-auth.CGLD_W1L.mjs';
+export { u as useAuthQuery } from '../shared/better-auth.BYWGbmZ5.mjs';
+import '../shared/better-auth.WSg8tg20.mjs';
 import '@better-fetch/fetch';
-import '../shared/better-auth.VTXNLFMT.mjs';
-import '../shared/better-auth.8zoxzg-F.mjs';
+import '../shared/better-auth.BAQSo96z.mjs';
+import '../shared/better-auth.CiuwFiHM.mjs';
 import '../shared/better-auth.DdzSJf-n.mjs';
 import 'nanostores';
-import '../shared/better-auth.ffWeg50w.mjs';
-
-function createAuthClient(options) {
-  const {
-    pluginPathMethods,
-    pluginsActions,
-    pluginsAtoms,
-    $fetch,
-    atomListeners,
-    $store
-  } = getClientConfig(options);
-  let resolvedHooks = {};
-  for (const [key, value] of Object.entries(pluginsAtoms)) {
-    resolvedHooks[`use${capitalizeFirstLetter(key)}`] = value;
-  }
-  const routes = {
-    ...pluginsActions,
-    ...resolvedHooks,
-    $fetch,
-    $store
-  };
-  const proxy = createDynamicPathProxy(
-    routes,
-    $fetch,
-    pluginPathMethods,
-    pluginsAtoms,
-    atomListeners
-  );
-  return proxy;
-}
+import '../shared/better-auth.msGOU0m9.mjs';
+import '../shared/better-auth.D-2CmEwz.mjs';
 
 const InferPlugin = () => {
   return {
@@ -43,5 +15,8 @@ const InferPlugin = () => {
     $InferServerPlugin: {}
   };
 };
+function InferAuth() {
+  return {};
+}
 
-export { InferPlugin, createAuthClient };
+export { InferAuth, InferPlugin };

@@ -1,53 +1,45 @@
 import * as better_call from 'better-call';
-import { U as User, S as Session, I as InferOptionSchema, H as HookEndpointContext, G as GenericEndpointContext } from '../../shared/better-auth.C67OuOdK.cjs';
-import '../../shared/better-auth.Bi8FQwDD.cjs';
-import 'zod';
-import '../../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
+import * as z from 'zod';
+import { U as User, S as Session, I as InferOptionSchema, G as GenericEndpointContext, H as HookEndpointContext } from '../../shared/better-auth.jRxKMAeG.cjs';
+import * as jose from 'jose';
+import { JWTPayload, JSONWebKeySet } from 'jose';
+import { A as Awaitable } from '../../shared/better-auth.DTtXpZYr.cjs';
+import '../../shared/better-auth.v_lf-jeY.cjs';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 declare const schema: {
     jwks: {
         fields: {
             publicKey: {
-                type: "string";
-                required: true;
+                type: string;
+                required: boolean;
             };
             privateKey: {
-                type: "string";
-                required: true;
+                type: string;
+                required: boolean;
             };
             createdAt: {
-                type: "date";
-                required: true;
+                type: string;
+                required: boolean;
             };
         };
     };
 };
 
-type JWKOptions = {
-    alg: "EdDSA";
-    crv?: "Ed25519" | "Ed448";
-} | {
-    alg: "ES256";
-    crv?: never;
-} | {
-    alg: "RS256";
-    modulusLength?: number;
-} | {
-    alg: "PS256";
-    modulusLength?: number;
-} | {
-    alg: "ECDH-ES";
-    crv?: "P-256" | "P-384" | "P-521";
-} | {
-    alg: "ES512";
-    crv?: never;
-};
 interface JwtOptions {
     jwks?: {
+        /**
+         * Disables the /jwks endpoint and uses this endpoint in discovery.
+         *
+         * Useful if jwks are not managed at /jwks or
+         * if your jwks are signed with a certificate and placed on your CDN.
+         */
+        remoteUrl?: string;
         /**
          * Key pair configuration
          * @description A subset of the options available for the generateKeyPair function
@@ -114,15 +106,93 @@ interface JwtOptions {
             user: User & Record<string, any>;
             session: Session & Record<string, any>;
         }) => Promise<string> | string;
+        /**
+         * A custom function to remote sign the jwt payload.
+         *
+         * All headers, such as `alg` and `kid`,
+         * MUST be defined within this function.
+         * You can safely define the header `typ: 'JWT'`.
+         *
+         * @requires jwks.remoteUrl
+         * @invalidates other jwt.* options
+         */
+        sign?: (payload: JWTPayload) => Awaitable<string>;
     };
+    /**
+     * Disables setting JWTs through middleware.
+     *
+     * Recommended to set `true` when using an oAuth provider plugin
+     * like OIDC or MCP where session payloads should not be signed.
+     *
+     * @default false
+     */
+    disableSettingJwtHeader?: boolean;
     /**
      * Custom schema for the admin plugin
      */
     schema?: InferOptionSchema<typeof schema>;
 }
+/**
+ * Asymmetric (JWS) Supported.
+ *
+ * @see https://github.com/panva/jose/issues/210
+ */
+type JWKOptions = {
+    alg: "EdDSA";
+    crv?: "Ed25519";
+} | {
+    alg: "ES256";
+    crv?: never;
+} | {
+    alg: "ES512";
+    crv?: never;
+} | {
+    alg: "PS256";
+    modulusLength?: number;
+} | {
+    alg: "RS256";
+    modulusLength?: number;
+};
+type JWSAlgorithms = JWKOptions["alg"];
+interface Jwk {
+    id: string;
+    publicKey: string;
+    privateKey: string;
+    createdAt: Date;
+    alg?: JWSAlgorithms;
+    crv?: "Ed25519" | "P-256" | "P-521";
+}
+
 declare function getJwtToken(ctx: GenericEndpointContext, options?: JwtOptions): Promise<string>;
+
+declare function generateExportedKeyPair(options?: JwtOptions): Promise<{
+    publicWebKey: jose.JWK;
+    privateWebKey: jose.JWK;
+    alg: "RS256" | "EdDSA" | "ES256" | "ES512" | "PS256";
+    cfg: {
+        crv?: "Ed25519";
+    } | {
+        crv?: never;
+    } | {
+        crv?: never;
+    } | {
+        modulusLength?: number;
+    } | {
+        modulusLength?: number;
+    };
+}>;
+/**
+ * Creates a Jwk on the database
+ *
+ * @param ctx
+ * @param options
+ * @returns
+ */
+declare function createJwk(ctx: GenericEndpointContext, options?: JwtOptions): Promise<Jwk>;
+
 declare const jwt: (options?: JwtOptions) => {
     id: "jwt";
+    options: JwtOptions | undefined;
     endpoints: {
         getJwks: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0?: ({
@@ -147,12 +217,8 @@ declare const jwt: (options?: JwtOptions) => {
                 returnHeaders?: ReturnHeaders | undefined;
             }) | undefined): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
                 headers: Headers;
-                response: {
-                    keys: any[];
-                };
-            } : {
-                keys: any[];
-            }>;
+                response: JSONWebKeySet;
+            } : JSONWebKeySet>;
             options: {
                 method: "GET";
                 metadata: {
@@ -279,11 +345,11 @@ declare const jwt: (options?: JwtOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -315,6 +381,58 @@ declare const jwt: (options?: JwtOptions) => {
             };
             path: "/token";
         };
+        signJWT: {
+            <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
+                body: {
+                    payload: JWTPayload;
+                    overrideOptions?: JwtOptions;
+                };
+            } & {
+                method?: "POST" | undefined;
+            } & {
+                query?: Record<string, any> | undefined;
+            } & {
+                params?: Record<string, any>;
+            } & {
+                request?: Request;
+            } & {
+                headers?: HeadersInit;
+            } & {
+                asResponse?: boolean;
+                returnHeaders?: boolean;
+                use?: better_call.Middleware[];
+                path?: string;
+            } & {
+                asResponse?: AsResponse | undefined;
+                returnHeaders?: ReturnHeaders | undefined;
+            }): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
+                headers: Headers;
+                response: {
+                    token: string;
+                };
+            } : {
+                token: string;
+            }>;
+            options: {
+                method: "POST";
+                metadata: {
+                    SERVER_ONLY: true;
+                    $Infer: {
+                        body: {
+                            payload: JWTPayload;
+                            overrideOptions?: JwtOptions;
+                        };
+                    };
+                };
+                body: z.ZodObject<{
+                    payload: z.ZodRecord<z.ZodString, z.ZodAny>;
+                    overrideOptions: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodAny>>;
+                }, z.core.$strip>;
+            } & {
+                use: any[];
+            };
+            path: "/sign-jwt";
+        };
     };
     hooks: {
         after: {
@@ -326,20 +444,21 @@ declare const jwt: (options?: JwtOptions) => {
         jwks: {
             fields: {
                 publicKey: {
-                    type: "string";
-                    required: true;
+                    type: string;
+                    required: boolean;
                 };
                 privateKey: {
-                    type: "string";
-                    required: true;
+                    type: string;
+                    required: boolean;
                 };
                 createdAt: {
-                    type: "date";
-                    required: true;
+                    type: string;
+                    required: boolean;
                 };
             };
         };
     };
 };
 
-export { type JwtOptions, getJwtToken, jwt };
+export { createJwk, generateExportedKeyPair, getJwtToken, jwt };
+export type { JWKOptions, JWSAlgorithms, Jwk, JwtOptions };

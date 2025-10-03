@@ -1,42 +1,55 @@
 'use strict';
 
-const zod = require('zod');
-const account = require('../../shared/better-auth.iyK63nvn.cjs');
+const z = require('zod');
+const session = require('../../shared/better-auth.B0k5C6Ik.cjs');
 const betterCall = require('better-call');
-const schema$1 = require('../../shared/better-auth.DcWKCjjf.cjs');
+const schema$1 = require('../../shared/better-auth.Bu93hUoT.cjs');
 const random = require('../../shared/better-auth.CYeOI8C-.cjs');
-const cookies_index = require('../../cookies/index.cjs');
-require('../../shared/better-auth.DiSjtgs9.cjs');
-require('../../shared/better-auth.GpOOav9x.cjs');
-require('defu');
+require('../../shared/better-auth.l_Ru3SGW.cjs');
+const cookies_index = require('../../shared/better-auth.anw-08Z3.cjs');
+require('../../shared/better-auth.B6fIklBU.cjs');
+require('@better-auth/core/db');
 const date = require('../../shared/better-auth.C1hdVENX.cjs');
+require('../../shared/better-auth.BToNb2fI.cjs');
 require('@better-auth/utils/random');
-require('../../shared/better-auth.CWJ7qc0w.cjs');
 require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
 require('@better-auth/utils/base64');
 require('jose');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+require('@noble/hashes/scrypt.js');
 require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
-require('../../social-providers/index.cjs');
-require('@better-fetch/fetch');
-require('../../shared/better-auth.6XyKj7DG.cjs');
-require('../../shared/better-auth.ANpbi45u.cjs');
-require('../../shared/better-auth.D3mtHEZg.cjs');
-require('../../shared/better-auth.Bg6iw3ig.cjs');
+require('@noble/hashes/utils.js');
+require('kysely');
+require('../../shared/better-auth.Jlhc86WK.cjs');
+require('../../shared/better-auth.uykCWCYS.cjs');
 require('@better-auth/utils/hmac');
-require('../../shared/better-auth.BMYo0QR-.cjs');
-require('../../shared/better-auth.C-R0J0n1.cjs');
-require('jose/errors');
 require('@better-auth/utils/binary');
+require('../../crypto/index.cjs');
+require('../../shared/better-auth.ANpbi45u.cjs');
+require('@better-fetch/fetch');
+require('../../shared/better-auth.DxBcELEX.cjs');
+require('jose/errors');
+require('../../shared/better-auth.Bg6iw3ig.cjs');
+require('defu');
+
+function _interopNamespaceCompat(e) {
+	if (e && typeof e === 'object' && 'default' in e) return e;
+	const n = Object.create(null);
+	if (e) {
+		for (const k in e) {
+			n[k] = e[k];
+		}
+	}
+	n.default = e;
+	return n;
+}
+
+const z__namespace = /*#__PURE__*/_interopNamespaceCompat(z);
 
 const ERROR_CODES = {
   INVALID_PHONE_NUMBER: "Invalid phone number",
-  PHONE_NUMBER_EXIST: "Phone number already exist",
+  PHONE_NUMBER_EXIST: "Phone number already exists",
   INVALID_PHONE_NUMBER_OR_PASSWORD: "Invalid phone number or password",
   UNEXPECTED_ERROR: "Unexpected error",
   OTP_NOT_FOUND: "OTP not found",
@@ -61,19 +74,34 @@ const phoneNumber = (options) => {
   return {
     id: "phone-number",
     endpoints: {
-      signInPhoneNumber: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/sign-in/phone-number`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.signInPhoneNumber`
+       *
+       * **client:**
+       * `authClient.signIn.phoneNumber`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/phone-number#api-method-sign-in-phone-number)
+       */
+      signInPhoneNumber: session.createAuthEndpoint(
         "/sign-in/phone-number",
         {
           method: "POST",
-          body: zod.z.object({
-            phoneNumber: zod.z.string({
-              description: "Phone number to sign in"
+          body: z__namespace.object({
+            phoneNumber: z__namespace.string().meta({
+              description: 'Phone number to sign in. Eg: "+1234567890"'
             }),
-            password: zod.z.string({
-              description: "Password to use for sign in"
+            password: z__namespace.string().meta({
+              description: "Password to use for sign in."
             }),
-            rememberMe: zod.z.boolean({
-              description: "Remember the session"
+            rememberMe: z__namespace.boolean().meta({
+              description: "Remember the session. Eg: true"
             }).optional()
           }),
           metadata: {
@@ -184,27 +212,27 @@ const phoneNumber = (options) => {
               message: ERROR_CODES.INVALID_PHONE_NUMBER_OR_PASSWORD
             });
           }
-          const session = await ctx.context.internalAdapter.createSession(
+          const session$1 = await ctx.context.internalAdapter.createSession(
             user.id,
             ctx,
             ctx.body.rememberMe === false
           );
-          if (!session) {
+          if (!session$1) {
             ctx.context.logger.error("Failed to create session");
             throw new betterCall.APIError("UNAUTHORIZED", {
-              message: account.BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION
+              message: session.BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION
             });
           }
           await cookies_index.setSessionCookie(
             ctx,
             {
-              session,
+              session: session$1,
               user
             },
             ctx.body.rememberMe === false
           );
           return ctx.json({
-            token: session.token,
+            token: session$1.token,
             user: {
               id: user.id,
               email: user.email,
@@ -219,13 +247,28 @@ const phoneNumber = (options) => {
           });
         }
       ),
-      sendPhoneNumberOTP: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/phone-number/send-otp`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.sendPhoneNumberOTP`
+       *
+       * **client:**
+       * `authClient.phoneNumber.sendOtp`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/phone-number#api-method-phone-number-send-otp)
+       */
+      sendPhoneNumberOTP: session.createAuthEndpoint(
         "/phone-number/send-otp",
         {
           method: "POST",
-          body: zod.z.object({
-            phoneNumber: zod.z.string({
-              description: "Phone number to send OTP"
+          body: z__namespace.object({
+            phoneNumber: z__namespace.string().meta({
+              description: 'Phone number to send OTP. Eg: "+1234567890"'
             })
           }),
           metadata: {
@@ -288,37 +331,52 @@ const phoneNumber = (options) => {
           return ctx.json({ message: "code sent" });
         }
       ),
-      verifyPhoneNumber: account.createAuthEndpoint(
+      /**
+       * ### Endpoint
+       *
+       * POST `/phone-number/verify`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.verifyPhoneNumber`
+       *
+       * **client:**
+       * `authClient.phoneNumber.verify`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/phone-number#api-method-phone-number-verify)
+       */
+      verifyPhoneNumber: session.createAuthEndpoint(
         "/phone-number/verify",
         {
           method: "POST",
-          body: zod.z.object({
+          body: z__namespace.object({
             /**
              * Phone number
              */
-            phoneNumber: zod.z.string({
-              description: "Phone number to verify"
+            phoneNumber: z__namespace.string().meta({
+              description: 'Phone number to verify. Eg: "+1234567890"'
             }),
             /**
              * OTP code
              */
-            code: zod.z.string({
-              description: "OTP code"
+            code: z__namespace.string().meta({
+              description: 'OTP code. Eg: "123456"'
             }),
             /**
              * Disable session creation after verification
              * @default false
              */
-            disableSession: zod.z.boolean({
-              description: "Disable session creation after verification"
+            disableSession: z__namespace.boolean().meta({
+              description: "Disable session creation after verification. Eg: false"
             }).optional(),
             /**
              * This checks if there is a session already
              * and updates the phone number with the provided
              * phone number
              */
-            updatePhoneNumber: zod.z.boolean({
-              description: "Check if there is a session and update the phone number"
+            updatePhoneNumber: z__namespace.boolean().meta({
+              description: "Check if there is a session and update the phone number. Eg: true"
             }).optional()
           }),
           metadata: {
@@ -446,10 +504,10 @@ const phoneNumber = (options) => {
           }
           await ctx.context.internalAdapter.deleteVerificationValue(otp.id);
           if (ctx.body.updatePhoneNumber) {
-            const session = await account.getSessionFromCtx(ctx);
-            if (!session) {
+            const session$1 = await session.getSessionFromCtx(ctx);
+            if (!session$1) {
               throw new betterCall.APIError("UNAUTHORIZED", {
-                message: account.BASE_ERROR_CODES.USER_NOT_FOUND
+                message: session.BASE_ERROR_CODES.USER_NOT_FOUND
               });
             }
             const existingUser = await ctx.context.adapter.findMany({
@@ -467,7 +525,7 @@ const phoneNumber = (options) => {
               });
             }
             let user2 = await ctx.context.internalAdapter.updateUser(
-              session.user.id,
+              session$1.user.id,
               {
                 [opts.phoneNumber]: ctx.body.phoneNumber,
                 [opts.phoneNumberVerified]: true
@@ -476,7 +534,7 @@ const phoneNumber = (options) => {
             );
             return ctx.json({
               status: true,
-              token: session.session.token,
+              token: session$1.session.token,
               user: {
                 id: user2.id,
                 email: user2.email,
@@ -516,7 +574,7 @@ const phoneNumber = (options) => {
               );
               if (!user) {
                 throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
-                  message: account.BASE_ERROR_CODES.FAILED_TO_CREATE_USER
+                  message: session.BASE_ERROR_CODES.FAILED_TO_CREATE_USER
                 });
               }
             }
@@ -530,7 +588,9 @@ const phoneNumber = (options) => {
             );
           }
           if (!user) {
-            return ctx.json(null);
+            throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
+              message: session.BASE_ERROR_CODES.FAILED_TO_UPDATE_USER
+            });
           }
           await options?.callbackOnVerification?.(
             {
@@ -539,28 +599,23 @@ const phoneNumber = (options) => {
             },
             ctx.request
           );
-          if (!user) {
-            throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
-              message: account.BASE_ERROR_CODES.FAILED_TO_UPDATE_USER
-            });
-          }
           if (!ctx.body.disableSession) {
-            const session = await ctx.context.internalAdapter.createSession(
+            const session$1 = await ctx.context.internalAdapter.createSession(
               user.id,
               ctx
             );
-            if (!session) {
+            if (!session$1) {
               throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
-                message: account.BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION
+                message: session.BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION
               });
             }
             await cookies_index.setSessionCookie(ctx, {
-              session,
+              session: session$1,
               user
             });
             return ctx.json({
               status: true,
-              token: session.token,
+              token: session$1.token,
               user: {
                 id: user.id,
                 email: user.email,
@@ -591,12 +646,17 @@ const phoneNumber = (options) => {
           });
         }
       ),
-      forgetPasswordPhoneNumber: account.createAuthEndpoint(
+      /**
+       * @deprecated Use requestPasswordResetPhoneNumber instead. This endpoint will be removed in the next major version.
+       */
+      forgetPasswordPhoneNumber: session.createAuthEndpoint(
         "/phone-number/forget-password",
         {
           method: "POST",
-          body: zod.z.object({
-            phoneNumber: zod.z.string()
+          body: z__namespace.object({
+            phoneNumber: z__namespace.string().meta({
+              description: `The phone number which is associated with the user. Eg: "+1234567890"`
+            })
           }),
           metadata: {
             openapi: {
@@ -643,7 +703,7 @@ const phoneNumber = (options) => {
           await ctx.context.internalAdapter.createVerificationValue(
             {
               value: `${code}:0`,
-              identifier: `${ctx.body.phoneNumber}-forget-password`,
+              identifier: `${ctx.body.phoneNumber}-request-password-reset`,
               expiresAt: date.getDate(opts.expiresIn, "sec")
             },
             ctx
@@ -660,14 +720,89 @@ const phoneNumber = (options) => {
           });
         }
       ),
-      resetPasswordPhoneNumber: account.createAuthEndpoint(
+      requestPasswordResetPhoneNumber: session.createAuthEndpoint(
+        "/phone-number/request-password-reset",
+        {
+          method: "POST",
+          body: z__namespace.object({
+            phoneNumber: z__namespace.string()
+          }),
+          metadata: {
+            openapi: {
+              description: "Request OTP for password reset via phone number",
+              responses: {
+                "200": {
+                  description: "OTP sent successfully for password reset",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          status: {
+                            type: "boolean",
+                            description: "Indicates if the OTP was sent successfully",
+                            enum: [true]
+                          }
+                        },
+                        required: ["status"]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        async (ctx) => {
+          const user = await ctx.context.adapter.findOne({
+            model: "user",
+            where: [
+              {
+                value: ctx.body.phoneNumber,
+                field: opts.phoneNumber
+              }
+            ]
+          });
+          if (!user) {
+            throw new betterCall.APIError("BAD_REQUEST", {
+              message: "phone number isn't registered"
+            });
+          }
+          const code = generateOTP(opts.otpLength);
+          await ctx.context.internalAdapter.createVerificationValue(
+            {
+              value: `${code}:0`,
+              identifier: `${ctx.body.phoneNumber}-request-password-reset`,
+              expiresAt: date.getDate(opts.expiresIn, "sec")
+            },
+            ctx
+          );
+          await options?.sendPasswordResetOTP?.(
+            {
+              phoneNumber: ctx.body.phoneNumber,
+              code
+            },
+            ctx.request
+          );
+          return ctx.json({
+            status: true
+          });
+        }
+      ),
+      resetPasswordPhoneNumber: session.createAuthEndpoint(
         "/phone-number/reset-password",
         {
           method: "POST",
-          body: zod.z.object({
-            otp: zod.z.string(),
-            phoneNumber: zod.z.string(),
-            newPassword: zod.z.string()
+          body: z__namespace.object({
+            otp: z__namespace.string().meta({
+              description: 'The one time password to reset the password. Eg: "123456"'
+            }),
+            phoneNumber: z__namespace.string().meta({
+              description: 'The phone number to the account which intends to reset the password for. Eg: "+1234567890"'
+            }),
+            newPassword: z__namespace.string().meta({
+              description: `The new password. Eg: "new-and-secure-password"`
+            })
           }),
           metadata: {
             openapi: {
@@ -697,7 +832,7 @@ const phoneNumber = (options) => {
         },
         async (ctx) => {
           const verification = await ctx.context.internalAdapter.findVerificationValue(
-            `${ctx.body.phoneNumber}-forget-password`
+            `${ctx.body.phoneNumber}-request-password-reset`
           );
           if (!verification) {
             throw new betterCall.APIError("BAD_REQUEST", {
@@ -750,6 +885,9 @@ const phoneNumber = (options) => {
           await ctx.context.internalAdapter.updatePassword(
             user.id,
             hashedPassword
+          );
+          await ctx.context.internalAdapter.deleteVerificationValue(
+            verification.id
           );
           return ctx.json({
             status: true

@@ -1,12 +1,14 @@
 import * as better_call from 'better-call';
-import { z } from 'zod';
-import { U as User, I as InferOptionSchema } from '../../shared/better-auth.C67OuOdK.cjs';
-import '../../shared/better-auth.Bi8FQwDD.cjs';
-import '../../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
+import * as z from 'zod';
+import { U as User, I as InferOptionSchema } from '../../shared/better-auth.jRxKMAeG.cjs';
+import '../../shared/better-auth.v_lf-jeY.cjs';
+import '../../shared/better-auth.DTtXpZYr.cjs';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface UserWithPhoneNumber extends User {
     phoneNumber: string;
@@ -35,6 +37,18 @@ interface PhoneNumberOptions {
      * @param data - contains phone number and code
      * @param request - the request object
      * @returns
+     */
+    sendPasswordResetOTP?: (data: {
+        phoneNumber: string;
+        code: string;
+    }, request?: Request) => Promise<void> | void;
+    /**
+     * a callback to send otp on user requesting to reset their password
+     *
+     * @param data - contains phone number and code
+     * @param request - the request object
+     * @returns
+     * @deprecated Use sendPasswordResetOTP instead. This function will be removed in the next major version.
      */
     sendForgetPasswordOTP?: (data: {
         phoneNumber: string;
@@ -105,11 +119,26 @@ interface PhoneNumberOptions {
 declare const phoneNumber: (options?: PhoneNumberOptions) => {
     id: "phone-number";
     endpoints: {
+        /**
+         * ### Endpoint
+         *
+         * POST `/sign-in/phone-number`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.signInPhoneNumber`
+         *
+         * **client:**
+         * `authClient.signIn.phoneNumber`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/phone-number#api-method-sign-in-phone-number)
+         */
         signInPhoneNumber: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
-                    password: string;
                     phoneNumber: string;
+                    password: string;
                     rememberMe?: boolean | undefined;
                 };
             } & {
@@ -146,15 +175,7 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
                     phoneNumber: z.ZodString;
                     password: z.ZodString;
                     rememberMe: z.ZodOptional<z.ZodBoolean>;
-                }, "strip", z.ZodTypeAny, {
-                    password: string;
-                    phoneNumber: string;
-                    rememberMe?: boolean | undefined;
-                }, {
-                    password: string;
-                    phoneNumber: string;
-                    rememberMe?: boolean | undefined;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         summary: string;
@@ -189,6 +210,21 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
             };
             path: "/sign-in/phone-number";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/phone-number/send-otp`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.sendPhoneNumberOTP`
+         *
+         * **client:**
+         * `authClient.phoneNumber.sendOtp`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/phone-number#api-method-phone-number-send-otp)
+         */
         sendPhoneNumberOTP: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -224,11 +260,7 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
                 method: "POST";
                 body: z.ZodObject<{
                     phoneNumber: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    phoneNumber: string;
-                }, {
-                    phoneNumber: string;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         summary: string;
@@ -257,11 +289,26 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
             };
             path: "/phone-number/send-otp";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/phone-number/verify`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.verifyPhoneNumber`
+         *
+         * **client:**
+         * `authClient.phoneNumber.verify`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/phone-number#api-method-phone-number-verify)
+         */
         verifyPhoneNumber: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
-                    code: string;
                     phoneNumber: string;
+                    code: string;
                     disableSession?: boolean | undefined;
                     updatePhoneNumber?: boolean | undefined;
                 };
@@ -293,7 +340,7 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
                     status: boolean;
                     token: null;
                     user: UserWithPhoneNumber;
-                } | null;
+                };
             } : {
                 status: boolean;
                 token: string;
@@ -302,40 +349,15 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
                 status: boolean;
                 token: null;
                 user: UserWithPhoneNumber;
-            } | null>;
+            }>;
             options: {
                 method: "POST";
                 body: z.ZodObject<{
-                    /**
-                     * Phone number
-                     */
                     phoneNumber: z.ZodString;
-                    /**
-                     * OTP code
-                     */
                     code: z.ZodString;
-                    /**
-                     * Disable session creation after verification
-                     * @default false
-                     */
                     disableSession: z.ZodOptional<z.ZodBoolean>;
-                    /**
-                     * This checks if there is a session already
-                     * and updates the phone number with the provided
-                     * phone number
-                     */
                     updatePhoneNumber: z.ZodOptional<z.ZodBoolean>;
-                }, "strip", z.ZodTypeAny, {
-                    code: string;
-                    phoneNumber: string;
-                    disableSession?: boolean | undefined;
-                    updatePhoneNumber?: boolean | undefined;
-                }, {
-                    code: string;
-                    phoneNumber: string;
-                    disableSession?: boolean | undefined;
-                    updatePhoneNumber?: boolean | undefined;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         summary: string;
@@ -427,6 +449,9 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
             };
             path: "/phone-number/verify";
         };
+        /**
+         * @deprecated Use requestPasswordResetPhoneNumber instead. This endpoint will be removed in the next major version.
+         */
         forgetPasswordPhoneNumber: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -462,11 +487,7 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
                 method: "POST";
                 body: z.ZodObject<{
                     phoneNumber: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    phoneNumber: string;
-                }, {
-                    phoneNumber: string;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -497,12 +518,78 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
             };
             path: "/phone-number/forget-password";
         };
+        requestPasswordResetPhoneNumber: {
+            <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
+                body: {
+                    phoneNumber: string;
+                };
+            } & {
+                method?: "POST" | undefined;
+            } & {
+                query?: Record<string, any> | undefined;
+            } & {
+                params?: Record<string, any>;
+            } & {
+                request?: Request;
+            } & {
+                headers?: HeadersInit;
+            } & {
+                asResponse?: boolean;
+                returnHeaders?: boolean;
+                use?: better_call.Middleware[];
+                path?: string;
+            } & {
+                asResponse?: AsResponse | undefined;
+                returnHeaders?: ReturnHeaders | undefined;
+            }): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
+                headers: Headers;
+                response: {
+                    status: boolean;
+                };
+            } : {
+                status: boolean;
+            }>;
+            options: {
+                method: "POST";
+                body: z.ZodObject<{
+                    phoneNumber: z.ZodString;
+                }, z.core.$strip>;
+                metadata: {
+                    openapi: {
+                        description: string;
+                        responses: {
+                            "200": {
+                                description: string;
+                                content: {
+                                    "application/json": {
+                                        schema: {
+                                            type: "object";
+                                            properties: {
+                                                status: {
+                                                    type: string;
+                                                    description: string;
+                                                    enum: boolean[];
+                                                };
+                                            };
+                                            required: string[];
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            } & {
+                use: any[];
+            };
+            path: "/phone-number/request-password-reset";
+        };
         resetPasswordPhoneNumber: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
-                    newPassword: string;
                     otp: string;
                     phoneNumber: string;
+                    newPassword: string;
                 };
             } & {
                 method?: "POST" | undefined;
@@ -536,15 +623,7 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
                     otp: z.ZodString;
                     phoneNumber: z.ZodString;
                     newPassword: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    newPassword: string;
-                    otp: string;
-                    phoneNumber: string;
-                }, {
-                    newPassword: string;
-                    otp: string;
-                    phoneNumber: string;
-                }>;
+                }, z.core.$strip>;
                 metadata: {
                     openapi: {
                         description: string;
@@ -580,17 +659,17 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
         user: {
             fields: {
                 phoneNumber: {
-                    type: "string";
-                    required: false;
-                    unique: true;
-                    sortable: true;
-                    returned: true;
+                    type: string;
+                    required: boolean;
+                    unique: boolean;
+                    sortable: boolean;
+                    returned: boolean;
                 };
                 phoneNumberVerified: {
-                    type: "boolean";
-                    required: false;
-                    returned: true;
-                    input: false;
+                    type: string;
+                    required: boolean;
+                    returned: boolean;
+                    input: boolean;
                 };
             };
         };
@@ -602,7 +681,7 @@ declare const phoneNumber: (options?: PhoneNumberOptions) => {
     }[];
     $ERROR_CODES: {
         readonly INVALID_PHONE_NUMBER: "Invalid phone number";
-        readonly PHONE_NUMBER_EXIST: "Phone number already exist";
+        readonly PHONE_NUMBER_EXIST: "Phone number already exists";
         readonly INVALID_PHONE_NUMBER_OR_PASSWORD: "Invalid phone number or password";
         readonly UNEXPECTED_ERROR: "Unexpected error";
         readonly OTP_NOT_FOUND: "OTP not found";
@@ -615,20 +694,21 @@ declare const schema: {
     user: {
         fields: {
             phoneNumber: {
-                type: "string";
-                required: false;
-                unique: true;
-                sortable: true;
-                returned: true;
+                type: string;
+                required: boolean;
+                unique: boolean;
+                sortable: boolean;
+                returned: boolean;
             };
             phoneNumberVerified: {
-                type: "boolean";
-                required: false;
-                returned: true;
-                input: false;
+                type: string;
+                required: boolean;
+                returned: boolean;
+                input: boolean;
             };
         };
     };
 };
 
-export { type PhoneNumberOptions, type UserWithPhoneNumber, phoneNumber };
+export { phoneNumber };
+export type { PhoneNumberOptions, UserWithPhoneNumber };

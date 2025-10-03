@@ -1,36 +1,35 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { APIError } from 'better-call';
-import { c as createAuthMiddleware, a as createAuthEndpoint, s as sessionMiddleware } from '../../shared/better-auth.c4QO78Xh.mjs';
-import { parseSetCookieHeader, parseCookies, setSessionCookie, deleteSessionCookie } from '../../cookies/index.mjs';
-import '../../shared/better-auth.Cc72UxUH.mjs';
-import '../../shared/better-auth.8zoxzg-F.mjs';
-import '../../shared/better-auth.Cqykj82J.mjs';
-import 'defu';
+import '../../shared/better-auth.CpZXDeOc.mjs';
+import { c as createAuthMiddleware, a as createAuthEndpoint, s as sessionMiddleware } from '../../shared/better-auth.D_jpufHc.mjs';
+import { p as parseSetCookieHeader, a as parseCookies, s as setSessionCookie, d as deleteSessionCookie } from '../../shared/better-auth.L4mY8Wf-.mjs';
+import '../../shared/better-auth.CiuwFiHM.mjs';
+import '@better-auth/core/db';
+import '../../shared/better-auth.BZghgUMh.mjs';
+import '../../shared/better-auth.DgGir396.mjs';
 import '@better-auth/utils/random';
-import '../../shared/better-auth.dn8_oqOu.mjs';
 import '@better-auth/utils/hash';
-import '@noble/ciphers/chacha';
-import '@noble/ciphers/utils';
-import '@noble/ciphers/webcrypto';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
 import '@better-auth/utils/base64';
 import 'jose';
-import '@noble/hashes/scrypt';
-import '@better-auth/utils';
+import '@noble/hashes/scrypt.js';
 import '@better-auth/utils/hex';
-import '@noble/hashes/utils';
+import '@noble/hashes/utils.js';
 import '../../shared/better-auth.B4Qoxdgc.mjs';
-import '../../social-providers/index.mjs';
-import '@better-fetch/fetch';
-import '../../shared/better-auth.DufyW0qf.mjs';
+import 'kysely';
 import '../../shared/better-auth.CW6D9eSx.mjs';
+import '../../crypto/index.mjs';
 import '../../shared/better-auth.DdzSJf-n.mjs';
-import '../../shared/better-auth.tB5eU6EY.mjs';
+import '@better-fetch/fetch';
+import '../../shared/better-auth.BAQSo96z.mjs';
+import 'jose/errors';
+import '../../shared/better-auth.BTrSrKsi.mjs';
 import '../../shared/better-auth.BUPPRXfK.mjs';
 import '@better-auth/utils/hmac';
-import '../../shared/better-auth.DDEbWX-S.mjs';
-import '../../shared/better-auth.VTXNLFMT.mjs';
-import 'jose/errors';
 import '@better-auth/utils/binary';
+import 'defu';
+import '../../shared/better-auth.D2xndZ2p.mjs';
 
 const multiSession = (options) => {
   const opts = {
@@ -44,6 +43,21 @@ const multiSession = (options) => {
   return {
     id: "multi-session",
     endpoints: {
+      /**
+       * ### Endpoint
+       *
+       * GET `/multi-session/list-device-sessions`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.listDeviceSessions`
+       *
+       * **client:**
+       * `authClient.multiSession.listDeviceSessions`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/multi-session#api-method-multi-session-list-device-sessions)
+       */
       listDeviceSessions: createAuthEndpoint(
         "/multi-session/list-device-sessions",
         {
@@ -76,12 +90,27 @@ const multiSession = (options) => {
           return ctx.json(uniqueUserSessions);
         }
       ),
+      /**
+       * ### Endpoint
+       *
+       * POST `/multi-session/set-active`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.setActiveSession`
+       *
+       * **client:**
+       * `authClient.multiSession.setActive`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/multi-session#api-method-multi-session-set-active)
+       */
       setActiveSession: createAuthEndpoint(
         "/multi-session/set-active",
         {
           method: "POST",
           body: z.object({
-            sessionToken: z.string({
+            sessionToken: z.string().meta({
               description: "The session token to set as active"
             })
           }),
@@ -136,12 +165,27 @@ const multiSession = (options) => {
           return ctx.json(session);
         }
       ),
+      /**
+       * ### Endpoint
+       *
+       * POST `/multi-session/revoke`
+       *
+       * ### API Methods
+       *
+       * **server:**
+       * `auth.api.revokeDeviceSession`
+       *
+       * **client:**
+       * `authClient.multiSession.revoke`
+       *
+       * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/multi-session#api-method-multi-session-revoke)
+       */
       revokeDeviceSession: createAuthEndpoint(
         "/multi-session/revoke",
         {
           method: "POST",
           body: z.object({
-            sessionToken: z.string({
+            sessionToken: z.string().meta({
               description: "The session token to revoke"
             })
           }),
@@ -257,10 +301,14 @@ const multiSession = (options) => {
             const cookies = Object.fromEntries(parseCookies(cookieHeader));
             const ids = Object.keys(cookies).map((key) => {
               if (isMultiSessionCookie(key)) {
-                ctx.setCookie(key.toLowerCase(), "", {
-                  ...ctx.context.authCookies.sessionToken.options,
-                  maxAge: 0
-                });
+                ctx.setCookie(
+                  key.toLowerCase().replace("__secure-", "__Secure-"),
+                  "",
+                  {
+                    ...ctx.context.authCookies.sessionToken.options,
+                    maxAge: 0
+                  }
+                );
                 const token = cookies[key].split(".")[0];
                 return token;
               }

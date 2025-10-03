@@ -1,36 +1,35 @@
 import { APIError } from 'better-call';
-import { c as createAuthMiddleware, a as createAuthEndpoint, g as getSessionFromCtx } from '../../shared/better-auth.c4QO78Xh.mjs';
+import '../../shared/better-auth.CpZXDeOc.mjs';
+import { c as createAuthMiddleware, a as createAuthEndpoint, g as getSessionFromCtx } from '../../shared/better-auth.D_jpufHc.mjs';
 import 'zod';
-import { parseSetCookieHeader, setSessionCookie } from '../../cookies/index.mjs';
-import { m as mergeSchema } from '../../shared/better-auth.Cc72UxUH.mjs';
-import '../../shared/better-auth.8zoxzg-F.mjs';
-import '../../shared/better-auth.Cqykj82J.mjs';
-import 'defu';
-import { g as getOrigin } from '../../shared/better-auth.VTXNLFMT.mjs';
-import '@better-auth/utils/random';
-import '../../shared/better-auth.dn8_oqOu.mjs';
+import { p as parseSetCookieHeader, s as setSessionCookie } from '../../shared/better-auth.L4mY8Wf-.mjs';
+import '../../shared/better-auth.CiuwFiHM.mjs';
+import '@better-auth/core/db';
+import { m as mergeSchema } from '../../shared/better-auth.BZghgUMh.mjs';
+import '../../shared/better-auth.DgGir396.mjs';
+import { g as generateId } from '../../shared/better-auth.BUPPRXfK.mjs';
 import '@better-auth/utils/hash';
-import '@noble/ciphers/chacha';
-import '@noble/ciphers/utils';
-import '@noble/ciphers/webcrypto';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
 import '@better-auth/utils/base64';
 import 'jose';
-import '@noble/hashes/scrypt';
-import '@better-auth/utils';
+import '@noble/hashes/scrypt.js';
 import '@better-auth/utils/hex';
-import '@noble/hashes/utils';
+import '@noble/hashes/utils.js';
 import '../../shared/better-auth.B4Qoxdgc.mjs';
-import '../../social-providers/index.mjs';
-import '@better-fetch/fetch';
-import '../../shared/better-auth.DufyW0qf.mjs';
+import 'kysely';
+import { g as getOrigin } from '../../shared/better-auth.BAQSo96z.mjs';
 import '../../shared/better-auth.CW6D9eSx.mjs';
+import '../../crypto/index.mjs';
 import '../../shared/better-auth.DdzSJf-n.mjs';
-import '../../shared/better-auth.tB5eU6EY.mjs';
-import '../../shared/better-auth.BUPPRXfK.mjs';
-import '@better-auth/utils/hmac';
-import '../../shared/better-auth.DDEbWX-S.mjs';
+import '@better-fetch/fetch';
 import 'jose/errors';
+import '@better-auth/utils/random';
+import '../../shared/better-auth.BTrSrKsi.mjs';
+import '@better-auth/utils/hmac';
 import '@better-auth/utils/binary';
+import 'defu';
+import '../../shared/better-auth.D2xndZ2p.mjs';
 
 const schema = {
   user: {
@@ -82,10 +81,16 @@ const anonymous = (options) => {
           }
         },
         async (ctx) => {
+          const existingSession = await getSessionFromCtx(ctx, { disableRefresh: true });
+          if (existingSession?.user.isAnonymous) {
+            throw new APIError("BAD_REQUEST", {
+              message: ERROR_CODES.ANONYMOUS_USERS_CANNOT_SIGN_IN_AGAIN_ANONYMOUSLY
+            });
+          }
           const { emailDomainName = getOrigin(ctx.context.baseURL) } = options || {};
-          const id = ctx.context.generateId({ model: "user" });
+          const id = generateId();
           const email = `temp-${id}@${emailDomainName}`;
-          const name = options?.generateName?.(ctx) || "Anonymous";
+          const name = await options?.generateName?.(ctx) || "Anonymous";
           const newUser = await ctx.context.internalAdapter.createUser(
             {
               email,
@@ -136,7 +141,7 @@ const anonymous = (options) => {
       after: [
         {
           matcher(ctx) {
-            return ctx.path.startsWith("/sign-in") || ctx.path.startsWith("/sign-up") || ctx.path.startsWith("/callback") || ctx.path.startsWith("/oauth2/callback") || ctx.path.startsWith("/magic-link/verify") || ctx.path.startsWith("/email-otp/verify-email");
+            return ctx.path.startsWith("/sign-in") || ctx.path.startsWith("/sign-up") || ctx.path.startsWith("/callback") || ctx.path.startsWith("/oauth2/callback") || ctx.path.startsWith("/magic-link/verify") || ctx.path.startsWith("/email-otp/verify-email") || ctx.path.startsWith("/one-tap/callback") || ctx.path.startsWith("/passkey/verify-authentication");
           },
           handler: createAuthMiddleware(async (ctx) => {
             const setCookie = ctx.context.responseHeaders?.get("set-cookie");
@@ -154,7 +159,7 @@ const anonymous = (options) => {
             if (!session || !session.user.isAnonymous) {
               return;
             }
-            if (ctx.path === "/sign-in/anonymous") {
+            if (ctx.path === "/sign-in/anonymous" && !ctx.context.newSession) {
               throw new APIError("BAD_REQUEST", {
                 message: ERROR_CODES.ANONYMOUS_USERS_CANNOT_SIGN_IN_AGAIN_ANONYMOUSLY
               });

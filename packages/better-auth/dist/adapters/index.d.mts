@@ -1,17 +1,35 @@
-import { b as AdapterConfig, C as CreateCustomAdapter, B as BetterAuthOptions, a as Adapter } from '../shared/better-auth.kHOzQ3TU.mjs';
-export { A as AdapterDebugLogs, e as AdapterTestDebugLogs, d as CleanedWhere, c as CustomAdapter } from '../shared/better-auth.kHOzQ3TU.mjs';
-import '../shared/better-auth.Bi8FQwDD.mjs';
+import { B as BetterAuthOptions, a as Adapter, i as AdapterFactoryOptions, j as AdapterFactoryConfig, k as AdapterFactoryCustomizeAdapterCreator } from '../shared/better-auth.DUREkDBM.mjs';
+export { A as AdapterDebugLogs, l as AdapterTestDebugLogs, C as CustomAdapter } from '../shared/better-auth.DUREkDBM.mjs';
+import '../shared/better-auth.XefKa8DI.mjs';
+import '../shared/better-auth.DTtXpZYr.mjs';
 import 'zod';
-import '../shared/better-auth.CggyDr6H.mjs';
-import 'jose';
 import 'kysely';
 import 'better-call';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
-declare const createAdapter: ({ adapter, config: cfg, }: {
-    config: AdapterConfig;
-    adapter: CreateCustomAdapter;
-}) => (options: BetterAuthOptions) => Adapter;
+type AdapterFactory = (options: BetterAuthOptions) => Adapter;
+declare const createAdapterFactory: ({ adapter: customAdapter, config: cfg, }: AdapterFactoryOptions) => AdapterFactory;
 
-export { AdapterConfig, CreateCustomAdapter, createAdapter };
+/**
+ * @deprecated Use `createAdapterFactory` instead. This export will be removed in the next major version.
+ */
+declare const createAdapter: ({ adapter: customAdapter, config: cfg, }: AdapterFactoryOptions) => AdapterFactory;
+/**
+ * @deprecated Use `AdapterFactoryOptions` instead. This export will be removed in the next major version.
+ */
+type CreateAdapterOptions = AdapterFactoryOptions;
+/**
+ * @deprecated Use `AdapterFactoryConfig` instead. This export will be removed in the next major version.
+ */
+type AdapterConfig = AdapterFactoryConfig;
+/**
+ * @deprecated Use `AdapterFactoryCustomizeAdapterCreator` instead. This export will be removed in the next major version.
+ */
+type CreateCustomAdapter = AdapterFactoryCustomizeAdapterCreator;
+
+export { AdapterFactoryConfig, AdapterFactoryCustomizeAdapterCreator, AdapterFactoryOptions, createAdapter, createAdapterFactory };
+export type { AdapterConfig, AdapterFactory, CreateAdapterOptions, CreateCustomAdapter };

@@ -5,18 +5,17 @@ const id = require('../shared/better-auth.Bg6iw3ig.cjs');
 require('zod');
 require('better-call');
 require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha');
-require('@noble/ciphers/utils');
-require('@noble/ciphers/webcrypto');
+require('@noble/ciphers/chacha.js');
+require('@noble/ciphers/utils.js');
 require('@better-auth/utils/base64');
 require('jose');
-require('@noble/hashes/scrypt');
-require('@better-auth/utils');
+require('@noble/hashes/scrypt.js');
 require('@better-auth/utils/hex');
-require('@noble/hashes/utils');
+require('@noble/hashes/utils.js');
 require('../shared/better-auth.CYeOI8C-.cjs');
-require('../shared/better-auth.GpOOav9x.cjs');
+require('../shared/better-auth.BToNb2fI.cjs');
 require('@better-auth/utils/random');
+require('../shared/better-auth.B6fIklBU.cjs');
 
 const adapterTests = {
   CREATE_MODEL: "create model",
@@ -30,6 +29,7 @@ const adapterTests = {
   SHOULD_FIND_MANY_WITH_WHERE: "should find many with where",
   SHOULD_FIND_MANY_WITH_OPERATORS: "should find many with operators",
   SHOULD_WORK_WITH_REFERENCE_FIELDS: "should work with reference fields",
+  SHOULD_FIND_MANY_WITH_NOT_IN_OPERATOR: "should find many with not in operator",
   SHOULD_FIND_MANY_WITH_SORT_BY: "should find many with sortBy",
   SHOULD_FIND_MANY_WITH_LIMIT: "should find many with limit",
   SHOULD_FIND_MANY_WITH_OFFSET: "should find many with offset",
@@ -41,7 +41,10 @@ const adapterTests = {
   SHOULD_FIND_MANY_WITH_CONTAINS_OPERATOR: "should find many with contains operator",
   SHOULD_SEARCH_USERS_WITH_STARTS_WITH: "should search users with startsWith",
   SHOULD_SEARCH_USERS_WITH_ENDS_WITH: "should search users with endsWith",
-  SHOULD_PREFER_GENERATE_ID_IF_PROVIDED: "should prefer generateId if provided"
+  SHOULD_PREFER_GENERATE_ID_IF_PROVIDED: "should prefer generateId if provided",
+  SHOULD_ROLLBACK_FAILING_TRANSACTION: "should rollback failing transaction",
+  SHOULD_RETURN_TRANSACTION_RESULT: "should return transaction result",
+  SHOULD_FIND_MANY_WITH_CONNECTORS: "should find many with connectors"
 };
 const { ...numberIdAdapterTestsCopy } = adapterTests;
 const numberIdAdapterTests = {
@@ -50,7 +53,10 @@ const numberIdAdapterTests = {
   SHOULD_INCREMENT_THE_ID_BY_1: "Should increment the id by 1"
 };
 delete numberIdAdapterTests.SHOULD_NOT_THROW_ON_DELETE_RECORD_NOT_FOUND;
-async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix }, internalOptions) {
+function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix }, internalOptions) {
+  console.warn(
+    "This test function is deprecated and will be removed in the future. Use `testAdapter` instead."
+  );
   const adapter = async () => await getAdapter(internalOptions?.predefinedOptions);
   async function resetDebugLogs() {
     (await adapter())?.adapterTestDebugLogs?.resetDebugLogs();
@@ -58,9 +64,11 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   async function printDebugLogs() {
     (await adapter())?.adapterTestDebugLogs?.printDebugLogs();
   }
-  const user = {
+  const testRunId = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+  const getUniqueEmail = (base) => `${testRunId}_${base}`;
+  let user = {
     name: "user",
-    email: "user@email.com",
+    email: getUniqueEmail("user@email.com"),
     emailVerified: true,
     createdAt: /* @__PURE__ */ new Date(),
     updatedAt: /* @__PURE__ */ new Date()
@@ -68,9 +76,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.CREATE_MODEL)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.CREATE_MODEL}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).create({
         model: "user",
@@ -89,15 +97,15 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.CREATE_MODEL_SHOULD_ALWAYS_RETURN_AN_ID)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.CREATE_MODEL_SHOULD_ALWAYS_RETURN_AN_ID}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).create({
         model: "user",
         data: {
           name: "test-name-without-id",
-          email: "test-email-without-id@email.com"
+          email: getUniqueEmail("test-email-without-id@email.com")
         }
       });
       vitest.expect(res).toHaveProperty("id");
@@ -107,9 +115,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.FIND_MODEL)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.FIND_MODEL}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).findOne({
         model: "user",
@@ -132,9 +140,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.FIND_MODEL_WITHOUT_ID)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.FIND_MODEL_WITHOUT_ID}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).findOne({
         model: "user",
@@ -157,11 +165,11 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.FIND_MODEL_WITH_MODIFIED_FIELD_NAME)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.FIND_MODEL_WITH_MODIFIED_FIELD_NAME}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
-      const email = "test-email-with-modified-field@email.com";
+      const email = getUniqueEmail("test-email-with-modified-field@email.com");
       const adapter2 = await getAdapter(
         Object.assign(
           {
@@ -201,9 +209,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.FIND_MODEL_WITH_SELECT)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.FIND_MODEL_WITH_SELECT}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).findOne({
         model: "user",
@@ -221,11 +229,11 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.UPDATE_MODEL)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.UPDATE_MODEL}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
-      const newEmail = "updated@email.com";
+      const newEmail = getUniqueEmail("updated@email.com");
       const res = await (await adapter()).update({
         model: "user",
         where: [
@@ -247,9 +255,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_FIND_MANY)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_FIND_MANY}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).findMany({
         model: "user"
@@ -260,15 +268,15 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_FIND_MANY_WITH_WHERE)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_FIND_MANY_WITH_WHERE}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const user2 = await (await adapter()).create({
         model: "user",
         data: {
           name: "user2",
-          email: "test@email.com",
+          email: getUniqueEmail("test@email.com"),
           emailVerified: true,
           createdAt: /* @__PURE__ */ new Date(),
           updatedAt: /* @__PURE__ */ new Date()
@@ -289,15 +297,15 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_FIND_MANY_WITH_OPERATORS)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_FIND_MANY_WITH_OPERATORS}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const newUser = await (await adapter()).create({
         model: "user",
         data: {
           name: "user",
-          email: "test-email2@email.com",
+          email: getUniqueEmail("test-email2@email.com"),
           emailVerified: true,
           createdAt: /* @__PURE__ */ new Date(),
           updatedAt: /* @__PURE__ */ new Date()
@@ -316,19 +324,62 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
       vitest.expect(res.length).toBe(2);
     }
   );
+  vitest.test.skipIf(disabledTests?.SHOULD_FIND_MANY_WITH_NOT_IN_OPERATOR)(
+    `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_FIND_MANY_WITH_NOT_IN_OPERATOR}`,
+    async ({ onTestFailed }) => {
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
+      });
+      const newUser3 = await (await adapter()).create({
+        model: "user",
+        data: {
+          name: "user",
+          email: getUniqueEmail("test-email3@email.com"),
+          emailVerified: true,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        }
+      });
+      const allUsers = await (await adapter()).findMany({
+        model: "user"
+      });
+      vitest.expect(allUsers.length).toBe(6);
+      const usersWithoutNotIn = await (await adapter()).findMany({
+        model: "user",
+        where: [
+          {
+            field: "id",
+            operator: "not_in",
+            value: [user.id, newUser3.id]
+          }
+        ]
+      });
+      vitest.expect(usersWithoutNotIn.length).toBe(4);
+      await (await adapter()).delete({
+        model: "user",
+        where: [
+          {
+            field: "id",
+            value: newUser3.id
+          }
+        ]
+      });
+    }
+  );
   vitest.test.skipIf(disabledTests?.SHOULD_WORK_WITH_REFERENCE_FIELDS)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_WORK_WITH_REFERENCE_FIELDS}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       let token = null;
       const user2 = await (await adapter()).create({
         model: "user",
         data: {
           name: "user",
-          email: "my-email@email.com",
+          email: getUniqueEmail("my-email@email.com"),
           emailVerified: true,
           createdAt: /* @__PURE__ */ new Date(),
           updatedAt: /* @__PURE__ */ new Date()
@@ -374,15 +425,15 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_FIND_MANY_WITH_SORT_BY)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_FIND_MANY_WITH_SORT_BY}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       await (await adapter()).create({
         model: "user",
         data: {
           name: "a",
-          email: "a@email.com",
+          email: getUniqueEmail("a@email.com"),
           emailVerified: true,
           createdAt: /* @__PURE__ */ new Date(),
           updatedAt: /* @__PURE__ */ new Date()
@@ -409,9 +460,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_FIND_MANY_WITH_LIMIT)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_FIND_MANY_WITH_LIMIT}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).findMany({
         model: "user",
@@ -423,9 +474,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_FIND_MANY_WITH_OFFSET)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_FIND_MANY_WITH_OFFSET}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).findMany({
         model: "user",
@@ -437,10 +488,11 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_UPDATE_WITH_MULTIPLE_WHERE)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_UPDATE_WITH_MULTIPLE_WHERE}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
+      const currentEmail = getUniqueEmail("updated@email.com");
       await (await adapter()).updateMany({
         model: "user",
         where: [
@@ -450,11 +502,11 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
           },
           {
             field: "email",
-            value: user.email
+            value: currentEmail
           }
         ],
         update: {
-          email: "updated@email.com"
+          email: getUniqueEmail("updated2@email.com")
         }
       });
       const updatedUser = await (await adapter()).findOne({
@@ -462,22 +514,22 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
         where: [
           {
             field: "email",
-            value: "updated@email.com"
+            value: getUniqueEmail("updated2@email.com")
           }
         ]
       });
       vitest.expect(updatedUser).toMatchObject({
         name: user.name,
-        email: "updated@email.com"
+        email: getUniqueEmail("updated2@email.com")
       });
     }
   );
   vitest.test.skipIf(disabledTests?.DELETE_MODEL)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.DELETE_MODEL}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       await (await adapter()).delete({
         model: "user",
@@ -503,16 +555,16 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_DELETE_MANY)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_DELETE_MANY}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       for (const i of ["to-be-delete-1", "to-be-delete-2", "to-be-delete-3"]) {
         await (await adapter()).create({
           model: "user",
           data: {
             name: "to-be-deleted",
-            email: `email@test-${i}.com`,
+            email: getUniqueEmail(`email@test-${i}.com`),
             emailVerified: true,
             createdAt: /* @__PURE__ */ new Date(),
             updatedAt: /* @__PURE__ */ new Date()
@@ -553,9 +605,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_NOT_THROW_ON_DELETE_RECORD_NOT_FOUND)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_NOT_THROW_ON_DELETE_RECORD_NOT_FOUND}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       await (await adapter()).delete({
         model: "user",
@@ -571,9 +623,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_NOT_THROW_ON_RECORD_NOT_FOUND)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_NOT_THROW_ON_RECORD_NOT_FOUND}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).findOne({
         model: "user",
@@ -590,9 +642,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_FIND_MANY_WITH_CONTAINS_OPERATOR)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_FIND_MANY_WITH_CONTAINS_OPERATOR}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const res = await (await adapter()).findMany({
         model: "user",
@@ -610,9 +662,39 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_SEARCH_USERS_WITH_STARTS_WITH)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_SEARCH_USERS_WITH_STARTS_WITH}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
+      });
+      await (await adapter()).create({
+        model: "user",
+        data: {
+          name: "user_starts",
+          email: getUniqueEmail("startswith1@test.com"),
+          emailVerified: true,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        }
+      });
+      await (await adapter()).create({
+        model: "user",
+        data: {
+          name: "user2_starts",
+          email: getUniqueEmail("startswith2@test.com"),
+          emailVerified: true,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        }
+      });
+      await (await adapter()).create({
+        model: "user",
+        data: {
+          name: "user3_starts",
+          email: getUniqueEmail("startswith3@test.com"),
+          emailVerified: true,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        }
       });
       const res = await (await adapter()).findMany({
         model: "user",
@@ -620,19 +702,29 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
           {
             field: "name",
             operator: "starts_with",
-            value: "us"
+            value: "user"
           }
         ]
       });
-      vitest.expect(res.length).toBe(3);
+      vitest.expect(res.length).toBeGreaterThanOrEqual(3);
     }
   );
   vitest.test.skipIf(disabledTests?.SHOULD_SEARCH_USERS_WITH_ENDS_WITH)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_SEARCH_USERS_WITH_ENDS_WITH}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
+      });
+      await (await adapter()).create({
+        model: "user",
+        data: {
+          name: "tester2",
+          email: getUniqueEmail("endswith@test.com"),
+          emailVerified: true,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        }
       });
       const res = await (await adapter()).findMany({
         model: "user",
@@ -640,7 +732,7 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
           {
             field: "name",
             operator: "ends_with",
-            value: "er2"
+            value: "ter2"
           }
         ]
       });
@@ -650,9 +742,9 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
   vitest.test.skipIf(disabledTests?.SHOULD_PREFER_GENERATE_ID_IF_PROVIDED)(
     `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_PREFER_GENERATE_ID_IF_PROVIDED}`,
     async ({ onTestFailed }) => {
-      resetDebugLogs();
-      onTestFailed(() => {
-        printDebugLogs();
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
       });
       const customAdapter = await getAdapter(
         Object.assign(
@@ -670,7 +762,7 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
         model: "user",
         data: {
           name: "user4",
-          email: "user4@email.com",
+          email: getUniqueEmail("user4@email.com"),
           emailVerified: true,
           createdAt: /* @__PURE__ */ new Date(),
           updatedAt: /* @__PURE__ */ new Date()
@@ -679,12 +771,157 @@ async function adapterTest({ getAdapter, disableTests: disabledTests, testPrefix
       vitest.expect(res.id).toBe("mocked-id");
     }
   );
+  vitest.test.skipIf(disabledTests?.SHOULD_ROLLBACK_FAILING_TRANSACTION)(
+    `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_ROLLBACK_FAILING_TRANSACTION}`,
+    async ({ onTestFailed, skip }) => {
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
+      });
+      const customAdapter = await adapter();
+      const enableTransaction = customAdapter?.options?.adapterConfig.transaction;
+      if (!enableTransaction) {
+        skip(
+          `Skipping test: ${customAdapter?.options?.adapterConfig.adapterName || "Adapter"}
+					 does not support transactions`
+        );
+        return;
+      }
+      const user5 = {
+        name: "user5",
+        email: getUniqueEmail("user5@email.com"),
+        emailVerified: true,
+        createdAt: /* @__PURE__ */ new Date(),
+        updatedAt: /* @__PURE__ */ new Date()
+      };
+      const user6 = {
+        email: getUniqueEmail("user6@email.com")};
+      await vitest.expect(
+        customAdapter.transaction(async (tx) => {
+          await tx.create({ model: "user", data: user5 });
+          throw new Error("Simulated failure");
+        })
+      ).rejects.toThrow("Simulated failure");
+      await vitest.expect(
+        customAdapter.findMany({
+          model: "user",
+          where: [
+            {
+              field: "email",
+              value: user5.email,
+              connector: "OR"
+            },
+            {
+              field: "email",
+              value: user6.email,
+              connector: "OR"
+            }
+          ]
+        })
+      ).resolves.toEqual([]);
+    }
+  );
+  vitest.test.skipIf(disabledTests?.SHOULD_RETURN_TRANSACTION_RESULT)(
+    `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_RETURN_TRANSACTION_RESULT}`,
+    async ({ onTestFailed, skip }) => {
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
+      });
+      const customAdapter = await adapter();
+      const enableTransaction = customAdapter?.options?.adapterConfig.transaction;
+      if (!enableTransaction) {
+        skip(
+          `Skipping test: ${customAdapter?.options?.adapterConfig.adapterName || "Adapter"}
+					 does not support transactions`
+        );
+        return;
+      }
+      const result = await customAdapter.transaction(async (tx) => {
+        const createdUser = await tx.create({
+          model: "user",
+          data: {
+            name: "user6",
+            email: getUniqueEmail("user6@email.com"),
+            emailVerified: true,
+            createdAt: /* @__PURE__ */ new Date(),
+            updatedAt: /* @__PURE__ */ new Date()
+          }
+        });
+        return createdUser.email;
+      });
+      vitest.expect(result).toEqual(getUniqueEmail("user6@email.com"));
+    }
+  );
+  vitest.test.skipIf(disabledTests?.SHOULD_FIND_MANY_WITH_CONNECTORS)(
+    `${testPrefix ? `${testPrefix} - ` : ""}${adapterTests.SHOULD_FIND_MANY_WITH_CONNECTORS}`,
+    async ({ onTestFailed }) => {
+      await resetDebugLogs();
+      onTestFailed(async () => {
+        await printDebugLogs();
+      });
+      await (await adapter()).create({
+        model: "user",
+        data: {
+          name: "connector-user1",
+          email: getUniqueEmail("connector-user1@email.com"),
+          emailVerified: true,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        }
+      });
+      await (await adapter()).create({
+        model: "user",
+        data: {
+          name: "con-user2",
+          email: getUniqueEmail("connector-user2@email.com"),
+          emailVerified: true,
+          createdAt: /* @__PURE__ */ new Date(),
+          updatedAt: /* @__PURE__ */ new Date()
+        }
+      });
+      const andRes = await (await adapter()).findMany({
+        model: "user",
+        where: [
+          {
+            field: "name",
+            value: "con-user2",
+            connector: "AND"
+          },
+          {
+            field: "email",
+            value: getUniqueEmail("connector-user2@email.com"),
+            connector: "AND"
+          }
+        ]
+      });
+      vitest.expect(andRes.length).toBe(1);
+      const orRes = await (await adapter()).findMany({
+        model: "user",
+        where: [
+          {
+            field: "name",
+            value: "connector-user1",
+            connector: "OR"
+          },
+          {
+            field: "name",
+            value: "con-user2",
+            connector: "OR"
+          }
+        ]
+      });
+      vitest.expect(orRes.length).toBe(2);
+    }
+  );
 }
 async function runAdapterTest(opts) {
   return adapterTest(opts);
 }
 async function runNumberIdAdapterTest(opts) {
   const cleanup = [];
+  const testRunId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+  const getUniqueEmail = (base) => `${testRunId}_${base}`;
   const adapter = async () => await opts.getAdapter({
     advanced: {
       database: {
@@ -703,15 +940,15 @@ async function runNumberIdAdapterTest(opts) {
     vitest.test.skipIf(opts.disableTests?.SHOULD_RETURN_A_NUMBER_ID_AS_A_RESULT)(
       `${opts.testPrefix ? `${opts.testPrefix} - ` : ""}${numberIdAdapterTests.SHOULD_RETURN_A_NUMBER_ID_AS_A_RESULT}`,
       async ({ onTestFailed }) => {
-        resetDebugLogs();
-        onTestFailed(() => {
-          printDebugLogs();
+        await resetDebugLogs();
+        onTestFailed(async () => {
+          await printDebugLogs();
         });
         const res = await (await adapter()).create({
           model: "user",
           data: {
             name: "user",
-            email: "user@email.com"
+            email: getUniqueEmail("number-user@email.com")
           }
         });
         cleanup.push({ modelName: "user", id: res.id });
@@ -723,16 +960,16 @@ async function runNumberIdAdapterTest(opts) {
     vitest.test.skipIf(opts.disableTests?.SHOULD_INCREMENT_THE_ID_BY_1)(
       `${opts.testPrefix ? `${opts.testPrefix} - ` : ""}${numberIdAdapterTests.SHOULD_INCREMENT_THE_ID_BY_1}`,
       async ({ onTestFailed }) => {
-        resetDebugLogs();
-        onTestFailed(() => {
+        await resetDebugLogs();
+        onTestFailed(async () => {
           console.log(`ID number from last create: ${idNumber}`);
-          printDebugLogs();
+          await printDebugLogs();
         });
         const res = await (await adapter()).create({
           model: "user",
           data: {
             name: "user2",
-            email: "user2@email.com"
+            email: getUniqueEmail("number-user2@email.com")
           }
         });
         cleanup.push({ modelName: "user", id: res.id });
@@ -769,6 +1006,15 @@ async function runNumberIdAdapterTest(opts) {
     );
   });
 }
+function recoverProcessTZ() {
+  const originalTZ = process.env.TZ;
+  return {
+    [Symbol.dispose]: () => {
+      process.env.TZ = originalTZ;
+    }
+  };
+}
 
+exports.recoverProcessTZ = recoverProcessTZ;
 exports.runAdapterTest = runAdapterTest;
 exports.runNumberIdAdapterTest = runNumberIdAdapterTest;

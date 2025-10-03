@@ -1,59 +1,44 @@
-import { Db } from 'mongodb';
-import { B as BetterAuthOptions, W as Where } from '../../shared/better-auth.C67OuOdK.cjs';
-import '../../shared/better-auth.Bi8FQwDD.cjs';
+import { MongoClient, Db } from 'mongodb';
+import { A as AdapterDebugLogs, B as BetterAuthOptions, a as Adapter } from '../../shared/better-auth.jRxKMAeG.cjs';
+import '../../shared/better-auth.v_lf-jeY.cjs';
+import '../../shared/better-auth.DTtXpZYr.cjs';
 import 'zod';
-import '../../shared/better-auth.BgtukYVC.cjs';
-import 'jose';
 import 'kysely';
 import 'better-call';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
-declare const mongodbAdapter: (db: Db) => (options: BetterAuthOptions) => {
-    id: string;
-    create<T extends Record<string, any>, R = T>(data: {
-        model: string;
-        data: Omit<T, "id">;
-        select?: string[];
-        forceAllowId?: boolean;
-    }): Promise<any>;
-    findOne<T>(data: {
-        model: string;
-        where: Where[];
-        select?: string[];
-    }): Promise<any>;
-    findMany<T>(data: {
-        model: string;
-        where?: Where[];
-        limit?: number;
-        sortBy?: {
-            field: string;
-            direction: "asc" | "desc";
-        };
-        offset?: number;
-    }): Promise<any[]>;
-    count(data: {
-        model: string;
-        where?: Where[];
-    }): Promise<number>;
-    update<T>(data: {
-        model: string;
-        where: Where[];
-        update: Record<string, any>;
-    }): Promise<any>;
-    updateMany(data: {
-        model: string;
-        where: Where[];
-        update: Record<string, any>;
-    }): Promise<number>;
-    delete<T>(data: {
-        model: string;
-        where: Where[];
-    }): Promise<any>;
-    deleteMany(data: {
-        model: string;
-        where: Where[];
-    }): Promise<number>;
-};
+interface MongoDBAdapterConfig {
+    /**
+     * MongoDB client instance
+     * If not provided, Database transactions won't be enabled.
+     */
+    client?: MongoClient;
+    /**
+     * Enable debug logs for the adapter
+     *
+     * @default false
+     */
+    debugLogs?: AdapterDebugLogs;
+    /**
+     * Use plural table names
+     *
+     * @default false
+     */
+    usePlural?: boolean;
+    /**
+     * Whether to execute multiple operations in a transaction.
+     *
+     * If the database doesn't support transactions,
+     * set this to `false` and operations will be executed sequentially.
+     * @default true
+     */
+    transaction?: boolean;
+}
+declare const mongodbAdapter: (db: Db, config?: MongoDBAdapterConfig) => (options: BetterAuthOptions) => Adapter;
 
 export { mongodbAdapter };
+export type { MongoDBAdapterConfig };

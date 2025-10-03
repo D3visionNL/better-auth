@@ -1,20 +1,26 @@
 import { atom } from 'nanostores';
 import '@better-fetch/fetch';
-import '../../shared/better-auth.8zoxzg-F.mjs';
-import { u as useAuthQuery } from '../../shared/better-auth.CQvoVIBD.mjs';
-import { ownerAc, memberAc, adminAc } from '../../plugins/organization/access/index.mjs';
-import { h as hasPermission } from '../../shared/better-auth.OuYYTHC7.mjs';
+import '../../shared/better-auth.CiuwFiHM.mjs';
+import { u as useAuthQuery } from '../../shared/better-auth.BYWGbmZ5.mjs';
+import { defaultRoles, ownerAc, memberAc, adminAc } from '../../plugins/organization/access/index.mjs';
+import { h as hasPermissionFn } from '../../shared/better-auth.DaEBQJp_.mjs';
 import { startRegistration, WebAuthnError, startAuthentication } from '@simplewebauthn/browser';
 export { t as twoFactorClient } from '../../shared/better-auth.Ddw8bVyV.mjs';
 import { userAc, adminAc as adminAc$1 } from '../../plugins/admin/access/index.mjs';
-import { h as hasPermission$1 } from '../../shared/better-auth.bkwPl2G4.mjs';
+import { h as hasPermission } from '../../shared/better-auth.bkwPl2G4.mjs';
+export { d as deviceAuthorizationClient } from '../../shared/better-auth.BpA03GIs.mjs';
 import '../../plugins/access/index.mjs';
 import '../../shared/better-auth.DdzSJf-n.mjs';
 
+const clientSideHasPermission = (input) => {
+  const acRoles = input.options.roles || defaultRoles;
+  return hasPermissionFn(input, acRoles);
+};
 const organizationClient = (options) => {
   const $listOrg = atom(false);
   const $activeOrgSignal = atom(false);
   const $activeMemberSignal = atom(false);
+  const $activeMemberRoleSignal = atom(false);
   const roles = {
     admin: adminAc,
     member: memberAc,
@@ -24,7 +30,7 @@ const organizationClient = (options) => {
   return {
     id: "organization",
     $InferServerPlugin: {},
-    getActions: ($fetch) => ({
+    getActions: ($fetch, _$store, co) => ({
       $Infer: {
         ActiveOrganization: {},
         Organization: {},
@@ -34,7 +40,7 @@ const organizationClient = (options) => {
       },
       organization: {
         checkRolePermission: (data) => {
-          const isAuthorized = hasPermission({
+          const isAuthorized = clientSideHasPermission({
             role: data.role,
             options: {
               ac: options?.ac,
@@ -71,17 +77,28 @@ const organizationClient = (options) => {
           method: "GET"
         }
       );
+      const activeMemberRole = useAuthQuery(
+        [$activeMemberRoleSignal],
+        "/organization/get-active-member-role",
+        $fetch,
+        {
+          method: "GET"
+        }
+      );
       return {
         $listOrg,
         $activeOrgSignal,
         $activeMemberSignal,
+        $activeMemberRoleSignal,
         activeOrganization,
         listOrganizations,
-        activeMember
+        activeMember,
+        activeMemberRole
       };
     },
     pathMethods: {
-      "/organization/get-full-organization": "GET"
+      "/organization/get-full-organization": "GET",
+      "/organization/list-user-teams": "GET"
     },
     atomListeners: [
       {
@@ -107,9 +124,18 @@ const organizationClient = (options) => {
           return path.includes("/organization/update-member-role");
         },
         signal: "$activeMemberSignal"
+      },
+      {
+        matcher(path) {
+          return path.includes("/organization/update-member-role");
+        },
+        signal: "$activeMemberRoleSignal"
       }
     ]
   };
+};
+const inferOrgAdditionalFields = (schema) => {
+  return {};
 };
 
 const usernameClient = () => {
@@ -126,10 +152,7 @@ const getPasskeyActions = ($fetch, {
     const response = await $fetch(
       "/passkey/generate-authenticate-options",
       {
-        method: "POST",
-        body: {
-          email: opts?.email
-        }
+        method: "POST"
       }
     );
     if (!response.data) {
@@ -148,13 +171,12 @@ const getPasskeyActions = ($fetch, {
         ...options,
         method: "POST"
       });
-      if (!verified.data) {
-        return verified;
-      }
+      return verified;
     } catch (e) {
       return {
         data: null,
         error: {
+          code: "AUTH_CANCELLED",
           message: "auth cancelled",
           status: 400,
           statusText: "BAD_REQUEST"
@@ -170,6 +192,9 @@ const getPasskeyActions = ($fetch, {
         query: {
           ...opts?.authenticatorAttachment && {
             authenticatorAttachment: opts.authenticatorAttachment
+          },
+          ...opts?.name && {
+            name: opts.name
           }
         }
       }
@@ -201,6 +226,7 @@ const getPasskeyActions = ($fetch, {
           return {
             data: null,
             error: {
+              code: e.code,
               message: "previously registered",
               status: 400,
               statusText: "BAD_REQUEST"
@@ -211,6 +237,7 @@ const getPasskeyActions = ($fetch, {
           return {
             data: null,
             error: {
+              code: e.code,
               message: "registration cancelled",
               status: 400,
               statusText: "BAD_REQUEST"
@@ -220,6 +247,7 @@ const getPasskeyActions = ($fetch, {
         return {
           data: null,
           error: {
+            code: e.code,
             message: e.message,
             status: 400,
             statusText: "BAD_REQUEST"
@@ -229,6 +257,7 @@ const getPasskeyActions = ($fetch, {
       return {
         data: null,
         error: {
+          code: "UNKNOWN_ERROR",
           message: e instanceof Error ? e.message : "unknown error",
           status: 500,
           statusText: "INTERNAL_SERVER_ERROR"
@@ -340,10 +369,10 @@ const adminClient = (options) => {
   return {
     id: "admin-client",
     $InferServerPlugin: {},
-    getActions: ($fetch) => ({
+    getActions: () => ({
       admin: {
         checkRolePermission: (data) => {
-          const isAuthorized = hasPermission$1({
+          const isAuthorized = hasPermission({
             role: data.role,
             options: {
               ac: options?.ac,
@@ -548,4 +577,54 @@ const oneTimeTokenClient = () => {
   };
 };
 
-export { InferServerPlugin, adminClient, anonymousClient, apiKeyClient, customSessionClient, emailOTPClient, genericOAuthClient, getPasskeyActions, inferAdditionalFields, jwtClient, magicLinkClient, multiSessionClient, oidcClient, oneTapClient, oneTimeTokenClient, organizationClient, passkeyClient, phoneNumberClient, ssoClient, usernameClient };
+const siweClient = () => {
+  return {
+    id: "siwe",
+    $InferServerPlugin: {}
+  };
+};
+
+function getCookieValue(name) {
+  if (typeof document === "undefined") {
+    return null;
+  }
+  const cookie = document.cookie.split("; ").find((row) => row.startsWith(`${name}=`));
+  return cookie ? cookie.split("=")[1] : null;
+}
+const lastLoginMethodClient = (config = {}) => {
+  const cookieName = config.cookieName || "better-auth.last_used_login_method";
+  return {
+    id: "last-login-method-client",
+    getActions() {
+      return {
+        /**
+         * Get the last used login method from cookies
+         * @returns The last used login method or null if not found
+         */
+        getLastUsedLoginMethod: () => {
+          return getCookieValue(cookieName);
+        },
+        /**
+         * Clear the last used login method cookie
+         * This sets the cookie with an expiration date in the past
+         */
+        clearLastUsedLoginMethod: () => {
+          if (typeof document !== "undefined") {
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          }
+        },
+        /**
+         * Check if a specific login method was the last used
+         * @param method The method to check
+         * @returns True if the method was the last used, false otherwise
+         */
+        isLastUsedLoginMethod: (method) => {
+          const lastMethod = getCookieValue(cookieName);
+          return lastMethod === method;
+        }
+      };
+    }
+  };
+};
+
+export { InferServerPlugin, adminClient, anonymousClient, apiKeyClient, clientSideHasPermission, customSessionClient, emailOTPClient, genericOAuthClient, getPasskeyActions, inferAdditionalFields, inferOrgAdditionalFields, jwtClient, lastLoginMethodClient, magicLinkClient, multiSessionClient, oidcClient, oneTapClient, oneTimeTokenClient, organizationClient, passkeyClient, phoneNumberClient, siweClient, ssoClient, usernameClient };

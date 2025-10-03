@@ -1,12 +1,14 @@
 import * as better_call from 'better-call';
-import { z } from 'zod';
-import { U as User, S as Session, G as GenericEndpointContext } from '../../shared/better-auth.BNRr97iY.js';
-import '../../shared/better-auth.Bi8FQwDD.js';
-import '../../shared/better-auth.ByC0y0O-.js';
-import 'jose';
+import * as z from 'zod';
+import { U as User, S as Session, G as GenericEndpointContext } from '../../shared/better-auth.HOXfa1Ev.js';
+import '../../shared/better-auth.4SXCyo06.js';
+import '../../shared/better-auth.DTtXpZYr.js';
 import 'kysely';
+import '@better-auth/core/db';
 import 'better-sqlite3';
 import 'bun:sqlite';
+import 'node:sqlite';
+import 'zod/v4/core';
 
 interface OneTimeTokenOptions {
     /**
@@ -26,10 +28,35 @@ interface OneTimeTokenOptions {
         user: User & Record<string, any>;
         session: Session & Record<string, any>;
     }, ctx: GenericEndpointContext) => Promise<string>;
+    /**
+     * This option allows you to configure how the token is stored in your database.
+     * Note: This will not affect the token that's sent, it will only affect the token stored in your database.
+     *
+     * @default "plain"
+     */
+    storeToken?: "plain" | "hashed" | {
+        type: "custom-hasher";
+        hash: (token: string) => Promise<string>;
+    };
 }
 declare const oneTimeToken: (options?: OneTimeTokenOptions) => {
     id: "one-time-token";
     endpoints: {
+        /**
+         * ### Endpoint
+         *
+         * GET `/one-time-token/generate`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.generateOneTimeToken`
+         *
+         * **client:**
+         * `authClient.oneTimeToken.generate`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/one-time-token#api-method-one-time-token-generate)
+         */
         generateOneTimeToken: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0?: ({
                 body?: undefined;
@@ -75,11 +102,11 @@ declare const oneTimeToken: (options?: OneTimeTokenOptions) => {
                         };
                         user: Record<string, any> & {
                             id: string;
-                            name: string;
-                            email: string;
-                            emailVerified: boolean;
                             createdAt: Date;
                             updatedAt: Date;
+                            email: string;
+                            emailVerified: boolean;
+                            name: string;
                             image?: string | null | undefined;
                         };
                     };
@@ -89,6 +116,21 @@ declare const oneTimeToken: (options?: OneTimeTokenOptions) => {
             };
             path: "/one-time-token/generate";
         };
+        /**
+         * ### Endpoint
+         *
+         * POST `/one-time-token/verify`
+         *
+         * ### API Methods
+         *
+         * **server:**
+         * `auth.api.verifyOneTimeToken`
+         *
+         * **client:**
+         * `authClient.oneTimeToken.verify`
+         *
+         * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/one-time-token#api-method-one-time-token-verify)
+         */
         verifyOneTimeToken: {
             <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
                 body: {
@@ -126,11 +168,7 @@ declare const oneTimeToken: (options?: OneTimeTokenOptions) => {
                 method: "POST";
                 body: z.ZodObject<{
                     token: z.ZodString;
-                }, "strip", z.ZodTypeAny, {
-                    token: string;
-                }, {
-                    token: string;
-                }>;
+                }, z.core.$strip>;
             } & {
                 use: any[];
             };
