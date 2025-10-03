@@ -1,5 +1,5 @@
-import { B as BetterAuthOptions, a as Adapter, i as AdapterFactoryOptions, j as AdapterFactoryConfig, k as AdapterFactoryCustomizeAdapterCreator } from '../shared/better-auth.HOXfa1Ev.js';
-export { A as AdapterDebugLogs, l as AdapterTestDebugLogs, C as CustomAdapter } from '../shared/better-auth.HOXfa1Ev.js';
+import { B as BetterAuthOptions, a as Adapter, i as AdapterFactoryOptions, j as AdapterFactoryConfig, k as AdapterFactoryCustomizeAdapterCreator } from '../shared/better-auth.C5tRLx0o.js';
+export { A as AdapterDebugLogs, l as AdapterTestDebugLogs, C as CustomAdapter } from '../shared/better-auth.C5tRLx0o.js';
 import '../shared/better-auth.4SXCyo06.js';
 import '../shared/better-auth.DTtXpZYr.js';
 import 'zod';

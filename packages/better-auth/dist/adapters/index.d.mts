@@ -1,5 +1,5 @@
-import { B as BetterAuthOptions, a as Adapter, i as AdapterFactoryOptions, j as AdapterFactoryConfig, k as AdapterFactoryCustomizeAdapterCreator } from '../shared/better-auth.DUREkDBM.mjs';
-export { A as AdapterDebugLogs, l as AdapterTestDebugLogs, C as CustomAdapter } from '../shared/better-auth.DUREkDBM.mjs';
+import { B as BetterAuthOptions, a as Adapter, i as AdapterFactoryOptions, j as AdapterFactoryConfig, k as AdapterFactoryCustomizeAdapterCreator } from '../shared/better-auth.DQrlHYV7.mjs';
+export { A as AdapterDebugLogs, l as AdapterTestDebugLogs, C as CustomAdapter } from '../shared/better-auth.DQrlHYV7.mjs';
 import '../shared/better-auth.XefKa8DI.mjs';
 import '../shared/better-auth.DTtXpZYr.mjs';
 import 'zod';

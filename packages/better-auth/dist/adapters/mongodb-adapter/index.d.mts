@@ -1,5 +1,5 @@
 import { MongoClient, Db } from 'mongodb';
-import { A as AdapterDebugLogs, B as BetterAuthOptions, a as Adapter } from '../../shared/better-auth.DUREkDBM.mjs';
+import { A as AdapterDebugLogs, B as BetterAuthOptions, a as Adapter } from '../../shared/better-auth.DQrlHYV7.mjs';
 import '../../shared/better-auth.XefKa8DI.mjs';
 import '../../shared/better-auth.DTtXpZYr.mjs';
 import 'zod';

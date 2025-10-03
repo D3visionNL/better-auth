@@ -1,4 +1,4 @@
-import { U as User, S as Session, d as AuthContext, I as InferOptionSchema, H as HookEndpointContext } from '../../shared/better-auth.jRxKMAeG.cjs';
+import { U as User, S as Session, d as AuthContext, I as InferOptionSchema, H as HookEndpointContext } from '../../shared/better-auth.DsA42Loy.cjs';
 import * as better_call from 'better-call';
 import { EndpointContext } from 'better-call';
 import '../../shared/better-auth.v_lf-jeY.cjs';

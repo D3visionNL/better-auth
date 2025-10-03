@@ -1,9 +1,9 @@
 import * as nanostores from 'nanostores';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { SuccessContext } from '@better-fetch/fetch';
-import { C as ClientOptions, B as BetterAuthClientPlugin, I as IsSignal, d as InferRoute, c as InferErrorCodes } from '../shared/better-auth.DZI1lOSd.js';
+import { C as ClientOptions, B as BetterAuthClientPlugin, I as IsSignal, d as InferRoute, c as InferErrorCodes } from '../shared/better-auth.CuF9iBtI.js';
 import { O as OAuth2Tokens, a as OAuth2UserInfo } from '../shared/better-auth.4SXCyo06.js';
-import { B as BetterAuthOptions, U as User, c as Auth, a as Adapter, h as InferAPI, S as Session, s as setCookieToHeader } from '../shared/better-auth.HOXfa1Ev.js';
+import { B as BetterAuthOptions, U as User, c as Auth, a as Adapter, h as InferAPI, S as Session, s as setCookieToHeader } from '../shared/better-auth.C5tRLx0o.js';
 import * as z from 'zod';
 import { Kysely } from 'kysely';
 import * as better_call from 'better-call';

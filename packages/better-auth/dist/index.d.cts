@@ -1,8 +1,8 @@
-import { B as BetterAuthOptions, T as TelemetryContext, w as TelemetryEvent, M as Models } from './shared/better-auth.jRxKMAeG.cjs';
-export { v as Account, a as Adapter, P as AdapterInstance, O as AdapterSchemaCreation, D as AdditionalSessionFieldsInput, E as AdditionalSessionFieldsOutput, y as AdditionalUserFieldsInput, z as AdditionalUserFieldsOutput, c as Auth, d as AuthContext, m as AuthPluginSchema, n as BetterAuthPlugin, Y as FilterActions, X as FilteredAPI, G as GenericEndpointContext, H as HookEndpointContext, h as InferAPI, I as InferOptionSchema, o as InferPluginErrorCodes, F as InferPluginTypes, f as InferSession, Z as InferSessionAPI, e as InferUser, a3 as InternalLogger, a2 as LogHandlerParams, _ as LogLevel, a1 as Logger, R as RateLimit, Q as SecondaryStorage, S as Session, N as TransactionAdapter, U as User, V as Verification, L as Where, W as WithJsDoc, x as betterAuth, a4 as createLogger, J as init, $ as levels, a5 as logger, a0 as shouldPublishLog } from './shared/better-auth.jRxKMAeG.cjs';
-export { A as AtomListener, B as BetterAuthClientPlugin, C as ClientOptions, b as InferActions, i as InferAdditionalFromClient, a as InferClientAPI, c as InferErrorCodes, f as InferPluginsFromClient, g as InferSessionFromClient, h as InferUserFromClient, I as IsSignal, S as SessionQueryParams, e as Store } from './shared/better-auth.D9g9O-KJ.cjs';
+import { B as BetterAuthOptions, T as TelemetryContext, w as TelemetryEvent, M as Models } from './shared/better-auth.DsA42Loy.cjs';
+export { v as Account, a as Adapter, P as AdapterInstance, O as AdapterSchemaCreation, D as AdditionalSessionFieldsInput, E as AdditionalSessionFieldsOutput, y as AdditionalUserFieldsInput, z as AdditionalUserFieldsOutput, c as Auth, d as AuthContext, m as AuthPluginSchema, n as BetterAuthPlugin, Y as FilterActions, X as FilteredAPI, G as GenericEndpointContext, H as HookEndpointContext, h as InferAPI, I as InferOptionSchema, o as InferPluginErrorCodes, F as InferPluginTypes, f as InferSession, Z as InferSessionAPI, e as InferUser, a3 as InternalLogger, a2 as LogHandlerParams, _ as LogLevel, a1 as Logger, R as RateLimit, Q as SecondaryStorage, S as Session, N as TransactionAdapter, U as User, V as Verification, L as Where, W as WithJsDoc, x as betterAuth, a4 as createLogger, J as init, $ as levels, a5 as logger, a0 as shouldPublishLog } from './shared/better-auth.DsA42Loy.cjs';
+export { A as AtomListener, B as BetterAuthClientPlugin, C as ClientOptions, b as InferActions, i as InferAdditionalFromClient, a as InferClientAPI, c as InferErrorCodes, f as InferPluginsFromClient, g as InferSessionFromClient, h as InferUserFromClient, I as IsSignal, S as SessionQueryParams, e as Store } from './shared/better-auth.mKVR7ev5.cjs';
 export { H as HIDE_METADATA } from './shared/better-auth.DEHJp1rk.cjs';
-export { g as generateState, p as parseState } from './shared/better-auth.DVly4N6Q.cjs';
+export { g as generateState, p as parseState } from './shared/better-auth.DB8Czf4F.cjs';
 export * from 'better-call';
 export { APIError } from 'better-call';
 export * from 'zod/v4';
@@ -94,7 +94,7 @@ declare function getTelemetryAuthConfig(options: BetterAuthOptions, context?: Te
     plugins: string[] | undefined;
     user: {
         modelName: string | undefined;
-        fields: Partial<Record<"name" | "emailVerified" | "email" | "image" | "createdAt" | "updatedAt", string>> | undefined;
+        fields: Partial<Record<"createdAt" | "updatedAt" | "email" | "emailVerified" | "name" | "image", string>> | undefined;
         additionalFields: {
             [key: string]: DBFieldAttribute;
         } | undefined;
@@ -119,7 +119,7 @@ declare function getTelemetryAuthConfig(options: BetterAuthOptions, context?: Te
         };
         disableSessionRefresh: boolean | undefined;
         expiresIn: number | undefined;
-        fields: Partial<Record<"token" | "createdAt" | "updatedAt" | "expiresAt" | "userId" | "ipAddress" | "userAgent", string>> | undefined;
+        fields: Partial<Record<"createdAt" | "updatedAt" | "expiresAt" | "userId" | "token" | "ipAddress" | "userAgent", string>> | undefined;
         freshAge: number | undefined;
         preserveSessionInDatabase: boolean | undefined;
         storeSessionInDatabase: boolean | undefined;
@@ -127,12 +127,12 @@ declare function getTelemetryAuthConfig(options: BetterAuthOptions, context?: Te
     };
     account: {
         modelName: string | undefined;
-        fields: Partial<Record<"scope" | "accessToken" | "refreshToken" | "accessTokenExpiresAt" | "refreshTokenExpiresAt" | "idToken" | "createdAt" | "updatedAt" | "userId" | "providerId" | "accountId" | "password", string>> | undefined;
+        fields: Partial<Record<"createdAt" | "updatedAt" | "userId" | "providerId" | "accountId" | "accessToken" | "refreshToken" | "idToken" | "accessTokenExpiresAt" | "refreshTokenExpiresAt" | "scope" | "password", string>> | undefined;
         encryptOAuthTokens: boolean | undefined;
         updateAccountOnSignIn: boolean | undefined;
         accountLinking: {
             enabled: boolean | undefined;
-            trustedProviders: LiteralUnion<"apple" | "atlassian" | "cognito" | "discord" | "facebook" | "figma" | "github" | "microsoft" | "google" | "huggingface" | "slack" | "spotify" | "twitch" | "twitter" | "dropbox" | "kick" | "linear" | "linkedin" | "gitlab" | "tiktok" | "reddit" | "roblox" | "salesforce" | "vk" | "zoom" | "notion" | "kakao" | "naver" | "line" | "paypal" | "email-password", string>[] | undefined;
+            trustedProviders: LiteralUnion<"github" | "apple" | "atlassian" | "cognito" | "discord" | "facebook" | "figma" | "microsoft" | "google" | "huggingface" | "slack" | "spotify" | "twitch" | "twitter" | "dropbox" | "kick" | "linear" | "linkedin" | "gitlab" | "tiktok" | "reddit" | "roblox" | "salesforce" | "vk" | "zoom" | "notion" | "kakao" | "naver" | "line" | "paypal" | "email-password", string>[] | undefined;
             updateUserInfoOnLink: boolean | undefined;
             allowUnlinkingAll: boolean | undefined;
         };

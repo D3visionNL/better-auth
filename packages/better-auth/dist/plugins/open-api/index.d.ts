@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import { OpenAPIParameter, OpenAPISchemaType } from 'better-call';
-import { d as AuthContext, B as BetterAuthOptions } from '../../shared/better-auth.HOXfa1Ev.js';
+import { d as AuthContext, B as BetterAuthOptions } from '../../shared/better-auth.C5tRLx0o.js';
 import { DBFieldType as DBFieldType$1, DBFieldAttributeConfig as DBFieldAttributeConfig$1 } from '@better-auth/core/db';
 import { L as LiteralString } from '../../shared/better-auth.DTtXpZYr.js';
 import '../../shared/better-auth.4SXCyo06.js';

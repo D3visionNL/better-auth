@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import { DBFieldAttribute } from '@better-auth/core/db';
-import { U as User, S as Session, d as AuthContext, ae as InferAdditionalFieldsFromPluginOptions, G as GenericEndpointContext } from '../../shared/better-auth.HOXfa1Ev.js';
+import { U as User, S as Session, d as AuthContext, ae as InferAdditionalFieldsFromPluginOptions, G as GenericEndpointContext } from '../../shared/better-auth.C5tRLx0o.js';
 import { AccessControl, Role, Subset, Statements } from '../access/index.js';
 import * as better_call from 'better-call';
 import { Prettify } from 'better-call';
@@ -817,12 +817,12 @@ type OrganizationInput = z.input<typeof organizationSchema>;
 type TeamInput = z.infer<typeof teamSchema>;
 type OrganizationRole = z.infer<typeof organizationRoleSchema>;
 declare const defaultRolesSchema: z.ZodUnion<readonly [z.ZodEnum<{
-    owner: "owner";
     member: "member";
+    owner: "owner";
     admin: "admin";
 }>, z.ZodArray<z.ZodEnum<{
-    owner: "owner";
     member: "member";
+    owner: "owner";
     admin: "admin";
 }>>]>;
 type CustomRolesSchema<O> = O extends {
@@ -3095,7 +3095,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                         id: string;
                         organizationId: string;
                         email: string;
-                        role: "owner" | "member" | "admin";
+                        role: "member" | "owner" | "admin";
                         status: InvitationStatus;
                         inviterId: string;
                         expiresAt: Date;
@@ -3107,7 +3107,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                     id: string;
                     organizationId: string;
                     email: string;
-                    role: "owner" | "member" | "admin";
+                    role: "member" | "owner" | "admin";
                     status: InvitationStatus;
                     inviterId: string;
                     expiresAt: Date;
@@ -3976,7 +3976,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                 response: {
                     id: string;
                     organizationId: string;
-                    role: "owner" | "member" | "admin";
+                    role: "member" | "owner" | "admin";
                     createdAt: Date;
                     userId: string;
                     user: {
@@ -3988,7 +3988,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
             } : {
                 id: string;
                 organizationId: string;
-                role: "owner" | "member" | "admin";
+                role: "member" | "owner" | "admin";
                 createdAt: Date;
                 userId: string;
                 user: {
@@ -8022,7 +8022,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                         id: string;
                         organizationId: string;
                         email: string;
-                        role: "owner" | "member" | "admin";
+                        role: "member" | "owner" | "admin";
                         status: InvitationStatus;
                         inviterId: string;
                         expiresAt: Date;
@@ -8034,7 +8034,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                     id: string;
                     organizationId: string;
                     email: string;
-                    role: "owner" | "member" | "admin";
+                    role: "member" | "owner" | "admin";
                     status: InvitationStatus;
                     inviterId: string;
                     expiresAt: Date;
@@ -8903,7 +8903,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                 response: {
                     id: string;
                     organizationId: string;
-                    role: "owner" | "member" | "admin";
+                    role: "member" | "owner" | "admin";
                     createdAt: Date;
                     userId: string;
                     user: {
@@ -8915,7 +8915,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
             } : {
                 id: string;
                 organizationId: string;
-                role: "owner" | "member" | "admin";
+                role: "member" | "owner" | "admin";
                 createdAt: Date;
                 userId: string;
                 user: {
@@ -12222,7 +12222,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                         id: string;
                         organizationId: string;
                         email: string;
-                        role: "owner" | "member" | "admin";
+                        role: "member" | "owner" | "admin";
                         status: InvitationStatus;
                         inviterId: string;
                         expiresAt: Date;
@@ -12234,7 +12234,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                     id: string;
                     organizationId: string;
                     email: string;
-                    role: "owner" | "member" | "admin";
+                    role: "member" | "owner" | "admin";
                     status: InvitationStatus;
                     inviterId: string;
                     expiresAt: Date;
@@ -13103,7 +13103,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                 response: {
                     id: string;
                     organizationId: string;
-                    role: "owner" | "member" | "admin";
+                    role: "member" | "owner" | "admin";
                     createdAt: Date;
                     userId: string;
                     user: {
@@ -13115,7 +13115,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
             } : {
                 id: string;
                 organizationId: string;
-                role: "owner" | "member" | "admin";
+                role: "member" | "owner" | "admin";
                 createdAt: Date;
                 userId: string;
                 user: {
@@ -17149,7 +17149,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                         id: string;
                         organizationId: string;
                         email: string;
-                        role: "owner" | "member" | "admin";
+                        role: "member" | "owner" | "admin";
                         status: InvitationStatus;
                         inviterId: string;
                         expiresAt: Date;
@@ -17161,7 +17161,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                     id: string;
                     organizationId: string;
                     email: string;
-                    role: "owner" | "member" | "admin";
+                    role: "member" | "owner" | "admin";
                     status: InvitationStatus;
                     inviterId: string;
                     expiresAt: Date;
@@ -18030,7 +18030,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                 response: {
                     id: string;
                     organizationId: string;
-                    role: "owner" | "member" | "admin";
+                    role: "member" | "owner" | "admin";
                     createdAt: Date;
                     userId: string;
                     user: {
@@ -18042,7 +18042,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
             } : {
                 id: string;
                 organizationId: string;
-                role: "owner" | "member" | "admin";
+                role: "member" | "owner" | "admin";
                 createdAt: Date;
                 userId: string;
                 user: {

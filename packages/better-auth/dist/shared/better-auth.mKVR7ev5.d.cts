@@ -1,4 +1,4 @@
-import { n as BetterAuthPlugin, B as BetterAuthOptions, ac as InferFieldsInputClient, aa as InferFieldsOutput, U as User, S as Session, c as Auth } from './better-auth.jRxKMAeG.cjs';
+import { n as BetterAuthPlugin, B as BetterAuthOptions, ac as InferFieldsInputClient, aa as InferFieldsOutput, U as User, S as Session, c as Auth } from './better-auth.DsA42Loy.cjs';
 import { BetterFetchOption, BetterFetchResponse, BetterFetch, BetterFetchPlugin } from '@better-fetch/fetch';
 import { WritableAtom, Atom } from 'nanostores';
 import { U as UnionToIntersection, H as HasRequiredKeys, a as Prettify, L as LiteralString, S as StripEmptyObjects } from './better-auth.DTtXpZYr.cjs';

@@ -1,6 +1,6 @@
 import * as better_call from 'better-call';
 import * as z from 'zod';
-import { U as User, S as Session, I as InferOptionSchema, G as GenericEndpointContext, H as HookEndpointContext } from '../../shared/better-auth.DUREkDBM.mjs';
+import { U as User, S as Session, I as InferOptionSchema, G as GenericEndpointContext, H as HookEndpointContext } from '../../shared/better-auth.DQrlHYV7.mjs';
 import * as jose from 'jose';
 import { JWTPayload, JSONWebKeySet } from 'jose';
 import { A as Awaitable } from '../../shared/better-auth.DTtXpZYr.mjs';

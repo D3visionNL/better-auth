@@ -6,7 +6,7 @@ declare const defaultStatements: {
     readonly session: readonly ["list", "revoke", "delete"];
 };
 declare const defaultAc: {
-    newRole<K extends "user" | "session">(statements: Subset<K, {
+    newRole<K extends "session" | "user">(statements: Subset<K, {
         readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
         readonly session: readonly ["list", "revoke", "delete"];
     }>): {
@@ -34,78 +34,78 @@ declare const defaultAc: {
     };
 };
 declare const adminAc: {
-    authorize<K extends "user" | "session">(request: K extends infer T extends keyof Subset<"user" | "session", {
+    authorize<K extends "session" | "user">(request: K extends infer T extends keyof Subset<"session" | "user", {
         readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
         readonly session: readonly ["list", "revoke", "delete"];
-    }> ? { [key in T]?: Subset<"user" | "session", {
+    }> ? { [key in T]?: Subset<"session" | "user", {
         readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
         readonly session: readonly ["list", "revoke", "delete"];
     }>[key] | {
-        actions: Subset<"user" | "session", {
+        actions: Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
             readonly session: readonly ["list", "revoke", "delete"];
         }>[key];
         connector: "OR" | "AND";
     } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
-    statements: Subset<"user" | "session", {
+    statements: Subset<"session" | "user", {
         readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
         readonly session: readonly ["list", "revoke", "delete"];
     }>;
 };
 declare const userAc: {
-    authorize<K extends "user" | "session">(request: K extends infer T extends keyof Subset<"user" | "session", {
+    authorize<K extends "session" | "user">(request: K extends infer T extends keyof Subset<"session" | "user", {
         readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
         readonly session: readonly ["list", "revoke", "delete"];
-    }> ? { [key in T]?: Subset<"user" | "session", {
+    }> ? { [key in T]?: Subset<"session" | "user", {
         readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
         readonly session: readonly ["list", "revoke", "delete"];
     }>[key] | {
-        actions: Subset<"user" | "session", {
+        actions: Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
             readonly session: readonly ["list", "revoke", "delete"];
         }>[key];
         connector: "OR" | "AND";
     } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
-    statements: Subset<"user" | "session", {
+    statements: Subset<"session" | "user", {
         readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
         readonly session: readonly ["list", "revoke", "delete"];
     }>;
 };
 declare const defaultRoles: {
     admin: {
-        authorize<K extends "user" | "session">(request: K extends infer T extends keyof Subset<"user" | "session", {
+        authorize<K extends "session" | "user">(request: K extends infer T extends keyof Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
             readonly session: readonly ["list", "revoke", "delete"];
-        }> ? { [key in T]?: Subset<"user" | "session", {
+        }> ? { [key in T]?: Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
             readonly session: readonly ["list", "revoke", "delete"];
         }>[key] | {
-            actions: Subset<"user" | "session", {
+            actions: Subset<"session" | "user", {
                 readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
                 readonly session: readonly ["list", "revoke", "delete"];
             }>[key];
             connector: "OR" | "AND";
         } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
-        statements: Subset<"user" | "session", {
+        statements: Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
             readonly session: readonly ["list", "revoke", "delete"];
         }>;
     };
     user: {
-        authorize<K extends "user" | "session">(request: K extends infer T extends keyof Subset<"user" | "session", {
+        authorize<K extends "session" | "user">(request: K extends infer T extends keyof Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
             readonly session: readonly ["list", "revoke", "delete"];
-        }> ? { [key in T]?: Subset<"user" | "session", {
+        }> ? { [key in T]?: Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
             readonly session: readonly ["list", "revoke", "delete"];
         }>[key] | {
-            actions: Subset<"user" | "session", {
+            actions: Subset<"session" | "user", {
                 readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
                 readonly session: readonly ["list", "revoke", "delete"];
             }>[key];
             connector: "OR" | "AND";
         } | undefined; } : never, connector?: "OR" | "AND"): AuthorizeResponse;
-        statements: Subset<"user" | "session", {
+        statements: Subset<"session" | "user", {
             readonly user: readonly ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password", "get", "update"];
             readonly session: readonly ["list", "revoke", "delete"];
         }>;

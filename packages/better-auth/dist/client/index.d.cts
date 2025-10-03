@@ -1,9 +1,9 @@
-import { b as BASE_ERROR_CODES, n as BetterAuthPlugin, B as BetterAuthOptions } from '../shared/better-auth.jRxKMAeG.cjs';
+import { b as BASE_ERROR_CODES, n as BetterAuthPlugin, B as BetterAuthOptions } from '../shared/better-auth.DsA42Loy.cjs';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchError, BetterFetch, BetterFetchOption } from '@better-fetch/fetch';
 export * from '@better-fetch/fetch';
-import { C as ClientOptions, B as BetterAuthClientPlugin, I as IsSignal, a as InferClientAPI, b as InferActions, c as InferErrorCodes, S as SessionQueryParams } from '../shared/better-auth.D9g9O-KJ.cjs';
-export { A as AtomListener, i as InferAdditionalFromClient, f as InferPluginsFromClient, g as InferSessionFromClient, h as InferUserFromClient, e as Store } from '../shared/better-auth.D9g9O-KJ.cjs';
+import { C as ClientOptions, B as BetterAuthClientPlugin, I as IsSignal, a as InferClientAPI, b as InferActions, c as InferErrorCodes, S as SessionQueryParams } from '../shared/better-auth.mKVR7ev5.cjs';
+export { A as AtomListener, i as InferAdditionalFromClient, f as InferPluginsFromClient, g as InferSessionFromClient, h as InferUserFromClient, e as Store } from '../shared/better-auth.mKVR7ev5.cjs';
 import * as nanostores from 'nanostores';
 import { Atom, PreinitializedWritableAtom } from 'nanostores';
 export * from 'nanostores';
@@ -56,23 +56,23 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
                 onSuccess(context: _better_fetch_fetch.SuccessContext<any>): void;
             };
         })[];
-        cache?: RequestCache | undefined;
-        credentials?: RequestCredentials;
+        method: string;
         headers?: (HeadersInit & (HeadersInit | {
             accept: "application/json" | "text/plain" | "application/octet-stream";
             "content-type": "application/json" | "text/plain" | "application/x-www-form-urlencoded" | "multipart/form-data" | "application/octet-stream";
             authorization: "Bearer" | "Basic";
         })) | undefined;
+        window?: null | undefined;
+        cache?: RequestCache | undefined;
+        credentials?: RequestCredentials;
         integrity?: string | undefined;
         keepalive?: boolean | undefined;
-        method: string;
         mode?: RequestMode | undefined;
         priority?: RequestPriority | undefined;
         redirect?: RequestRedirect | undefined;
         referrer?: string | undefined;
         referrerPolicy?: ReferrerPolicy | undefined;
         signal?: (AbortSignal | null) | undefined;
-        window?: null | undefined;
         onRetry?: ((response: _better_fetch_fetch.ResponseContext) => Promise<void> | void) | undefined;
         hookOptions?: {
             cloneResponse?: boolean;

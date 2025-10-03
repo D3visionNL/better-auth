@@ -1,7 +1,7 @@
 import { BetterAuthDBSchema, DBFieldAttribute, DBFieldType } from '@better-auth/core/db';
 export * from '@better-auth/core/db';
-import { B as BetterAuthOptions, a as Adapter, G as GenericEndpointContext, N as TransactionAdapter, L as Where, K as KyselyDatabaseType } from '../shared/better-auth.DUREkDBM.mjs';
-export { ad as FieldAttributeToObject, ae as InferAdditionalFieldsFromPluginOptions, ah as InferFieldsFromOptions, ag as InferFieldsFromPlugins, ab as InferFieldsInput, ac as InferFieldsInputClient, aa as InferFieldsOutput, a9 as InferValueType, a7 as InternalAdapter, af as PluginFieldAttribute, aj as accountSchema, ai as coreSchema, a8 as createFieldAttribute, a6 as createInternalAdapter, av as mergeSchema, at as parseAccountInput, ao as parseAccountOutput, as as parseAdditionalUserInput, aq as parseInputData, au as parseSessionInput, ap as parseSessionOutput, ar as parseUserInput, an as parseUserOutput, al as sessionSchema, ak as userSchema, am as verificationSchema } from '../shared/better-auth.DUREkDBM.mjs';
+import { B as BetterAuthOptions, a as Adapter, G as GenericEndpointContext, N as TransactionAdapter, L as Where, K as KyselyDatabaseType } from '../shared/better-auth.DQrlHYV7.mjs';
+export { ad as FieldAttributeToObject, ae as InferAdditionalFieldsFromPluginOptions, ah as InferFieldsFromOptions, ag as InferFieldsFromPlugins, ab as InferFieldsInput, ac as InferFieldsInputClient, aa as InferFieldsOutput, a9 as InferValueType, a7 as InternalAdapter, af as PluginFieldAttribute, aj as accountSchema, ai as coreSchema, a8 as createFieldAttribute, a6 as createInternalAdapter, av as mergeSchema, at as parseAccountInput, ao as parseAccountOutput, as as parseAdditionalUserInput, aq as parseInputData, au as parseSessionInput, ap as parseSessionOutput, ar as parseUserInput, an as parseUserOutput, al as sessionSchema, ak as userSchema, am as verificationSchema } from '../shared/better-auth.DQrlHYV7.mjs';
 import * as z from 'zod';
 import '../shared/better-auth.XefKa8DI.mjs';
 import '../shared/better-auth.DTtXpZYr.mjs';
@@ -18,15 +18,15 @@ declare function getWithHooks(adapter: Adapter, ctx: {
     options: BetterAuthOptions;
     hooks: Exclude<BetterAuthOptions["databaseHooks"], undefined>[];
 }): {
-    createWithHooks: <T extends Record<string, any>>(data: T, model: "user" | "session" | "account" | "verification", customCreateFn?: {
+    createWithHooks: <T extends Record<string, any>>(data: T, model: "session" | "user" | "account" | "verification", customCreateFn?: {
         fn: (data: Record<string, any>) => void | Promise<any>;
         executeMainFn?: boolean;
     }, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
-    updateWithHooks: <T extends Record<string, any>>(data: any, where: Where[], model: "user" | "session" | "account" | "verification", customUpdateFn?: {
+    updateWithHooks: <T extends Record<string, any>>(data: any, where: Where[], model: "session" | "user" | "account" | "verification", customUpdateFn?: {
         fn: (data: Record<string, any>) => void | Promise<any>;
         executeMainFn?: boolean;
     }, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
-    updateManyWithHooks: <T extends Record<string, any>>(data: any, where: Where[], model: "user" | "session" | "account" | "verification", customUpdateFn?: {
+    updateManyWithHooks: <T extends Record<string, any>>(data: any, where: Where[], model: "session" | "user" | "account" | "verification", customUpdateFn?: {
         fn: (data: Record<string, any>) => void | Promise<any>;
         executeMainFn?: boolean;
     }, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;

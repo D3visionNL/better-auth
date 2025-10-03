@@ -4,10 +4,10 @@ export * from 'nanostores';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchError } from '@better-fetch/fetch';
 export * from '@better-fetch/fetch';
-import { C as ClientOptions, B as BetterAuthClientPlugin, I as IsSignal, a as InferClientAPI, b as InferActions, S as SessionQueryParams, c as InferErrorCodes } from '../../shared/better-auth.D9g9O-KJ.cjs';
+import { C as ClientOptions, B as BetterAuthClientPlugin, I as IsSignal, a as InferClientAPI, b as InferActions, S as SessionQueryParams, c as InferErrorCodes } from '../../shared/better-auth.mKVR7ev5.cjs';
 import { U as UnionToIntersection, P as PrettifyDeep } from '../../shared/better-auth.DTtXpZYr.cjs';
 import { DependencyList } from '@lynx-js/react';
-import { b as BASE_ERROR_CODES } from '../../shared/better-auth.jRxKMAeG.cjs';
+import { b as BASE_ERROR_CODES } from '../../shared/better-auth.DsA42Loy.cjs';
 import 'better-call';
 import '../../shared/better-auth.v_lf-jeY.cjs';
 import 'zod';
@@ -68,15 +68,15 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
         data: InferClientAPI<Option> extends {
             getSession: () => Promise<infer Res>;
         } ? Res extends {
+            data: infer S;
+            error: null;
+        } | {
             data: null;
             error: {
                 message?: string | undefined;
                 status: number;
                 statusText: string;
             };
-        } | {
-            data: infer S;
-            error: null;
         } ? S : Res : never;
         isPending: boolean;
         error: BetterFetchError | null;
@@ -88,15 +88,15 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
         Session: NonNullable<InferClientAPI<Option> extends {
             getSession: () => Promise<infer Res>;
         } ? Res extends {
+            data: infer S;
+            error: null;
+        } | {
             data: null;
             error: {
                 message?: string | undefined;
                 status: number;
                 statusText: string;
             };
-        } | {
-            data: infer S;
-            error: null;
         } ? S : Res : never>;
     };
     $fetch: _better_fetch_fetch.BetterFetch<{

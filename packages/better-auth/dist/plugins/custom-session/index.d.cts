@@ -1,5 +1,5 @@
 import * as better_call from 'better-call';
-import { B as BetterAuthOptions, e as InferUser, f as InferSession, G as GenericEndpointContext, H as HookEndpointContext } from '../../shared/better-auth.jRxKMAeG.cjs';
+import { B as BetterAuthOptions, e as InferUser, f as InferSession, G as GenericEndpointContext, H as HookEndpointContext } from '../../shared/better-auth.DsA42Loy.cjs';
 import * as z from 'zod';
 import '../../shared/better-auth.v_lf-jeY.cjs';
 import '../../shared/better-auth.DTtXpZYr.cjs';

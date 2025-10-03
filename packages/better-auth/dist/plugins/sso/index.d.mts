@@ -1,7 +1,7 @@
 import * as better_call from 'better-call';
 import * as z from 'zod';
 import { O as OAuth2Tokens } from '../../shared/better-auth.XefKa8DI.mjs';
-import { U as User } from '../../shared/better-auth.DUREkDBM.mjs';
+import { U as User } from '../../shared/better-auth.DQrlHYV7.mjs';
 import '../../shared/better-auth.DTtXpZYr.mjs';
 import 'kysely';
 import '@better-auth/core/db';

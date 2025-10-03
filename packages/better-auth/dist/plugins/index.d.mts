@@ -3,8 +3,8 @@ export { adminAc, defaultAc, defaultRoles, defaultStatements, memberAc, ownerAc 
 export { TWO_FACTOR_ERROR_CODES, TwoFactorOptions, TwoFactorProvider, TwoFactorTable, UserWithTwoFactor, twoFactor, twoFactorClient } from './two-factor/index.mjs';
 export { USERNAME_ERROR_CODES, UsernameOptions, username } from './username/index.mjs';
 export { bearer } from './bearer/index.mjs';
-import { G as GenericEndpointContext, B as BetterAuthOptions, d as AuthContext } from '../shared/better-auth.DUREkDBM.mjs';
-export { t as AuthEndpoint, u as AuthMiddleware, m as AuthPluginSchema, n as BetterAuthPlugin, I as InferOptionSchema, o as InferPluginErrorCodes, r as createAuthEndpoint, q as createAuthMiddleware, p as optionsMiddleware } from '../shared/better-auth.DUREkDBM.mjs';
+import { G as GenericEndpointContext, B as BetterAuthOptions, d as AuthContext } from '../shared/better-auth.DQrlHYV7.mjs';
+export { t as AuthEndpoint, u as AuthMiddleware, m as AuthPluginSchema, n as BetterAuthPlugin, I as InferOptionSchema, o as InferPluginErrorCodes, r as createAuthEndpoint, q as createAuthMiddleware, p as optionsMiddleware } from '../shared/better-auth.DQrlHYV7.mjs';
 export { H as HIDE_METADATA } from '../shared/better-auth.DEHJp1rk.mjs';
 export { magicLink } from './magic-link/index.mjs';
 export { PhoneNumberOptions, UserWithPhoneNumber, phoneNumber } from './phone-number/index.mjs';
@@ -21,7 +21,7 @@ export { OpenAPIOptions, Path, generator, openAPI } from './open-api/index.mjs';
 import { OIDCOptions, OIDCMetadata, OAuthAccessToken } from './oidc-provider/index.mjs';
 export { AuthorizationQuery, Client, CodeVerificationValue, TokenBody, getClient, getMetadata, oidcProvider } from './oidc-provider/index.mjs';
 export { captcha } from './captcha/index.mjs';
-export { A as API_KEY_TABLE_NAME, E as ERROR_CODES, a as apiKey, d as defaultKeyHasher } from '../shared/better-auth.CPxTiBk4.mjs';
+export { A as API_KEY_TABLE_NAME, E as ERROR_CODES, a as apiKey, d as defaultKeyHasher } from '../shared/better-auth.Cm-oyMDN.mjs';
 export { HaveIBeenPwnedOptions, haveIBeenPwned } from './haveibeenpwned/index.mjs';
 export { oneTimeToken } from './one-time-token/index.mjs';
 import * as better_call from 'better-call';
@@ -266,8 +266,8 @@ declare const mcp: (options: MCPOptions) => {
                 body: {
                     redirect_uris: string[];
                     token_endpoint_auth_method?: "none" | "client_secret_basic" | "client_secret_post" | undefined;
-                    grant_types?: ("authorization_code" | "password" | "refresh_token" | "implicit" | "client_credentials" | "urn:ietf:params:oauth:grant-type:jwt-bearer" | "urn:ietf:params:oauth:grant-type:saml2-bearer")[] | undefined;
-                    response_types?: ("code" | "token")[] | undefined;
+                    grant_types?: ("password" | "authorization_code" | "refresh_token" | "implicit" | "client_credentials" | "urn:ietf:params:oauth:grant-type:jwt-bearer" | "urn:ietf:params:oauth:grant-type:saml2-bearer")[] | undefined;
+                    response_types?: ("token" | "code")[] | undefined;
                     client_name?: string | undefined;
                     client_uri?: string | undefined;
                     logo_uri?: string | undefined;
@@ -314,8 +314,8 @@ declare const mcp: (options: MCPOptions) => {
                         client_secret_post: "client_secret_post";
                     }>>>;
                     grant_types: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodEnum<{
-                        authorization_code: "authorization_code";
                         password: "password";
+                        authorization_code: "authorization_code";
                         refresh_token: "refresh_token";
                         implicit: "implicit";
                         client_credentials: "client_credentials";
@@ -323,8 +323,8 @@ declare const mcp: (options: MCPOptions) => {
                         "urn:ietf:params:oauth:grant-type:saml2-bearer": "urn:ietf:params:oauth:grant-type:saml2-bearer";
                     }>>>>;
                     response_types: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodEnum<{
-                        code: "code";
                         token: "token";
+                        code: "code";
                     }>>>>;
                     client_name: z.ZodOptional<z.ZodString>;
                     client_uri: z.ZodOptional<z.ZodString>;

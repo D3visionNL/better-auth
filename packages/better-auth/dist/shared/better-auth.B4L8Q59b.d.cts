@@ -1,4 +1,4 @@
-import { G as GenericEndpointContext, I as InferOptionSchema, H as HookEndpointContext, d as AuthContext } from './better-auth.jRxKMAeG.cjs';
+import { G as GenericEndpointContext, I as InferOptionSchema, H as HookEndpointContext, d as AuthContext } from './better-auth.DsA42Loy.cjs';
 import { Statements } from '../plugins/access/index.cjs';
 import * as zod_v4_core from 'zod/v4/core';
 import * as z from 'zod';

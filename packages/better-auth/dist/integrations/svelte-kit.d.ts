@@ -1,5 +1,5 @@
 import * as better_call from 'better-call';
-import { B as BetterAuthOptions } from '../shared/better-auth.HOXfa1Ev.js';
+import { B as BetterAuthOptions } from '../shared/better-auth.C5tRLx0o.js';
 import { RequestEvent } from '@sveltejs/kit';
 import '../shared/better-auth.4SXCyo06.js';
 import '../shared/better-auth.DTtXpZYr.js';

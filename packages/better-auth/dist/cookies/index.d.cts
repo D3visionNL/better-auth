@@ -1,5 +1,5 @@
 import 'better-call';
-export { ay as BetterAuthCookies, aD as EligibleCookies, aw as createCookieGetter, aB as deleteSessionCookie, aF as getCookieCache, ax as getCookies, aE as getSessionCookie, aC as parseCookies, aG as parseSetCookieHeader, az as setCookieCache, s as setCookieToHeader, aA as setSessionCookie } from '../shared/better-auth.jRxKMAeG.cjs';
+export { ay as BetterAuthCookies, aD as EligibleCookies, aw as createCookieGetter, aB as deleteSessionCookie, aF as getCookieCache, ax as getCookies, aE as getSessionCookie, aC as parseCookies, aG as parseSetCookieHeader, az as setCookieCache, s as setCookieToHeader, aA as setSessionCookie } from '../shared/better-auth.DsA42Loy.cjs';
 import '../shared/better-auth.v_lf-jeY.cjs';
 import '../shared/better-auth.DTtXpZYr.cjs';
 import 'zod';
