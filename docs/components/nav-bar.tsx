@@ -6,6 +6,7 @@ import { Logo } from "./logo";
 import LogoContextMenu from "./logo-context-menu";
 import DarkPng from "../public/branding/better-auth-logo-dark.png";
 import WhitePng from "../public/branding/better-auth-logo-light.png";
+import { MobileSearchIcon } from "@/components/mobile-search-icon";
 export const Navbar = () => {
 	const logoAssets = {
 		darkSvg: `
@@ -55,7 +56,7 @@ export const Navbar = () => {
 	};
 	return (
 		<div className="flex flex-col sticky top-0 bg-background backdrop-blur-md z-30">
-			<nav className="md:grid grid-cols-12 md:border-b top-0 flex items-center justify-between ">
+			<nav className="md:grid grid-cols-12 md:border-b top-0 flex items-center justify-between">
 				<Link
 					href="/"
 					className="md:border-r md:px-5 px-2.5 py-4 text-foreground md:col-span-2 shrink-0 transition-colors md:w-[268px] lg:w-[286px]"
@@ -97,6 +98,7 @@ export const Navbar = () => {
 							</svg>
 						</NavLink>
 					</ul>
+					<MobileSearchIcon />
 					<ThemeToggle />
 					<NavbarMobileBtn />
 				</div>
@@ -119,6 +121,10 @@ export const navMenu = [
 	{
 		name: "changelogs",
 		path: "/changelogs",
+	},
+	{
+		name: "blogs",
+		path: "/blog",
 	},
 	{
 		name: "community",

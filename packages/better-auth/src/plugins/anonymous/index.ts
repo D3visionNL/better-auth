@@ -16,6 +16,7 @@ import { parseSetCookieHeader, setSessionCookie } from "../../cookies";
 import { getOrigin } from "../../utils/url";
 import { mergeSchema } from "../../db/schema";
 import type { EndpointContext } from "better-call";
+import { generateId } from "../../utils/id";
 
 export interface UserWithAnonymous extends User {
 	isAnonymous: boolean;
@@ -58,7 +59,7 @@ export interface AnonymousOptions {
 			},
 			AuthContext
 		>,
-	) => string;
+	) => Promise<string> | string;
 	/**
 	 * Custom schema for the anonymous plugin
 	 */
@@ -117,11 +118,25 @@ export const anonymous = (options?: AnonymousOptions) => {
 					},
 				},
 				async (ctx) => {
+					// If the current request already has a valid anonymous session, we should
+					// reject any further attempts to create another anonymous user. This
+					// prevents an anonymous user from signing in anonymously again while they
+					// are already authenticated.
+					const existingSession = await getSessionFromCtx<{
+						isAnonymous: boolean;
+					}>(ctx, { disableRefresh: true });
+					if (existingSession?.user.isAnonymous) {
+						throw new APIError("BAD_REQUEST", {
+							message:
+								ERROR_CODES.ANONYMOUS_USERS_CANNOT_SIGN_IN_AGAIN_ANONYMOUSLY,
+						});
+					}
+
 					const { emailDomainName = getOrigin(ctx.context.baseURL) } =
 						options || {};
-					const id = ctx.context.generateId({ model: "user" });
+					const id = generateId();
 					const email = `temp-${id}@${emailDomainName}`;
-					const name = options?.generateName?.(ctx) || "Anonymous";
+					const name = (await options?.generateName?.(ctx)) || "Anonymous";
 					const newUser = await ctx.context.internalAdapter.createUser(
 						{
 							email,
@@ -178,7 +193,9 @@ export const anonymous = (options?: AnonymousOptions) => {
 							ctx.path.startsWith("/callback") ||
 							ctx.path.startsWith("/oauth2/callback") ||
 							ctx.path.startsWith("/magic-link/verify") ||
-							ctx.path.startsWith("/email-otp/verify-email")
+							ctx.path.startsWith("/email-otp/verify-email") ||
+							ctx.path.startsWith("/one-tap/callback") ||
+							ctx.path.startsWith("/passkey/verify-authentication")
 						);
 					},
 					handler: createAuthMiddleware(async (ctx) => {
@@ -194,7 +211,7 @@ export const anonymous = (options?: AnonymousOptions) => {
 						 */
 						const sessionCookie = parseSetCookieHeader(setCookie || "")
 							.get(sessionTokenName)
-							?.value.split(".")[0];
+							?.value.split(".")[0]!;
 
 						if (!sessionCookie) {
 							return;
@@ -213,7 +230,7 @@ export const anonymous = (options?: AnonymousOptions) => {
 							return;
 						}
 
-						if (ctx.path === "/sign-in/anonymous") {
+						if (ctx.path === "/sign-in/anonymous" && !ctx.context.newSession) {
 							throw new APIError("BAD_REQUEST", {
 								message:
 									ERROR_CODES.ANONYMOUS_USERS_CANNOT_SIGN_IN_AGAIN_ANONYMOUSLY,
@@ -223,6 +240,10 @@ export const anonymous = (options?: AnonymousOptions) => {
 						if (!newSession) {
 							return;
 						}
+						// At this point the user is linking their previous anonymous account with a
+						// new credential (email / social). Invoke the provided callback so that the
+						// integrator can perform any additional logic such as transferring data
+						// from the anonymous user to the new user.
 						if (options?.onLinkAccount) {
 							await options?.onLinkAccount?.({
 								anonymousUser: session,

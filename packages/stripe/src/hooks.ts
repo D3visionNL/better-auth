@@ -1,7 +1,7 @@
 import { type GenericEndpointContext, logger } from "better-auth";
 import type Stripe from "stripe";
 import type { InputSubscription, StripeOptions, Subscription } from "./types";
-import { getPlanByPriceId } from "./utils";
+import { getPlanByPriceInfo } from "./utils";
 
 export async function onCheckoutSessionCompleted(
 	ctx: GenericEndpointContext,
@@ -18,13 +18,18 @@ export async function onCheckoutSessionCompleted(
 			checkoutSession.subscription as string,
 		);
 		const priceId = subscription.items.data[0]?.price.id;
-		const plan = await getPlanByPriceId(options, priceId as string);
+		const priceLookupKey = subscription.items.data[0]?.price.lookup_key || null;
+		const plan = await getPlanByPriceInfo(
+			options,
+			priceId as string,
+			priceLookupKey,
+		);
 		if (plan) {
 			const referenceId =
 				checkoutSession?.client_reference_id ||
 				checkoutSession?.metadata?.referenceId;
 			const subscriptionId = checkoutSession?.metadata?.subscriptionId;
-			const seats = subscription.items.data[0].quantity;
+			const seats = subscription.items.data[0]!.quantity;
 			if (referenceId && subscriptionId) {
 				const trial =
 					subscription.trial_start && subscription.trial_end
@@ -42,10 +47,10 @@ export async function onCheckoutSessionCompleted(
 							status: subscription.status,
 							updatedAt: new Date(),
 							periodStart: new Date(
-								subscription.items.data[0].current_period_start * 1000,
+								subscription.items.data[0]!.current_period_start * 1000,
 							),
 							periodEnd: new Date(
-								subscription.items.data[0].current_period_end * 1000,
+								subscription.items.data[0]!.current_period_end * 1000,
 							),
 							stripeSubscriptionId: checkoutSession.subscription as string,
 							seats,
@@ -74,12 +79,15 @@ export async function onCheckoutSessionCompleted(
 						],
 					});
 				}
-				await options.subscription?.onSubscriptionComplete?.({
-					event,
-					subscription: dbSubscription as Subscription,
-					stripeSubscription: subscription,
-					plan,
-				});
+				await options.subscription?.onSubscriptionComplete?.(
+					{
+						event,
+						subscription: dbSubscription as Subscription,
+						stripeSubscription: subscription,
+						plan,
+					},
+					ctx,
+				);
 				return;
 			}
 		}
@@ -98,8 +106,10 @@ export async function onSubscriptionUpdated(
 			return;
 		}
 		const subscriptionUpdated = event.data.object as Stripe.Subscription;
-		const priceId = subscriptionUpdated.items.data[0].price.id;
-		const plan = await getPlanByPriceId(options, priceId);
+		const priceId = subscriptionUpdated.items.data[0]!.price.id;
+		const priceLookupKey =
+			subscriptionUpdated.items.data[0]!.price.lookup_key || null;
+		const plan = await getPlanByPriceInfo(options, priceId, priceLookupKey);
 
 		const subscriptionId = subscriptionUpdated.metadata?.subscriptionId;
 		const customerId = subscriptionUpdated.customer?.toString();
@@ -127,11 +137,11 @@ export async function onSubscriptionUpdated(
 				}
 				subscription = activeSub;
 			} else {
-				subscription = subs[0];
+				subscription = subs[0]!;
 			}
 		}
 
-		const seats = subscriptionUpdated.items.data[0].quantity;
+		const seats = subscriptionUpdated.items.data[0]!.quantity;
 		await ctx.context.adapter.update({
 			model: "subscription",
 			update: {
@@ -144,10 +154,10 @@ export async function onSubscriptionUpdated(
 				updatedAt: new Date(),
 				status: subscriptionUpdated.status,
 				periodStart: new Date(
-					subscriptionUpdated.items.data[0].current_period_start * 1000,
+					subscriptionUpdated.items.data[0]!.current_period_start * 1000,
 				),
 				periodEnd: new Date(
-					subscriptionUpdated.items.data[0].current_period_end * 1000,
+					subscriptionUpdated.items.data[0]!.current_period_end * 1000,
 				),
 				cancelAtPeriodEnd: subscriptionUpdated.cancel_at_period_end,
 				seats,
@@ -183,14 +193,14 @@ export async function onSubscriptionUpdated(
 				subscription.status === "trialing" &&
 				plan.freeTrial?.onTrialEnd
 			) {
-				await plan.freeTrial.onTrialEnd({ subscription }, ctx.request);
+				await plan.freeTrial.onTrialEnd({ subscription }, ctx);
 			}
 			if (
 				subscriptionUpdated.status === "incomplete_expired" &&
 				subscription.status === "trialing" &&
 				plan.freeTrial?.onTrialExpired
 			) {
-				await plan.freeTrial.onTrialExpired(subscription, ctx.request);
+				await plan.freeTrial.onTrialExpired(subscription, ctx);
 			}
 		}
 	} catch (error: any) {

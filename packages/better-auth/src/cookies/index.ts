@@ -4,12 +4,13 @@ import type { Session, User } from "../types";
 import type { GenericEndpointContext } from "../types/context";
 import type { BetterAuthOptions } from "../types/options";
 import { getDate } from "../utils/date";
-import { isProduction } from "../utils/env";
+import { env, isProduction } from "../utils/env";
 import { base64Url } from "@better-auth/utils/base64";
-import { createTime } from "../utils/time";
+import { ms } from "ms";
 import { createHMAC } from "@better-auth/utils/hmac";
 import { safeJSONParse } from "../utils/json";
 import { getBaseURL } from "../utils/url";
+import { binary } from "@better-auth/utils/binary";
 
 export function createCookieGetter(options: BetterAuthOptions) {
 	const secure =
@@ -63,8 +64,7 @@ export function createCookieGetter(options: BetterAuthOptions) {
 
 export function getCookies(options: BetterAuthOptions) {
 	const createCookie = createCookieGetter(options);
-	const sessionMaxAge =
-		options.session?.expiresIn || createTime(7, "d").toSeconds();
+	const sessionMaxAge = options.session?.expiresIn || ms("7d") / 1000;
 	const sessionToken = createCookie("session_token", {
 		maxAge: sessionMaxAge,
 	});
@@ -100,6 +100,7 @@ export async function setCookieCache(
 		session: Session & Record<string, any>;
 		user: User;
 	},
+	dontRememberMe: boolean,
 ) {
 	const shouldStoreSessionDataInCookie =
 		ctx.context.options.session?.cookieCache?.enabled;
@@ -116,22 +117,26 @@ export async function setCookieCache(
 			},
 			{} as Record<string, any>,
 		);
+
 		const sessionData = { session: filteredSession, user: session.user };
+
+		const options = {
+			...ctx.context.authCookies.sessionData.options,
+			maxAge: dontRememberMe
+				? undefined
+				: ctx.context.authCookies.sessionData.options.maxAge,
+		};
+
+		const expiresAtDate = getDate(options.maxAge || 60, "sec").getTime();
 		const data = base64Url.encode(
 			JSON.stringify({
 				session: sessionData,
-				expiresAt: getDate(
-					ctx.context.authCookies.sessionData.options.maxAge || 60,
-					"sec",
-				).getTime(),
+				expiresAt: expiresAtDate,
 				signature: await createHMAC("SHA-256", "base64urlnopad").sign(
 					ctx.context.secret,
 					JSON.stringify({
 						...sessionData,
-						expiresAt: getDate(
-							ctx.context.authCookies.sessionData.options.maxAge || 60,
-							"sec",
-						).getTime(),
+						expiresAt: expiresAtDate,
 					}),
 				),
 			}),
@@ -140,15 +145,12 @@ export async function setCookieCache(
 			},
 		);
 		if (data.length > 4093) {
-			throw new BetterAuthError(
-				"Session data is too large to store in the cookie. Please disable session cookie caching or reduce the size of the session data",
+			ctx.context?.logger?.error(
+				`Session data exceeds cookie size limit (${data.length} bytes > 4093 bytes). Consider reducing session data size or disabling cookie cache. Session will not be cached in cookie.`,
 			);
+			return;
 		}
-		ctx.setCookie(
-			ctx.context.authCookies.sessionData.name,
-			data,
-			ctx.context.authCookies.sessionData.options,
-		);
+		ctx.setCookie(ctx.context.authCookies.sessionData.name, data, options);
 	}
 }
 
@@ -192,7 +194,7 @@ export async function setSessionCookie(
 			ctx.context.authCookies.dontRememberToken.options,
 		);
 	}
-	await setCookieCache(ctx, session);
+	await setCookieCache(ctx, session, dontRememberMe);
 	ctx.context.setNewSession(session);
 	/**
 	 * If secondary storage is enabled, store the session data in the secondary storage
@@ -239,7 +241,7 @@ export function parseCookies(cookieHeader: string) {
 
 	cookies.forEach((cookie) => {
 		const [name, value] = cookie.split("=");
-		cookieMap.set(name, value);
+		cookieMap.set(name!, value!);
 	});
 	return cookieMap;
 }
@@ -282,8 +284,8 @@ export const getSessionCookie = (
 	return null;
 };
 
-export const getCookieCache = <
-	Session extends {
+export const getCookieCache = async <
+	S extends {
 		session: Session & Record<string, any>;
 		user: User & Record<string, any>;
 	},
@@ -292,6 +294,8 @@ export const getCookieCache = <
 	config?: {
 		cookiePrefix?: string;
 		cookieName?: string;
+		isSecure?: boolean;
+		secret?: string;
 	},
 ) => {
 	const headers = request instanceof Headers ? request : request.headers;
@@ -301,13 +305,43 @@ export const getCookieCache = <
 	}
 	const { cookieName = "session_data", cookiePrefix = "better-auth" } =
 		config || {};
-	const name = isProduction
-		? `__Secure-${cookiePrefix}.${cookieName}`
-		: `${cookiePrefix}.${cookieName}`;
+	const name =
+		config?.isSecure !== undefined
+			? config.isSecure
+				? `__Secure-${cookiePrefix}.${cookieName}`
+				: `${cookiePrefix}.${cookieName}`
+			: isProduction
+				? `__Secure-${cookiePrefix}.${cookieName}`
+				: `${cookiePrefix}.${cookieName}`;
 	const parsedCookie = parseCookies(cookies);
 	const sessionData = parsedCookie.get(name);
 	if (sessionData) {
-		return safeJSONParse<Session>(sessionData);
+		const sessionDataPayload = safeJSONParse<{
+			session: S;
+			expiresAt: number;
+			signature: string;
+		}>(binary.decode(base64Url.decode(sessionData)));
+		if (!sessionDataPayload) {
+			return null;
+		}
+		const secret = config?.secret || env.BETTER_AUTH_SECRET;
+		if (!secret) {
+			throw new BetterAuthError(
+				"getCookieCache requires a secret to be provided. Either pass it as an option or set the BETTER_AUTH_SECRET environment variable",
+			);
+		}
+		const isValid = await createHMAC("SHA-256", "base64urlnopad").verify(
+			secret,
+			JSON.stringify({
+				...sessionDataPayload.session,
+				expiresAt: sessionDataPayload.expiresAt,
+			}),
+			sessionDataPayload.signature,
+		);
+		if (!isValid) {
+			return null;
+		}
+		return sessionDataPayload.session;
 	}
 	return null;
 };

@@ -7,6 +7,9 @@ import {
 } from "../oauth2";
 import { decodeJwt } from "jose";
 
+/**
+ * @see https://dev.twitch.tv/docs/authentication/getting-tokens-oidc/#requesting-claims
+ */
 export interface TwitchProfile {
 	/**
 	 * The sub of the user
@@ -21,12 +24,17 @@ export interface TwitchProfile {
 	 */
 	email: string;
 	/**
+	 * Indicate if this user has a verified email.
+	 */
+	email_verified: boolean;
+	/**
 	 * The picture of the user
 	 */
 	picture: string;
 }
 
 export interface TwitchOptions extends ProviderOptions<TwitchProfile> {
+	clientId: string;
 	claims?: string[];
 }
 export const twitch = (options: TwitchOptions) => {
@@ -92,7 +100,7 @@ export const twitch = (options: TwitchOptions) => {
 					name: profile.preferred_username,
 					email: profile.email,
 					image: profile.picture,
-					emailVerified: false,
+					emailVerified: profile.email_verified,
 					...userMap,
 				},
 				data: profile,

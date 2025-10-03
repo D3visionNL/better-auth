@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import {
 	APIError,
 	createAuthEndpoint,
@@ -37,6 +37,21 @@ export const multiSession = (options?: MultiSessionConfig) => {
 	return {
 		id: "multi-session",
 		endpoints: {
+			/**
+			 * ### Endpoint
+			 *
+			 * GET `/multi-session/list-device-sessions`
+			 *
+			 * ### API Methods
+			 *
+			 * **server:**
+			 * `auth.api.listDeviceSessions`
+			 *
+			 * **client:**
+			 * `authClient.multiSession.listDeviceSessions`
+			 *
+			 * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/multi-session#api-method-multi-session-list-device-sessions)
+			 */
 			listDeviceSessions: createAuthEndpoint(
 				"/multi-session/list-device-sessions",
 				{
@@ -78,12 +93,27 @@ export const multiSession = (options?: MultiSessionConfig) => {
 					return ctx.json(uniqueUserSessions);
 				},
 			),
+			/**
+			 * ### Endpoint
+			 *
+			 * POST `/multi-session/set-active`
+			 *
+			 * ### API Methods
+			 *
+			 * **server:**
+			 * `auth.api.setActiveSession`
+			 *
+			 * **client:**
+			 * `authClient.multiSession.setActive`
+			 *
+			 * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/multi-session#api-method-multi-session-set-active)
+			 */
 			setActiveSession: createAuthEndpoint(
 				"/multi-session/set-active",
 				{
 					method: "POST",
 					body: z.object({
-						sessionToken: z.string({
+						sessionToken: z.string().meta({
 							description: "The session token to set as active",
 						}),
 					}),
@@ -141,12 +171,27 @@ export const multiSession = (options?: MultiSessionConfig) => {
 					return ctx.json(session);
 				},
 			),
+			/**
+			 * ### Endpoint
+			 *
+			 * POST `/multi-session/revoke`
+			 *
+			 * ### API Methods
+			 *
+			 * **server:**
+			 * `auth.api.revokeDeviceSession`
+			 *
+			 * **client:**
+			 * `authClient.multiSession.revoke`
+			 *
+			 * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/multi-session#api-method-multi-session-revoke)
+			 */
 			revokeDeviceSession: createAuthEndpoint(
 				"/multi-session/revoke",
 				{
 					method: "POST",
 					body: z.object({
-						sessionToken: z.string({
+						sessionToken: z.string().meta({
 							description: "The session token to revoke",
 						}),
 					}),
@@ -222,7 +267,7 @@ export const multiSession = (options?: MultiSessionConfig) => {
 							);
 
 							if (validSessions.length > 0) {
-								const nextSession = validSessions[0];
+								const nextSession = validSessions[0]!;
 								await setSessionCookie(ctx, nextSession);
 							} else {
 								deleteSessionCookie(ctx);
@@ -284,11 +329,15 @@ export const multiSession = (options?: MultiSessionConfig) => {
 						const ids = Object.keys(cookies)
 							.map((key) => {
 								if (isMultiSessionCookie(key)) {
-									ctx.setCookie(key.toLowerCase(), "", {
-										...ctx.context.authCookies.sessionToken.options,
-										maxAge: 0,
-									});
-									const token = cookies[key].split(".")[0];
+									ctx.setCookie(
+										key.toLowerCase().replace("__secure-", "__Secure-"),
+										"",
+										{
+											...ctx.context.authCookies.sessionToken.options,
+											maxAge: 0,
+										},
+									);
+									const token = cookies[key]!.split(".")[0]!;
 									return token;
 								}
 								return null;

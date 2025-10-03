@@ -34,6 +34,7 @@ export interface GoogleProfile {
 }
 
 export interface GoogleOptions extends ProviderOptions<GoogleProfile> {
+	clientId: string;
 	/**
 	 * The access type to use for the authorization code request
 	 */
@@ -87,6 +88,9 @@ export const google = (options: GoogleOptions) => {
 				display: display || options.display,
 				loginHint,
 				hd: options.hd,
+				additionalParams: {
+					include_granted_scopes: "true",
+				},
 			});
 			return url;
 		},

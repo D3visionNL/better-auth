@@ -53,7 +53,9 @@ export interface GithubProfile {
 	};
 }
 
-export interface GithubOptions extends ProviderOptions<GithubProfile> {}
+export interface GithubOptions extends ProviderOptions<GithubProfile> {
+	clientId: string;
+}
 export const github = (options: GithubOptions) => {
 	const tokenEndpoint = "https://github.com/login/oauth/access_token";
 	return {
@@ -73,6 +75,7 @@ export const github = (options: GithubOptions) => {
 				state,
 				redirectURI,
 				loginHint,
+				prompt: options.prompt,
 			});
 		},
 		validateAuthorizationCode: async ({ code, redirectURI }) => {
@@ -93,7 +96,7 @@ export const github = (options: GithubOptions) => {
 							clientKey: options.clientKey,
 							clientSecret: options.clientSecret,
 						},
-						tokenEndpoint: "https://github.com/login/oauth/token",
+						tokenEndpoint: "https://github.com/login/oauth/access_token",
 					});
 				},
 		async getUserInfo(token) {
@@ -136,7 +139,7 @@ export const github = (options: GithubOptions) => {
 			const userMap = await options.mapProfileToUser?.(profile);
 			return {
 				user: {
-					id: profile.id.toString(),
+					id: profile.id,
 					name: profile.name || profile.login,
 					email: profile.email,
 					image: profile.avatar_url,

@@ -10,7 +10,7 @@ import type { BetterAuthPlugin } from "./plugins";
 import type { SocialProviderList, SocialProviders } from "../social-providers";
 import type { AdapterInstance, SecondaryStorage } from "./adapter";
 import type { KyselyDatabaseType } from "../adapters/kysely-adapter/types";
-import type { FieldAttribute } from "../db";
+import type { DBFieldAttribute } from "@better-auth/core/db";
 import type { Models, RateLimit } from "./models";
 import type { AuthContext } from ".";
 import type { CookieOptions } from "better-call";
@@ -19,8 +19,8 @@ import type { Logger } from "../utils";
 import type { AuthMiddleware } from "../plugins";
 import type { LiteralUnion, OmitId } from "./helper";
 import type { AdapterDebugLogs } from "../adapters";
-//@ts-ignore - we need to import this to get the type of the database
 import type { Database as BunDatabase } from "bun:sqlite";
+import type { DatabaseSync } from "node:sqlite";
 
 export type BetterAuthOptions = {
 	/**
@@ -38,8 +38,6 @@ export type BetterAuthOptions = {
 	 * the system will check the following environment variable:
 	 *
 	 * process.env.BETTER_AUTH_URL
-	 *
-	 * If not set it will throw an error.
 	 */
 	baseURL?: string;
 	/**
@@ -84,6 +82,7 @@ export type BetterAuthOptions = {
 		| Dialect
 		| AdapterInstance
 		| BunDatabase
+		| DatabaseSync
 		| {
 				dialect: Dialect;
 				type: KyselyDatabaseType;
@@ -99,6 +98,13 @@ export type BetterAuthOptions = {
 				 * @default false
 				 */
 				debugLogs?: AdapterDebugLogs;
+				/**
+				 * Whether to execute multiple operations in a transaction.
+				 * If the database doesn't support transactions,
+				 * set this to `false` and operations will be executed sequentially.
+				 * @default true
+				 */
+				transaction?: boolean;
 		  }
 		| {
 				/**
@@ -121,6 +127,13 @@ export type BetterAuthOptions = {
 				 * @default false
 				 */
 				debugLogs?: AdapterDebugLogs;
+				/**
+				 * Whether to execute multiple operations in a transaction.
+				 * If the database doesn't support transactions,
+				 * set this to `false` and operations will be executed sequentially.
+				 * @default true
+				 */
+				transaction?: boolean;
 		  };
 	/**
 	 * Secondary storage configuration
@@ -163,10 +176,16 @@ export type BetterAuthOptions = {
 		 */
 		sendOnSignUp?: boolean;
 		/**
+		 * Send a verification email automatically
+		 * on sign in when the user's email is not verified
+		 *
+		 * @default false
+		 */
+		sendOnSignIn?: boolean;
+		/**
 		 * Auto signin the user after they verify their email
 		 */
 		autoSignInAfterVerification?: boolean;
-
 		/**
 		 * Number of seconds the verification token is
 		 * valid for.
@@ -179,6 +198,12 @@ export type BetterAuthOptions = {
 		 * @param request the request object
 		 */
 		onEmailVerification?: (user: User, request?: Request) => Promise<void>;
+		/**
+		 * A function that is called when a user's email is updated to verified
+		 * @param user the user that verified their email
+		 * @param request the request object
+		 */
+		afterEmailVerification?: (user: User, request?: Request) => Promise<void>;
 	};
 	/**
 	 * Email and password authentication
@@ -240,6 +265,14 @@ export type BetterAuthOptions = {
 		 */
 		resetPasswordTokenExpiresIn?: number;
 		/**
+		 * A callback function that is triggered
+		 * when a user's password is changed successfully.
+		 */
+		onPasswordReset?: (
+			data: { user: User },
+			request?: Request,
+		) => Promise<void>;
+		/**
 		 * Password hashing and verification
 		 *
 		 * By default Scrypt is used for password hashing and
@@ -270,7 +303,7 @@ export type BetterAuthOptions = {
 	/**
 	 * List of Better Auth plugins
 	 */
-	plugins?: BetterAuthPlugin[];
+	plugins?: [] | BetterAuthPlugin[];
 	/**
 	 * User configuration
 	 */
@@ -291,10 +324,10 @@ export type BetterAuthOptions = {
 		 */
 		fields?: Partial<Record<keyof OmitId<User>, string>>;
 		/**
-		 * Additional fields for the session
+		 * Additional fields for the user
 		 */
 		additionalFields?: {
-			[key: string]: FieldAttribute;
+			[key: string]: DBFieldAttribute;
 		};
 		/**
 		 * Changing email configuration
@@ -404,7 +437,7 @@ export type BetterAuthOptions = {
 		 * Additional fields for the session
 		 */
 		additionalFields?: {
-			[key: string]: FieldAttribute;
+			[key: string]: DBFieldAttribute;
 		};
 		/**
 		 * By default if secondary storage is provided
@@ -459,8 +492,20 @@ export type BetterAuthOptions = {
 		freshAge?: number;
 	};
 	account?: {
+		/**
+		 * The model name for the account. Defaults to "account".
+		 */
 		modelName?: string;
+		/**
+		 * Map fields
+		 */
 		fields?: Partial<Record<keyof OmitId<Account>, string>>;
+		/**
+		 * Additional fields for the account
+		 */
+		additionalFields?: {
+			[key: string]: DBFieldAttribute;
+		};
 		/**
 		 * When enabled (true), the user account data (accessToken, idToken, refreshToken, etc.)
 		 * will be updated on sign in with the latest data from the provider.
@@ -498,7 +543,27 @@ export type BetterAuthOptions = {
 			 * @default false
 			 */
 			allowUnlinkingAll?: boolean;
+			/**
+			 * If enabled (true), this will update the user information based on the newly linked account
+			 *
+			 * @default false
+			 */
+			updateUserInfoOnLink?: boolean;
 		};
+		/**
+		 * Encrypt OAuth tokens
+		 *
+		 * By default, OAuth tokens (access tokens, refresh tokens, ID tokens) are stored in plain text in the database.
+		 * This poses a security risk if your database is compromised, as attackers could gain access to user accounts
+		 * on external services.
+		 *
+		 * When enabled, tokens are encrypted using AES-256-GCM before storage, providing protection against:
+		 * - Database breaches and unauthorized access to raw token data
+		 * - Internal threats from database administrators or compromised credentials
+		 * - Token exposure in database backups and logs
+		 * @default false
+		 */
+		encryptOAuthTokens?: boolean;
 	};
 	/**
 	 * Verification configuration
@@ -562,12 +627,17 @@ export type BetterAuthOptions = {
 						 */
 						max: number;
 				  }
+				| false
 				| ((request: Request) =>
 						| { window: number; max: number }
-						| Promise<{
-								window: number;
-								max: number;
-						  }>);
+						| false
+						| Promise<
+								| {
+										window: number;
+										max: number;
+								  }
+								| false
+						  >);
 		};
 		/**
 		 * Storage configuration
@@ -614,7 +684,7 @@ export type BetterAuthOptions = {
 			 *
 			 * Ip address is used for rate limiting and session tracking
 			 *
-			 * @example ["x-client-ip", "x-forwarded-for"]
+			 * @example ["x-client-ip", "x-forwarded-for", "cf-connecting-ip"]
 			 *
 			 * @default
 			 * @link https://github.com/better-auth/better-auth/blob/main/packages/better-auth/src/utils/get-request-ip.ts#L8
@@ -715,7 +785,7 @@ export type BetterAuthOptions = {
 				| ((options: {
 						model: LiteralUnion<Models, string>;
 						size?: number;
-				  }) => string)
+				  }) => string | false)
 				| false;
 		};
 		/**
@@ -751,7 +821,7 @@ export type BetterAuthOptions = {
 				 * If the hook returns an object, it'll be used instead of the original data
 				 */
 				before?: (
-					user: User,
+					user: User & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<
 					| boolean
@@ -763,7 +833,10 @@ export type BetterAuthOptions = {
 				/**
 				 * Hook that is called after a user is created.
 				 */
-				after?: (user: User, context?: GenericEndpointContext) => Promise<void>;
+				after?: (
+					user: User & Record<string, unknown>,
+					context?: GenericEndpointContext,
+				) => Promise<void>;
 			};
 			update?: {
 				/**
@@ -772,7 +845,7 @@ export type BetterAuthOptions = {
 				 * If the hook returns an object, it'll be used instead of the original data
 				 */
 				before?: (
-					user: Partial<User>,
+					user: Partial<User> & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<
 					| boolean
@@ -784,7 +857,10 @@ export type BetterAuthOptions = {
 				/**
 				 * Hook that is called after a user is updated.
 				 */
-				after?: (user: User, context?: GenericEndpointContext) => Promise<void>;
+				after?: (
+					user: User & Record<string, unknown>,
+					context?: GenericEndpointContext,
+				) => Promise<void>;
 			};
 		};
 		/**
@@ -798,7 +874,7 @@ export type BetterAuthOptions = {
 				 * If the hook returns an object, it'll be used instead of the original data
 				 */
 				before?: (
-					session: Session,
+					session: Session & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<
 					| boolean
@@ -811,7 +887,7 @@ export type BetterAuthOptions = {
 				 * Hook that is called after a session is created.
 				 */
 				after?: (
-					session: Session,
+					session: Session & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<void>;
 			};
@@ -825,7 +901,7 @@ export type BetterAuthOptions = {
 				 * If the hook returns an object, it'll be used instead of the original data
 				 */
 				before?: (
-					session: Partial<Session>,
+					session: Partial<Session> & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<
 					| boolean
@@ -838,7 +914,7 @@ export type BetterAuthOptions = {
 				 * Hook that is called after a session is updated.
 				 */
 				after?: (
-					session: Session,
+					session: Session & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<void>;
 			};
@@ -881,7 +957,7 @@ export type BetterAuthOptions = {
 				 * If the hook returns an object, it'll be used instead of the original data
 				 */
 				before?: (
-					account: Partial<Account>,
+					account: Partial<Account> & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<
 					| boolean
@@ -894,7 +970,7 @@ export type BetterAuthOptions = {
 				 * Hook that is called after a account is updated.
 				 */
 				after?: (
-					account: Account,
+					account: Account & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<void>;
 			};
@@ -910,7 +986,7 @@ export type BetterAuthOptions = {
 				 * If the hook returns an object, it'll be used instead of the original data
 				 */
 				before?: (
-					verification: Verification,
+					verification: Verification & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<
 					| boolean
@@ -923,7 +999,7 @@ export type BetterAuthOptions = {
 				 * Hook that is called after a verification is created.
 				 */
 				after?: (
-					verification: Verification,
+					verification: Verification & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<void>;
 			};
@@ -934,7 +1010,7 @@ export type BetterAuthOptions = {
 				 * If the hook returns an object, it'll be used instead of the original data
 				 */
 				before?: (
-					verification: Partial<Verification>,
+					verification: Partial<Verification> & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<
 					| boolean
@@ -947,7 +1023,7 @@ export type BetterAuthOptions = {
 				 * Hook that is called after a verification is updated.
 				 */
 				after?: (
-					verification: Verification,
+					verification: Verification & Record<string, unknown>,
 					context?: GenericEndpointContext,
 				) => Promise<void>;
 			};
@@ -999,4 +1075,21 @@ export type BetterAuthOptions = {
 	 * Paths you want to disable.
 	 */
 	disabledPaths?: string[];
+	/**
+	 * Telemetry configuration
+	 */
+	telemetry?: {
+		/**
+		 * Enable telemetry collection
+		 *
+		 * @default false
+		 */
+		enabled?: boolean;
+		/**
+		 * Enable debug mode
+		 *
+		 * @default false
+		 */
+		debug?: boolean;
+	};
 };

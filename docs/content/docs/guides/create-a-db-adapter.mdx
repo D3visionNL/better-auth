@@ -67,10 +67,6 @@ export const myAdapter = (config: CustomAdapterConfig = {}) =>
     // ...
   });
 ```
-
-<Callout>
-Learn more about the `config` object [here](/docs/adapters/custom-adapter#config).
-</Callout>
 </Step>
 
 <Step>
@@ -106,7 +102,7 @@ export const myAdapter = (config: CustomAdapterConfig = {}) =>
 ```
 
 <Callout>
-Learn more about the `adapter` function [here](/docs/adapters/custom-adapter#adapter).
+Learn more about the `adapter` here [here](/docs/concepts/database#adapters).
 </Callout>
 </Step>
 
@@ -455,6 +451,16 @@ const adapter = myAdapter({
   usePlural: true,
 });
 ```
+
+### `transaction`
+
+Whether the adapter supports transactions. If `false`, operations run sequentially; otherwise provide a function that executes a callback with a `TransactionAdapter`.
+
+<Callout type="warn">
+  If your database does not support transactions, the error handling and rollback
+  will not be as robust. We recommend using a database that supports transactions
+  for better data integrity.
+</Callout>
 
 ### `debugLogs`
 

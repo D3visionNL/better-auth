@@ -3,11 +3,7 @@ title: Stripe
 description: Stripe plugin for Better Auth to manage subscriptions and payments.
 ---
 
-The Stripe plugin integrates Stripe's payment and subscription functionality with Better Auth. Since payment and authentication are often tightly coupled, this plugin simplifies the integration of stripe into your application, handling customer creation, subscription management, and webhook processing.
-
-<Callout type="warn">
-This plugin is currently in beta. We're actively collecting feedback and exploring additional features. If you have feature requests or suggestions, please join our [Discord community](https://discord.gg/better-auth) to discuss them.
-</Callout>
+The Stripe plugin integrates Stripe's payment and subscription functionality with Better Auth. Since payment and authentication are often tightly coupled, this plugin simplifies the integration of Stripe into your application, handling customer creation, subscription management, and webhook processing.
 
 ## Features
 
@@ -17,6 +13,7 @@ This plugin is currently in beta. We're actively collecting feedback and explori
 - Handle Stripe webhooks securely with signature verification
 - Expose subscription data to your application
 - Support for trial periods and subscription upgrades
+- **Automatic trial abuse prevention** - Users can only get one trial per account across all plans
 - Flexible reference system to associate subscriptions with users or organizations
 - Team subscription support with seats management
 
@@ -205,18 +202,72 @@ see [plan configuration](#plan-configuration) for more.
 
 To create a subscription, use the `subscription.upgrade` method:
 
+<APIMethod
+  path="/subscription/upgrade"
+  method="POST"
+  requireSession
+>
+```ts
+type upgradeSubscription = {
+    /**
+     * The name of the plan to upgrade to. 
+     */
+    plan: string = "pro"
+    /**
+     * Whether to upgrade to an annual plan. 
+     */
+    annual?: boolean = true
+    /**
+     * Reference id of the subscription to upgrade. 
+     */
+    referenceId?: string = "123"
+    /**
+     * The id of the subscription to upgrade. 
+     */
+    subscriptionId?: string = "sub_123"
+    metadata?: Record<string, any>
+    /**
+     * Number of seats to upgrade to (if applicable). 
+     */
+    seats?: number = 1
+    /**
+     * Callback URL to redirect back after successful subscription. 
+     */
+    successUrl: string
+    /**
+     * If set, checkout shows a back button and customers will be directed here if they cancel payment.
+     */
+    cancelUrl: string 
+    /**
+     * URL to take customers to when they click on the billing portal’s link to return to your website.
+     */
+    returnUrl?: string
+    /**
+     * Disable redirect after successful subscription. 
+     */
+    disableRedirect: boolean = true
+}
+```
+</APIMethod>
+
+**Simple Example:**
+
 ```ts title="client.ts"
 await client.subscription.upgrade({
     plan: "pro",
     successUrl: "/dashboard",
     cancelUrl: "/pricing",
     annual: true, // Optional: upgrade to an annual plan
-    referenceId: "org_123" // Optional: defaults to the current logged in user ID
+    referenceId: "org_123", // Optional: defaults to the current logged in user ID
     seats: 5 // Optional: for team plans
 });
 ```
 
 This will create a Checkout Session and redirect the user to the Stripe Checkout page.
+
+<Callout type="warn">
+If the user already has an active subscription, you *must* provide the `subscriptionId` parameter. Otherwise, the user will be subscribed to (and pay for) both plans.
+</Callout>
 
 > **Important:** The `successUrl` parameter will be internally modified to handle race conditions between checkout completion and webhook processing. The plugin creates an intermediate redirect that ensures subscription status is properly updated before redirecting to your success page.
 
@@ -235,13 +286,36 @@ if(error) {
 For each reference ID (user or organization), only one active or trialing subscription is supported at a time. The plugin doesn't currently support multiple concurrent active subscriptions for the same reference ID.
 </Callout>
 
+#### Switching Plans
+
+To switch a subscription to a different plan, use the `subscription.upgrade` method:
+```ts title="client.ts"
+await client.subscription.upgrade({
+    plan: "pro",
+    successUrl: "/dashboard",
+    cancelUrl: "/pricing",
+    subscriptionId: "sub_123", // the Stripe subscription ID of the user's current plan
+});
+```
+This ensures that the user only pays for the new plan, and not both.
 
 #### Listing Active Subscriptions
 
 To get the user's active subscriptions:
 
-```ts title="client.ts"
-const { data: subscriptions } = await client.subscription.list();
+<APIMethod
+  path="/subscription/list"
+  method="GET"
+  requireSession
+  resultVariable="subscriptions"
+>
+```ts
+type listActiveSubscriptions = {
+    /**
+     * Reference id of the subscription to list. 
+     */
+    referenceId?: string = '123'
+}
 
 // get the active subscription
 const activeSubscription = subscriptions.find(
@@ -251,17 +325,34 @@ const activeSubscription = subscriptions.find(
 // Check subscription limits
 const projectLimit = subscriptions?.limits?.projects || 0;
 ```
+</APIMethod>
 
 #### Canceling a Subscription
 
 To cancel a subscription:
 
-```ts title="client.ts"
-const { data } = await client.subscription.cancel({
-    returnUrl: "/account",
-    referenceId: "org_123" // optional defaults to userId
-});
+<APIMethod
+  path="/subscription/cancel"
+  method="POST"
+  requireSession
+>
+```ts
+type cancelSubscription = {
+    /**
+     * Reference id of the subscription to cancel. Defaults to the userId.
+     */
+    referenceId?: string = 'org_123'
+    /**
+     * The id of the subscription to cancel. 
+     */
+    subscriptionId?: string = 'sub_123'
+    /**
+     * URL to take customers to when they click on the billing portal’s link to return to your website.
+     */
+    returnUrl: string = '/account'
+}
 ```
+</APIMethod>
 
 This will redirect the user to the Stripe Billing Portal where they can cancel their subscription.
 
@@ -269,15 +360,62 @@ This will redirect the user to the Stripe Billing Portal where they can cancel t
 
 If a user changes their mind after canceling a subscription (but before the subscription period ends), you can restore the subscription:
 
-```ts title="client.ts"
-const { data } = await client.subscription.restore({
-    referenceId: "org_123" // optional, defaults to userId
-});
+
+<APIMethod
+  path="/subscription/restore"
+  method="POST"
+  requireSession
+>
+```ts
+type restoreSubscription = {
+    /**
+     * Reference id of the subscription to restore. Defaults to the userId.
+     */
+    referenceId?: string = '123'
+    /**
+     * The id of the subscription to restore. 
+     */
+    subscriptionId?: string = 'sub_123'
+}
 ```
+</APIMethod>
+
 
 This will reactivate a subscription that was previously set to cancel at the end of the billing period (`cancelAtPeriodEnd: true`). The subscription will continue to renew automatically.
 
 > **Note:** This only works for subscriptions that are still active but marked to cancel at the end of the period. It cannot restore subscriptions that have already ended.
+
+#### Creating Billing Portal Sessions
+
+To create a [Stripe billing portal session](https://docs.stripe.com/api/customer_portal/sessions/create) where customers can manage their subscriptions, update payment methods, and view billing history:
+
+<APIMethod
+  path="/subscription/billing-portal"
+  method="POST"
+  requireSession
+>
+```ts
+type createBillingPortal = {
+    /**
+    * The IETF language tag of the locale customer portal is displayed in. If blank or auto, browser's locale is used.
+    */
+    locale?: string
+    /**
+     * Reference id of the subscription to upgrade. 
+     */
+    referenceId?: string = "123"
+    /**
+     * Return URL to redirect back after successful subscription. 
+     */
+    returnUrl?: string
+}
+```
+</APIMethod>
+<Callout type="info" >
+For supported locales, see the [IETF language tag documentation](https://docs.stripe.com/js/appendix/supported_locales).
+</Callout>
+        
+This endpoint creates a Stripe billing portal session and returns a URL in the response as `data.url`. You can redirect users to this URL to allow them to manage their subscription, payment methods, and billing history.
 
 ### Reference System
 
@@ -654,7 +792,7 @@ getCheckoutSessionParams: async ({ user, session, plan, subscription }, request)
 
 ### Tax Collection
 
-To enable tax collection:
+To collect tax IDs from the customer, set `tax_id_collection` to true:
 
 ```ts title="auth.ts"
 subscription: {
@@ -670,6 +808,43 @@ subscription: {
     }
 }
 ```
+
+### Automatic Tax Calculation
+
+To enable automatic tax calculation using the customer's location, set `automatic_tax` to true. Enabling this parameter causes Checkout to collect any billing address information necessary for tax calculation. You need to have tax registration setup and configured in the Stripe dashboard first for this to work.
+
+```ts title="auth.ts"
+subscription: {
+    // ... other options
+    getCheckoutSessionParams: async ({ user, session, plan, subscription }, request) => {
+        return {
+            params: {
+                automatic_tax: {
+                    enabled: true
+                }
+            }
+        };
+    }
+}
+```
+
+### Trial Period Management
+
+The Stripe plugin automatically prevents users from getting multiple free trials. Once a user has used a trial period (regardless of which plan), they will not be eligible for additional trials on any plan.
+
+**How it works:**
+- The system tracks trial usage across all plans for each user
+- When a user subscribes to a plan with a trial, the system checks their subscription history
+- If the user has ever had a trial (indicated by `trialStart`/`trialEnd` fields or `trialing` status), no new trial will be offered
+- This prevents abuse where users cancel subscriptions and resubscribe to get multiple free trials
+
+**Example scenario:**
+1. User subscribes to "Starter" plan with 7-day trial
+2. User cancels the subscription after the trial
+3. User tries to subscribe to "Premium" plan - no trial will be offered
+4. User will be charged immediately for the Premium plan
+
+This behavior is automatic and requires no additional configuration. The trial eligibility is determined at the time of subscription creation and cannot be overridden through configuration.
 
 ## Troubleshooting
 

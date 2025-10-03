@@ -53,6 +53,15 @@ describe("passkey", async () => {
 		expect(options).toHaveProperty("userVerification");
 	});
 
+	it("should generate authenticate options without session (discoverable credentials)", async () => {
+		// Test without any session/auth headers - simulating a new sign-in with discoverable credentials
+		const options = await auth.api.generatePasskeyAuthenticationOptions({});
+		expect(options).toBeDefined();
+		expect(options).toHaveProperty("challenge");
+		expect(options).toHaveProperty("rpId");
+		expect(options).toHaveProperty("userVerification");
+	});
+
 	it("should list user passkeys", async () => {
 		const { headers, user } = await signInWithTestUser();
 		const context = await auth.$context;
@@ -68,7 +77,8 @@ describe("passkey", async () => {
 				createdAt: new Date(),
 				backedUp: false,
 				transports: "mockTransports",
-			},
+				aaguid: "mockAAGUID",
+			} satisfies Omit<Passkey, "id">,
 		});
 
 		const passkeys = await auth.api.listPasskeys({
@@ -80,6 +90,7 @@ describe("passkey", async () => {
 		expect(passkeys[0]).toHaveProperty("userId");
 		expect(passkeys[0]).toHaveProperty("publicKey");
 		expect(passkeys[0]).toHaveProperty("credentialID");
+		expect(passkeys[0]).toHaveProperty("aaguid");
 	});
 
 	it("should update a passkey", async () => {
@@ -87,7 +98,7 @@ describe("passkey", async () => {
 		const passkeys = await auth.api.listPasskeys({
 			headers: headers,
 		});
-		const passkey = passkeys[0];
+		const passkey = passkeys[0]!;
 		const updateResult = await auth.api.updatePasskey({
 			headers: headers,
 			body: {

@@ -8,7 +8,7 @@ import {
 } from ".";
 import { init } from "../init";
 import type { BetterAuthOptions, BetterAuthPlugin } from "../types";
-import { z } from "zod";
+import * as z from "zod";
 import { createAuthClient } from "../client";
 import { bearer } from "../plugins/bearer";
 

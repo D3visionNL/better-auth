@@ -4,6 +4,10 @@ import {
 	type BetterFetchOption,
 } from "@better-fetch/fetch";
 import { atom, onMount, type PreinitializedWritableAtom } from "nanostores";
+import type { SessionQueryParams } from "./types";
+
+// SSR detection
+const isServer = typeof window === "undefined";
 
 export const useAuthQuery = <T>(
 	initializedAtom:
@@ -24,18 +28,18 @@ export const useAuthQuery = <T>(
 		error: null | BetterFetchError;
 		isPending: boolean;
 		isRefetching: boolean;
-		refetch: () => void;
+		refetch: (queryParams?: { query?: SessionQueryParams }) => void;
 	}>({
 		data: null,
 		error: null,
 		isPending: true,
 		isRefetching: false,
-		refetch: () => {
-			return fn();
+		refetch: (queryParams?: { query?: SessionQueryParams }) => {
+			return fn(queryParams);
 		},
 	});
 
-	const fn = () => {
+	const fn = (queryParams?: { query?: SessionQueryParams }) => {
 		const opts =
 			typeof options === "function"
 				? options({
@@ -45,19 +49,20 @@ export const useAuthQuery = <T>(
 					})
 				: options;
 
-		return $fetch<T>(path, {
+		$fetch<T>(path, {
 			...opts,
+			query: {
+				...opts?.query,
+				...queryParams?.query,
+			},
 			async onSuccess(context) {
-				//to avoid hydration error
-				if (typeof window !== "undefined") {
-					value.set({
-						data: context.data,
-						error: null,
-						isPending: false,
-						isRefetching: false,
-						refetch: value.value.refetch,
-					});
-				}
+				value.set({
+					data: context.data,
+					error: null,
+					isPending: false,
+					isRefetching: false,
+					refetch: value.value.refetch,
+				});
 				await opts?.onSuccess?.(context);
 			},
 			async onError(context) {
@@ -88,23 +93,41 @@ export const useAuthQuery = <T>(
 				});
 				await opts?.onRequest?.(context);
 			},
+		}).catch((error) => {
+			value.set({
+				error,
+				data: null,
+				isPending: false,
+				isRefetching: false,
+				refetch: value.value.refetch,
+			});
 		});
 	};
 	initializedAtom = Array.isArray(initializedAtom)
 		? initializedAtom
 		: [initializedAtom];
 	let isMounted = false;
+
 	for (const initAtom of initializedAtom) {
 		initAtom.subscribe(() => {
+			if (isServer) {
+				// On server, don't trigger fetch
+				return;
+			}
 			if (isMounted) {
 				fn();
 			} else {
 				onMount(value, () => {
-					fn();
-					isMounted = true;
+					const timeoutId = setTimeout(() => {
+						if (!isMounted) {
+							fn();
+							isMounted = true;
+						}
+					}, 0);
 					return () => {
 						value.off();
 						initAtom.off();
+						clearTimeout(timeoutId);
 					};
 				});
 			}

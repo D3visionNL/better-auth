@@ -1,5 +1,10 @@
-import type { BetterAuthPlugin } from "better-auth";
-import { createAuthMiddleware } from "better-auth/api";
+import type { BetterAuthPlugin } from "better-auth/types";
+import {
+	APIError,
+	createAuthEndpoint,
+	createAuthMiddleware,
+} from "better-auth/api";
+import { z } from "zod";
 
 export interface ExpoOptions {
 	/**
@@ -13,9 +18,8 @@ export const expo = (options?: ExpoOptions) => {
 		id: "expo",
 		init: (ctx) => {
 			const trustedOrigins =
-				process.env.NODE_ENV === "development"
-					? [...(ctx.trustedOrigins || []), "exp://"]
-					: ctx.trustedOrigins;
+				process.env.NODE_ENV === "development" ? ["exp://"] : [];
+
 			return {
 				options: {
 					trustedOrigins,
@@ -54,6 +58,10 @@ export const expo = (options?: ExpoOptions) => {
 						if (!location) {
 							return;
 						}
+						const isProxyURL = location.includes("/oauth-proxy-callback");
+						if (isProxyURL) {
+							return;
+						}
 						const trustedOrigins = ctx.context.trustedOrigins.filter(
 							(origin: string) => !origin.startsWith("http"),
 						);
@@ -73,6 +81,40 @@ export const expo = (options?: ExpoOptions) => {
 					}),
 				},
 			],
+		},
+		endpoints: {
+			expoAuthorizationProxy: createAuthEndpoint(
+				"/expo-authorization-proxy",
+				{
+					method: "GET",
+					query: z.object({
+						authorizationURL: z.string(),
+					}),
+					metadata: {
+						isAction: false,
+					},
+				},
+				async (ctx) => {
+					const { authorizationURL } = ctx.query;
+					const url = new URL(authorizationURL);
+					const state = url.searchParams.get("state");
+					if (!state) {
+						throw new APIError("BAD_REQUEST", {
+							message: "Unexpected error",
+						});
+					}
+					const stateCookie = ctx.context.createAuthCookie("state", {
+						maxAge: 5 * 60 * 1000, // 5 minutes
+					});
+					await ctx.setSignedCookie(
+						stateCookie.name,
+						state,
+						ctx.context.secret,
+						stateCookie.attributes,
+					);
+					return ctx.redirect(ctx.query.authorizationURL);
+				},
+			),
 		},
 	} satisfies BetterAuthPlugin;
 };

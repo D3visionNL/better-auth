@@ -1,6 +1,6 @@
-import { z } from "zod";
+import * as z from "zod";
 import { setSessionCookie } from "../../cookies";
-import type { OAuth2Tokens } from "../../oauth2";
+import { setTokenUtil, type OAuth2Tokens } from "../../oauth2";
 import { handleOAuthUserInfo } from "../../oauth2/link-account";
 import { parseState } from "../../oauth2/state";
 import { HIDE_METADATA } from "../../utils/hide-metadata";
@@ -43,16 +43,13 @@ export const callbackOAuth = createAuthEndpoint(
 
 		const { code, error, state, error_description, device_id } = queryOrBody;
 
-		if (error) {
-			throw c.redirect(
-				`${defaultErrorURL}?error=${error}&error_description=${error_description}`,
-			);
-		}
-
 		if (!state) {
 			c.context.logger.error("State not found", error);
-			throw c.redirect(`${defaultErrorURL}?error=state_not_found`);
+			const sep = defaultErrorURL.includes("?") ? "&" : "?";
+			const url = `${defaultErrorURL}${sep}state=state_not_found`;
+			throw c.redirect(url);
 		}
+
 		const {
 			codeVerifier,
 			callbackURL,
@@ -62,14 +59,20 @@ export const callbackOAuth = createAuthEndpoint(
 			requestSignUp,
 		} = await parseState(c);
 
-		function redirectOnError(error: string) {
-			let url = errorURL || defaultErrorURL;
-			if (url.includes("?")) {
-				url = `${url}&error=${error}`;
-			} else {
-				url = `${url}?error=${error}`;
-			}
+		function redirectOnError(error: string, description?: string) {
+			const baseURL = errorURL ?? defaultErrorURL;
+
+			const params = new URLSearchParams({ error });
+			if (description) params.set("error_description", description);
+
+			const sep = baseURL.includes("?") ? "&" : "?";
+			const url = `${baseURL}${sep}${params.toString()}`;
+
 			throw c.redirect(url);
+		}
+
+		if (error) {
+			redirectOnError(error, error_description);
 		}
 
 		if (!code) {
@@ -113,21 +116,34 @@ export const callbackOAuth = createAuthEndpoint(
 			return redirectOnError("unable_to_get_user_info");
 		}
 
-		if (!userInfo.email) {
-			c.context.logger.error(
-				"Provider did not return email. This could be due to misconfiguration in the provider settings.",
-			);
-			return redirectOnError("email_not_found");
-		}
-
 		if (!callbackURL) {
 			c.context.logger.error("No callback URL found");
 			throw redirectOnError("no_callback_url");
 		}
 
 		if (link) {
+			const trustedProviders =
+				c.context.options.account?.accountLinking?.trustedProviders;
+			const isTrustedProvider = trustedProviders?.includes(
+				provider.id as "apple",
+			);
+			if (
+				(!isTrustedProvider && !userInfo.emailVerified) ||
+				c.context.options.account?.accountLinking?.enabled === false
+			) {
+				c.context.logger.error("Unable to link account - untrusted provider");
+				return redirectOnError("unable_to_link_account");
+			}
+
+			if (
+				userInfo.email !== link.email &&
+				c.context.options.account?.accountLinking?.allowDifferentEmails !== true
+			) {
+				return redirectOnError("email_doesn't_match");
+			}
+
 			const existingAccount = await c.context.internalAdapter.findAccount(
-				userInfo.id,
+				String(userInfo.id),
 			);
 
 			if (existingAccount) {
@@ -136,9 +152,9 @@ export const callbackOAuth = createAuthEndpoint(
 				}
 				const updateData = Object.fromEntries(
 					Object.entries({
-						accessToken: tokens.accessToken,
+						accessToken: await setTokenUtil(tokens.accessToken, c.context),
+						refreshToken: await setTokenUtil(tokens.refreshToken, c.context),
 						idToken: tokens.idToken,
-						refreshToken: tokens.refreshToken,
 						accessTokenExpiresAt: tokens.accessTokenExpiresAt,
 						refreshTokenExpiresAt: tokens.refreshTokenExpiresAt,
 						scope: tokens.scopes?.join(","),
@@ -153,8 +169,10 @@ export const callbackOAuth = createAuthEndpoint(
 					{
 						userId: link.userId,
 						providerId: provider.id,
-						accountId: userInfo.id,
+						accountId: String(userInfo.id),
 						...tokens,
+						accessToken: await setTokenUtil(tokens.accessToken, c.context),
+						refreshToken: await setTokenUtil(tokens.refreshToken, c.context),
 						scope: tokens.scopes?.join(","),
 					},
 					c,
@@ -173,15 +191,23 @@ export const callbackOAuth = createAuthEndpoint(
 			throw c.redirect(toRedirectTo);
 		}
 
+		if (!userInfo.email) {
+			c.context.logger.error(
+				"Provider did not return email. This could be due to misconfiguration in the provider settings.",
+			);
+			return redirectOnError("email_not_found");
+		}
+
 		const result = await handleOAuthUserInfo(c, {
 			userInfo: {
 				...userInfo,
+				id: String(userInfo.id),
 				email: userInfo.email,
 				name: userInfo.name || userInfo.email,
 			},
 			account: {
 				providerId: provider.id,
-				accountId: userInfo.id,
+				accountId: String(userInfo.id),
 				...tokens,
 				scope: tokens.scopes?.join(","),
 			},

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 import type { GenericEndpointContext } from "../types";
 import { APIError } from "better-call";
 import { generateRandomString } from "../crypto";
@@ -16,15 +16,24 @@ export async function generateState(
 			message: "callbackURL is required",
 		});
 	}
+
 	const codeVerifier = generateRandomString(128);
 	const state = generateRandomString(32);
+	const stateCookie = c.context.createAuthCookie("state", {
+		maxAge: 5 * 60 * 1000, // 5 minutes
+	});
+	await c.setSignedCookie(
+		stateCookie.name,
+		state,
+		c.context.secret,
+		stateCookie.attributes,
+	);
 	const data = JSON.stringify({
 		callbackURL,
 		codeVerifier,
 		errorURL: c.body?.errorCallbackURL,
 		newUserURL: c.body?.newUserCallbackURL,
 		link,
-
 		/**
 		 * This is the actual expiry time of the state
 		 */
@@ -62,10 +71,11 @@ export async function parseState(c: GenericEndpointContext) {
 		c.context.logger.error("State Mismatch. Verification not found", {
 			state,
 		});
-		throw c.redirect(
-			`${c.context.baseURL}/error?error=please_restart_the_process`,
-		);
+		const errorURL =
+			c.context.options.onAPIError?.errorURL || `${c.context.baseURL}/error`;
+		throw c.redirect(`${errorURL}?error=please_restart_the_process`);
 	}
+
 	const parsedData = z
 		.object({
 			callbackURL: z.string(),
@@ -86,11 +96,33 @@ export async function parseState(c: GenericEndpointContext) {
 	if (!parsedData.errorURL) {
 		parsedData.errorURL = `${c.context.baseURL}/error`;
 	}
+	const stateCookie = c.context.createAuthCookie("state");
+	const stateCookieValue = await c.getSignedCookie(
+		stateCookie.name,
+		c.context.secret,
+	);
+	/**
+	 * This is generally cause security issue and should only be used in
+	 * dev or staging environments. It's currently used by the oauth-proxy
+	 * plugin
+	 */
+	const skipStateCookieCheck = c.context.oauthConfig?.skipStateCookieCheck;
+	if (
+		!skipStateCookieCheck &&
+		(!stateCookieValue || stateCookieValue !== state)
+	) {
+		const errorURL =
+			c.context.options.onAPIError?.errorURL || `${c.context.baseURL}/error`;
+		throw c.redirect(`${errorURL}?error=state_mismatch`);
+	}
+	c.setCookie(stateCookie.name, "", {
+		maxAge: 0,
+	});
 	if (parsedData.expiresAt < Date.now()) {
 		await c.context.internalAdapter.deleteVerificationValue(data.id);
-		throw c.redirect(
-			`${c.context.baseURL}/error?error=please_restart_the_process`,
-		);
+		const errorURL =
+			c.context.options.onAPIError?.errorURL || `${c.context.baseURL}/error`;
+		throw c.redirect(`${errorURL}?error=please_restart_the_process`);
 	}
 	await c.context.internalAdapter.deleteVerificationValue(data.id);
 	return parsedData;

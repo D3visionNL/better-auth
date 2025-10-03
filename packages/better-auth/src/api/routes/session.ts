@@ -6,7 +6,7 @@ import {
 	setCookieCache,
 	setSessionCookie,
 } from "../../cookies";
-import { z } from "zod";
+import * as z from "zod";
 import type {
 	BetterAuthOptions,
 	GenericEndpointContext,
@@ -19,38 +19,37 @@ import type { Prettify } from "../../types/helper";
 import { safeJSONParse } from "../../utils/json";
 import { BASE_ERROR_CODES } from "../../error/codes";
 import { createHMAC } from "@better-auth/utils/hmac";
-import { base64 } from "@better-auth/utils/base64";
+import { base64Url } from "@better-auth/utils/base64";
 import { binary } from "@better-auth/utils/binary";
+
+export const getSessionQuerySchema = z.optional(
+	z.object({
+		/**
+		 * If cookie cache is enabled, it will disable the cache
+		 * and fetch the session from the database
+		 */
+		disableCookieCache: z.coerce
+			.boolean()
+			.meta({
+				description: "Disable cookie cache and fetch session from database",
+			})
+			.optional(),
+		disableRefresh: z.coerce
+			.boolean()
+			.meta({
+				description:
+					"Disable session refresh. Useful for checking session status, without updating the session",
+			})
+			.optional(),
+	}),
+);
+
 export const getSession = <Option extends BetterAuthOptions>() =>
 	createAuthEndpoint(
 		"/get-session",
 		{
 			method: "GET",
-			query: z.optional(
-				z.object({
-					/**
-					 * If cookie cache is enabled, it will disable the cache
-					 * and fetch the session from the database
-					 */
-					disableCookieCache: z
-						.optional(
-							z
-								.boolean({
-									description:
-										"Disable cookie cache and fetch session from database",
-								})
-								.or(z.string().transform((v) => v === "true")),
-						)
-						.optional(),
-					disableRefresh: z
-						.boolean({
-							description:
-								"Disable session refresh. Useful for checking session status, without updating the session",
-						})
-						.or(z.string().transform((v) => v === "true"))
-						.optional(),
-				}),
-			),
+			query: getSessionQuerySchema,
 			requireHeaders: true,
 			metadata: {
 				openapi: {
@@ -100,7 +99,7 @@ export const getSession = <Option extends BetterAuthOptions>() =>
 							};
 							signature: string;
 							expiresAt: number;
-						}>(binary.decode(base64.decode(sessionDataCookie)))
+						}>(binary.decode(base64Url.decode(sessionDataCookie)))
 					: null;
 
 				if (sessionDataPayload) {
@@ -138,6 +137,7 @@ export const getSession = <Option extends BetterAuthOptions>() =>
 						sessionDataPayload.expiresAt < Date.now() ||
 						session.session.expiresAt < new Date();
 					if (!hasExpired) {
+						ctx.context.session = session;
 						return ctx.json(
 							session as {
 								session: InferSession<Option>;
@@ -237,7 +237,7 @@ export const getSession = <Option extends BetterAuthOptions>() =>
 						user: InferUser<Option>;
 					});
 				}
-				await setCookieCache(ctx, session);
+				await setCookieCache(ctx, session, !!dontRememberMe);
 				return ctx.json(
 					session as unknown as {
 						session: InferSession<Option>;
@@ -289,6 +289,9 @@ export const getSessionFromCtx = async <
 	} | null;
 };
 
+/**
+ * The middleware forces the endpoint to require a valid session.
+ */
 export const sessionMiddleware = createAuthMiddleware(async (ctx) => {
 	const session = await getSessionFromCtx(ctx);
 	if (!session?.session) {
@@ -299,6 +302,25 @@ export const sessionMiddleware = createAuthMiddleware(async (ctx) => {
 	};
 });
 
+/**
+ * This middleware forces the endpoint to require a valid session and ignores cookie cache.
+ * This should be used for sensitive operations like password changes, account deletion, etc.
+ * to ensure that revoked sessions cannot be used even if they're still cached in cookies.
+ */
+export const sensitiveSessionMiddleware = createAuthMiddleware(async (ctx) => {
+	const session = await getSessionFromCtx(ctx, { disableCookieCache: true });
+	if (!session?.session) {
+		throw new APIError("UNAUTHORIZED");
+	}
+	return {
+		session,
+	};
+});
+
+/**
+ * This middleware allows you to call the endpoint on the client if session is valid.
+ * However, if called on the server, no session is required.
+ */
 export const requestOnlySessionMiddleware = createAuthMiddleware(
 	async (ctx) => {
 		const session = await getSessionFromCtx(ctx);
@@ -309,6 +331,13 @@ export const requestOnlySessionMiddleware = createAuthMiddleware(
 	},
 );
 
+/**
+ * This middleware forces the endpoint to require a valid session,
+ * as well as making sure the session is fresh before proceeding.
+ *
+ * Session freshness check will be skipped if the session config's freshAge
+ * is set to 0
+ */
 export const freshSessionMiddleware = createAuthMiddleware(async (ctx) => {
 	const session = await getSessionFromCtx(ctx);
 	if (!session?.session) {
@@ -390,11 +419,11 @@ export const revokeSession = createAuthEndpoint(
 	{
 		method: "POST",
 		body: z.object({
-			token: z.string({
+			token: z.string().meta({
 				description: "The token to revoke",
 			}),
 		}),
-		use: [sessionMiddleware],
+		use: [sensitiveSessionMiddleware],
 		requireHeaders: true,
 		metadata: {
 			openapi: {
@@ -472,7 +501,7 @@ export const revokeSessions = createAuthEndpoint(
 	"/revoke-sessions",
 	{
 		method: "POST",
-		use: [sessionMiddleware],
+		use: [sensitiveSessionMiddleware],
 		requireHeaders: true,
 		metadata: {
 			openapi: {
@@ -525,7 +554,7 @@ export const revokeOtherSessions = createAuthEndpoint(
 	{
 		method: "POST",
 		requireHeaders: true,
-		use: [sessionMiddleware],
+		use: [sensitiveSessionMiddleware],
 		metadata: {
 			openapi: {
 				description:
