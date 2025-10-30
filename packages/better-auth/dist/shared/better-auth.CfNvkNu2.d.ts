@@ -1,460 +1,14 @@
-import { b as OAuthProvider, S as SocialProviders, c as SocialProviderList, O as OAuth2Tokens, a as OAuth2UserInfo } from './better-auth.v_lf-jeY.cjs';
-import { Migration, PostgresPool, MysqlPool, Dialect, Kysely } from 'kysely';
+import { b as LiteralUnion, L as LiteralString, A as Awaitable, D as DeepPartial, U as UnionToIntersection, a as Prettify, S as StripEmptyObjects, O as OmitId, P as PrettifyDeep, E as Expand } from './better-auth.DTtXpZYr.js';
 import * as better_call from 'better-call';
 import { EndpointContext, InputContext, CookieOptions, Endpoint, Middleware } from 'better-call';
-import { DBFieldAttribute, DBFieldType, DBFieldAttributeConfig, BetterAuthDBSchema } from '@better-auth/core/db';
+import { Migration, PostgresPool, MysqlPool, Dialect, Kysely } from 'kysely';
+import { BetterAuthDBSchema, DBFieldAttribute, DBFieldType, DBFieldAttributeConfig } from '@better-auth/core/db';
 import * as z from 'zod';
-import { b as LiteralUnion, L as LiteralString, A as Awaitable, D as DeepPartial, U as UnionToIntersection, a as Prettify, S as StripEmptyObjects, O as OmitId, P as PrettifyDeep, E as Expand } from './better-auth.DTtXpZYr.cjs';
+import { b as OAuthProvider, S as SocialProviders, c as SocialProviderList, O as OAuth2Tokens, a as OAuth2UserInfo } from './better-auth.C6qXK08w.js';
 import { Database } from 'better-sqlite3';
 import { Database as Database$1 } from 'bun:sqlite';
 import { DatabaseSync } from 'node:sqlite';
 import * as zod_v4_core from 'zod/v4/core';
-
-type LogLevel = "info" | "success" | "warn" | "error" | "debug";
-declare const levels: readonly ["info", "success", "warn", "error", "debug"];
-declare function shouldPublishLog(currentLogLevel: LogLevel, logLevel: LogLevel): boolean;
-interface Logger {
-    disabled?: boolean;
-    disableColors?: boolean;
-    level?: Exclude<LogLevel, "success">;
-    log?: (level: Exclude<LogLevel, "success">, message: string, ...args: any[]) => void;
-}
-type LogHandlerParams = Parameters<NonNullable<Logger["log"]>> extends [
-    LogLevel,
-    ...infer Rest
-] ? Rest : never;
-type InternalLogger = {
-    [K in LogLevel]: (...params: LogHandlerParams) => void;
-} & {
-    get level(): LogLevel;
-};
-declare const createLogger: (options?: Logger) => InternalLogger;
-declare const logger: InternalLogger;
-
-declare const createInternalAdapter: (adapter: Adapter, ctx: {
-    options: Omit<BetterAuthOptions, "logger">;
-    logger: InternalLogger;
-    hooks: Exclude<BetterAuthOptions["databaseHooks"], undefined>[];
-    generateId: AuthContext["generateId"];
-}) => {
-    createOAuthUser: (user: Omit<User, "id" | "createdAt" | "updatedAt">, account: Omit<Account, "userId" | "id" | "createdAt" | "updatedAt"> & Partial<Account>, context?: GenericEndpointContext) => Promise<{
-        user: any;
-        account: any;
-    }>;
-    createUser: <T>(user: Omit<User, "id" | "createdAt" | "updatedAt" | "emailVerified"> & Partial<User> & Record<string, any>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<T & {
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        email: string;
-        emailVerified: boolean;
-        name: string;
-        image?: string | null | undefined;
-    }>;
-    createAccount: <T extends Record<string, any>>(account: Omit<Account, "id" | "createdAt" | "updatedAt"> & Partial<Account> & T, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<T & {
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        providerId: string;
-        accountId: string;
-        userId: string;
-        accessToken?: string | null | undefined;
-        refreshToken?: string | null | undefined;
-        idToken?: string | null | undefined;
-        accessTokenExpiresAt?: Date | null | undefined;
-        refreshTokenExpiresAt?: Date | null | undefined;
-        scope?: string | null | undefined;
-        password?: string | null | undefined;
-    }>;
-    listSessions: (userId: string, trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        userId: string;
-        expiresAt: Date;
-        token: string;
-        ipAddress?: string | null | undefined;
-        userAgent?: string | null | undefined;
-    }[]>;
-    listUsers: (limit?: number, offset?: number, sortBy?: {
-        field: string;
-        direction: "asc" | "desc";
-    }, where?: Where[], trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        email: string;
-        emailVerified: boolean;
-        name: string;
-        image?: string | null | undefined;
-    }[]>;
-    countTotalUsers: (where?: Where[], trxAdapter?: TransactionAdapter) => Promise<number>;
-    deleteUser: (userId: string, trxAdapter?: TransactionAdapter) => Promise<void>;
-    createSession: (userId: string, ctx: GenericEndpointContext, dontRememberMe?: boolean, override?: Partial<Session> & Record<string, any>, overrideAll?: boolean, trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        userId: string;
-        expiresAt: Date;
-        token: string;
-        ipAddress?: string | null | undefined;
-        userAgent?: string | null | undefined;
-    }>;
-    findSession: (token: string, trxAdapter?: TransactionAdapter) => Promise<{
-        session: Session & Record<string, any>;
-        user: User & Record<string, any>;
-    } | null>;
-    findSessions: (sessionTokens: string[], trxAdapter?: TransactionAdapter) => Promise<{
-        session: Session;
-        user: User;
-    }[]>;
-    updateSession: (sessionToken: string, session: Partial<Session> & Record<string, any>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
-    deleteSession: (token: string, trxAdapter?: TransactionAdapter) => Promise<void>;
-    deleteAccounts: (userId: string, trxAdapter?: TransactionAdapter) => Promise<void>;
-    deleteAccount: (accountId: string, trxAdapter?: TransactionAdapter) => Promise<void>;
-    deleteSessions: (userIdOrSessionTokens: string | string[], trxAdapter?: TransactionAdapter) => Promise<void>;
-    findOAuthUser: (email: string, accountId: string, providerId: string, trxAdapter?: TransactionAdapter) => Promise<{
-        user: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            email: string;
-            emailVerified: boolean;
-            name: string;
-            image?: string | null | undefined;
-        };
-        accounts: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            providerId: string;
-            accountId: string;
-            userId: string;
-            accessToken?: string | null | undefined;
-            refreshToken?: string | null | undefined;
-            idToken?: string | null | undefined;
-            accessTokenExpiresAt?: Date | null | undefined;
-            refreshTokenExpiresAt?: Date | null | undefined;
-            scope?: string | null | undefined;
-            password?: string | null | undefined;
-        }[];
-    } | null>;
-    findUserByEmail: (email: string, options?: {
-        includeAccounts: boolean;
-    }, trxAdapter?: TransactionAdapter) => Promise<{
-        user: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            email: string;
-            emailVerified: boolean;
-            name: string;
-            image?: string | null | undefined;
-        };
-        accounts: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            providerId: string;
-            accountId: string;
-            userId: string;
-            accessToken?: string | null | undefined;
-            refreshToken?: string | null | undefined;
-            idToken?: string | null | undefined;
-            accessTokenExpiresAt?: Date | null | undefined;
-            refreshTokenExpiresAt?: Date | null | undefined;
-            scope?: string | null | undefined;
-            password?: string | null | undefined;
-        }[];
-    } | null>;
-    findUserById: (userId: string, trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        email: string;
-        emailVerified: boolean;
-        name: string;
-        image?: string | null | undefined;
-    } | null>;
-    linkAccount: (account: Omit<Account, "id" | "createdAt" | "updatedAt"> & Partial<Account>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
-    updateUser: (userId: string, data: Partial<User> & Record<string, any>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
-    updateUserByEmail: (email: string, data: Partial<User & Record<string, any>>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
-    updatePassword: (userId: string, password: string, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<void>;
-    findAccounts: (userId: string, trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        providerId: string;
-        accountId: string;
-        userId: string;
-        accessToken?: string | null | undefined;
-        refreshToken?: string | null | undefined;
-        idToken?: string | null | undefined;
-        accessTokenExpiresAt?: Date | null | undefined;
-        refreshTokenExpiresAt?: Date | null | undefined;
-        scope?: string | null | undefined;
-        password?: string | null | undefined;
-    }[]>;
-    findAccount: (accountId: string, trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        providerId: string;
-        accountId: string;
-        userId: string;
-        accessToken?: string | null | undefined;
-        refreshToken?: string | null | undefined;
-        idToken?: string | null | undefined;
-        accessTokenExpiresAt?: Date | null | undefined;
-        refreshTokenExpiresAt?: Date | null | undefined;
-        scope?: string | null | undefined;
-        password?: string | null | undefined;
-    } | null>;
-    findAccountByProviderId: (accountId: string, providerId: string, trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        providerId: string;
-        accountId: string;
-        userId: string;
-        accessToken?: string | null | undefined;
-        refreshToken?: string | null | undefined;
-        idToken?: string | null | undefined;
-        accessTokenExpiresAt?: Date | null | undefined;
-        refreshTokenExpiresAt?: Date | null | undefined;
-        scope?: string | null | undefined;
-        password?: string | null | undefined;
-    } | null>;
-    findAccountByUserId: (userId: string, trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        providerId: string;
-        accountId: string;
-        userId: string;
-        accessToken?: string | null | undefined;
-        refreshToken?: string | null | undefined;
-        idToken?: string | null | undefined;
-        accessTokenExpiresAt?: Date | null | undefined;
-        refreshTokenExpiresAt?: Date | null | undefined;
-        scope?: string | null | undefined;
-        password?: string | null | undefined;
-    }[]>;
-    updateAccount: (id: string, data: Partial<Account>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
-    createVerificationValue: (data: Omit<Verification, "createdAt" | "id" | "updatedAt"> & Partial<Verification>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        value: string;
-        expiresAt: Date;
-        identifier: string;
-    }>;
-    findVerificationValue: (identifier: string, trxAdapter?: TransactionAdapter) => Promise<{
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        value: string;
-        expiresAt: Date;
-        identifier: string;
-    } | null>;
-    deleteVerificationValue: (id: string, trxAdapter?: TransactionAdapter) => Promise<void>;
-    deleteVerificationByIdentifier: (identifier: string, trxAdapter?: TransactionAdapter) => Promise<void>;
-    updateVerificationValue: (id: string, data: Partial<Verification>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
-};
-type InternalAdapter = ReturnType<typeof createInternalAdapter>;
-
-declare const createFieldAttribute: <T extends DBFieldType, C extends DBFieldAttributeConfig>(type: T, config?: C) => DBFieldAttribute<T>;
-type InferValueType<T extends DBFieldType> = T extends "string" ? string : T extends "number" ? number : T extends "boolean" ? boolean : T extends "date" ? Date : T extends `${infer T}[]` ? T extends "string" ? string[] : number[] : T extends Array<any> ? T[number] : never;
-type InferFieldsOutput<Field> = Field extends Record<infer Key, DBFieldAttribute> ? {
-    [key in Key as Field[key]["required"] extends false ? Field[key]["defaultValue"] extends boolean | string | number | Date ? key : never : key]: InferFieldOutput<Field[key]>;
-} & {
-    [key in Key as Field[key]["returned"] extends false ? never : key]?: InferFieldOutput<Field[key]> | null;
-} : {};
-type InferFieldsInput<Field> = Field extends Record<infer Key, DBFieldAttribute> ? {
-    [key in Key as Field[key]["required"] extends false ? never : Field[key]["defaultValue"] extends string | number | boolean | Date ? never : Field[key]["input"] extends false ? never : key]: InferFieldInput<Field[key]>;
-} & {
-    [key in Key as Field[key]["input"] extends false ? never : key]?: InferFieldInput<Field[key]> | undefined | null;
-} : {};
-/**
- * For client will add "?" on optional fields
- */
-type InferFieldsInputClient<Field> = Field extends Record<infer Key, DBFieldAttribute> ? {
-    [key in Key as Field[key]["required"] extends false ? never : Field[key]["defaultValue"] extends string | number | boolean | Date ? never : Field[key]["input"] extends false ? never : key]: InferFieldInput<Field[key]>;
-} & {
-    [key in Key as Field[key]["input"] extends false ? never : Field[key]["required"] extends false ? key : Field[key]["defaultValue"] extends string | number | boolean | Date ? key : never]?: InferFieldInput<Field[key]> | undefined | null;
-} : {};
-type InferFieldOutput<T extends DBFieldAttribute> = T["returned"] extends false ? never : T["required"] extends false ? InferValueType<T["type"]> | undefined | null : InferValueType<T["type"]>;
-/**
- * Converts a Record<string, DBFieldAttribute> to an object type
- * with keys and value types inferred from DBFieldAttribute["type"].
- */
-type FieldAttributeToObject<Fields extends Record<string, DBFieldAttribute>> = AddOptionalFields<{
-    [K in keyof Fields]: InferValueType<Fields[K]["type"]>;
-}, Fields>;
-type AddOptionalFields<T extends Record<string, any>, Fields extends Record<keyof T, DBFieldAttribute>> = {
-    [K in keyof T as Fields[K] extends {
-        required: true;
-    } ? K : never]: T[K];
-} & {
-    [K in keyof T as Fields[K] extends {
-        required: true;
-    } ? never : K]?: T[K];
-};
-/**
- * Infer the additional fields from the plugin options.
- * For example, you can infer the additional fields of the org plugin's organization schema like this:
- * ```ts
- * type AdditionalFields = InferAdditionalFieldsFromPluginOptions<"organization", OrganizationOptions>
- * ```
- */
-type InferAdditionalFieldsFromPluginOptions<SchemaName extends string, Options extends {
-    schema?: {
-        [key in SchemaName]?: {
-            additionalFields?: Record<string, DBFieldAttribute>;
-        };
-    };
-}, isClientSide extends boolean = true> = Options["schema"] extends {
-    [key in SchemaName]?: {
-        additionalFields: infer Field extends Record<string, DBFieldAttribute>;
-    };
-} ? isClientSide extends true ? FieldAttributeToObject<RemoveFieldsWithInputFalse<Field>> : FieldAttributeToObject<Field> : {};
-type RemoveFieldsWithInputFalse<T extends Record<string, DBFieldAttribute>> = {
-    [K in keyof T as T[K]["input"] extends false ? never : K]: T[K];
-};
-type InferFieldInput<T extends DBFieldAttribute> = InferValueType<T["type"]>;
-type PluginFieldAttribute = Omit<DBFieldAttribute, "transform" | "defaultValue" | "hashValue">;
-type InferFieldsFromPlugins<Options extends BetterAuthOptions, Key extends string, Format extends "output" | "input" = "output"> = Options["plugins"] extends [] ? {} : Options["plugins"] extends Array<infer T> ? T extends {
-    schema: {
-        [key in Key]: {
-            fields: infer Field;
-        };
-    };
-} ? Format extends "output" ? InferFieldsOutput<Field> : InferFieldsInput<Field> : {} : {};
-type InferFieldsFromOptions<Options extends BetterAuthOptions, Key extends "session" | "user", Format extends "output" | "input" = "output"> = Options[Key] extends {
-    additionalFields: infer Field;
-} ? Format extends "output" ? InferFieldsOutput<Field> : InferFieldsInput<Field> : {};
-
-type KyselyDatabaseType = "postgres" | "mysql" | "sqlite" | "mssql";
-
-declare const coreSchema: z.ZodObject<{
-    id: z.ZodString;
-    createdAt: z.ZodDefault<z.ZodDate>;
-    updatedAt: z.ZodDefault<z.ZodDate>;
-}, z.core.$strip>;
-declare const accountSchema: z.ZodObject<{
-    id: z.ZodString;
-    createdAt: z.ZodDefault<z.ZodDate>;
-    updatedAt: z.ZodDefault<z.ZodDate>;
-    providerId: z.ZodString;
-    accountId: z.ZodString;
-    userId: z.ZodCoercedString<unknown>;
-    accessToken: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-    refreshToken: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-    idToken: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-    accessTokenExpiresAt: z.ZodOptional<z.ZodNullable<z.ZodDate>>;
-    refreshTokenExpiresAt: z.ZodOptional<z.ZodNullable<z.ZodDate>>;
-    scope: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-    password: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-}, z.core.$strip>;
-declare const userSchema: z.ZodObject<{
-    id: z.ZodString;
-    createdAt: z.ZodDefault<z.ZodDate>;
-    updatedAt: z.ZodDefault<z.ZodDate>;
-    email: z.ZodPipe<z.ZodString, z.ZodTransform<string, string>>;
-    emailVerified: z.ZodDefault<z.ZodBoolean>;
-    name: z.ZodString;
-    image: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-}, z.core.$strip>;
-declare const sessionSchema: z.ZodObject<{
-    id: z.ZodString;
-    createdAt: z.ZodDefault<z.ZodDate>;
-    updatedAt: z.ZodDefault<z.ZodDate>;
-    userId: z.ZodCoercedString<unknown>;
-    expiresAt: z.ZodDate;
-    token: z.ZodString;
-    ipAddress: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-    userAgent: z.ZodOptional<z.ZodNullable<z.ZodString>>;
-}, z.core.$strip>;
-declare const verificationSchema: z.ZodObject<{
-    id: z.ZodString;
-    createdAt: z.ZodDefault<z.ZodDate>;
-    updatedAt: z.ZodDefault<z.ZodDate>;
-    value: z.ZodString;
-    expiresAt: z.ZodDate;
-    identifier: z.ZodString;
-}, z.core.$strip>;
-declare function parseUserOutput(options: BetterAuthOptions, user: User): {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    email: string;
-    emailVerified: boolean;
-    name: string;
-    image?: string | null | undefined;
-};
-declare function parseAccountOutput(options: BetterAuthOptions, account: Account): {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    providerId: string;
-    accountId: string;
-    userId: string;
-    accessToken?: string | null | undefined;
-    refreshToken?: string | null | undefined;
-    idToken?: string | null | undefined;
-    accessTokenExpiresAt?: Date | null | undefined;
-    refreshTokenExpiresAt?: Date | null | undefined;
-    scope?: string | null | undefined;
-    password?: string | null | undefined;
-};
-declare function parseSessionOutput(options: BetterAuthOptions, session: Session): {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
-    expiresAt: Date;
-    token: string;
-    ipAddress?: string | null | undefined;
-    userAgent?: string | null | undefined;
-};
-declare function parseInputData<T extends Record<string, any>>(data: T, schema: {
-    fields: Record<string, DBFieldAttribute>;
-    action?: "create" | "update";
-}): Partial<T>;
-declare function parseUserInput(options: BetterAuthOptions, user: Record<string, any> | undefined, action: "create" | "update"): Partial<Record<string, any>>;
-declare function parseAdditionalUserInput(options: BetterAuthOptions, user?: Record<string, any>): Partial<Record<string, any>>;
-declare function parseAccountInput(options: BetterAuthOptions, account: Partial<Account>): Partial<Partial<{
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    providerId: string;
-    accountId: string;
-    userId: string;
-    accessToken?: string | null | undefined;
-    refreshToken?: string | null | undefined;
-    idToken?: string | null | undefined;
-    accessTokenExpiresAt?: Date | null | undefined;
-    refreshTokenExpiresAt?: Date | null | undefined;
-    scope?: string | null | undefined;
-    password?: string | null | undefined;
-}>>;
-declare function parseSessionInput(options: BetterAuthOptions, session: Partial<Session>): Partial<Partial<{
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
-    expiresAt: Date;
-    token: string;
-    ipAddress?: string | null | undefined;
-    userAgent?: string | null | undefined;
-}>>;
-declare function mergeSchema<S extends AuthPluginSchema>(schema: S, newSchema?: {
-    [K in keyof S]?: {
-        modelName?: string;
-        fields?: {
-            [P: string]: string;
-        };
-    };
-}): S;
 
 type HookEndpointContext = EndpointContext<string, any> & Omit<InputContext<string, any>, "method"> & {
     context: AuthContext & {
@@ -531,6 +85,27 @@ declare const getCookieCache: <S extends {
     isSecure?: boolean;
     secret?: string;
 }) => Promise<S | null>;
+
+type LogLevel = "info" | "success" | "warn" | "error" | "debug";
+declare const levels: readonly ["info", "success", "warn", "error", "debug"];
+declare function shouldPublishLog(currentLogLevel: LogLevel, logLevel: LogLevel): boolean;
+interface Logger {
+    disabled?: boolean;
+    disableColors?: boolean;
+    level?: Exclude<LogLevel, "success">;
+    log?: (level: Exclude<LogLevel, "success">, message: string, ...args: any[]) => void;
+}
+type LogHandlerParams = Parameters<NonNullable<Logger["log"]>> extends [
+    LogLevel,
+    ...infer Rest
+] ? Rest : never;
+type InternalLogger = {
+    [K in LogLevel]: (...params: LogHandlerParams) => void;
+} & {
+    get level(): LogLevel;
+};
+declare const createLogger: (options?: Logger) => InternalLogger;
+declare const logger: InternalLogger;
 
 declare function checkPassword(userId: string, c: GenericEndpointContext): Promise<boolean>;
 
@@ -1348,6 +923,129 @@ interface SecondaryStorage {
      */
     delete: (key: string) => Promise<void | null | string> | void;
 }
+
+type KyselyDatabaseType = "postgres" | "mysql" | "sqlite" | "mssql";
+
+declare const coreSchema: z.ZodObject<{
+    id: z.ZodString;
+    createdAt: z.ZodDefault<z.ZodDate>;
+    updatedAt: z.ZodDefault<z.ZodDate>;
+}, z.core.$strip>;
+declare const accountSchema: z.ZodObject<{
+    id: z.ZodString;
+    createdAt: z.ZodDefault<z.ZodDate>;
+    updatedAt: z.ZodDefault<z.ZodDate>;
+    providerId: z.ZodString;
+    accountId: z.ZodString;
+    userId: z.ZodCoercedString<unknown>;
+    accessToken: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    refreshToken: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    idToken: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    accessTokenExpiresAt: z.ZodOptional<z.ZodNullable<z.ZodDate>>;
+    refreshTokenExpiresAt: z.ZodOptional<z.ZodNullable<z.ZodDate>>;
+    scope: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    password: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+}, z.core.$strip>;
+declare const userSchema: z.ZodObject<{
+    id: z.ZodString;
+    createdAt: z.ZodDefault<z.ZodDate>;
+    updatedAt: z.ZodDefault<z.ZodDate>;
+    email: z.ZodPipe<z.ZodString, z.ZodTransform<string, string>>;
+    emailVerified: z.ZodDefault<z.ZodBoolean>;
+    name: z.ZodString;
+    image: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+}, z.core.$strip>;
+declare const sessionSchema: z.ZodObject<{
+    id: z.ZodString;
+    createdAt: z.ZodDefault<z.ZodDate>;
+    updatedAt: z.ZodDefault<z.ZodDate>;
+    userId: z.ZodCoercedString<unknown>;
+    expiresAt: z.ZodDate;
+    token: z.ZodString;
+    ipAddress: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    userAgent: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+}, z.core.$strip>;
+declare const verificationSchema: z.ZodObject<{
+    id: z.ZodString;
+    createdAt: z.ZodDefault<z.ZodDate>;
+    updatedAt: z.ZodDefault<z.ZodDate>;
+    value: z.ZodString;
+    expiresAt: z.ZodDate;
+    identifier: z.ZodString;
+}, z.core.$strip>;
+declare function parseUserOutput(options: BetterAuthOptions, user: User): {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    email: string;
+    emailVerified: boolean;
+    name: string;
+    image?: string | null | undefined;
+};
+declare function parseAccountOutput(options: BetterAuthOptions, account: Account): {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    providerId: string;
+    accountId: string;
+    userId: string;
+    accessToken?: string | null | undefined;
+    refreshToken?: string | null | undefined;
+    idToken?: string | null | undefined;
+    accessTokenExpiresAt?: Date | null | undefined;
+    refreshTokenExpiresAt?: Date | null | undefined;
+    scope?: string | null | undefined;
+    password?: string | null | undefined;
+};
+declare function parseSessionOutput(options: BetterAuthOptions, session: Session): {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    userId: string;
+    expiresAt: Date;
+    token: string;
+    ipAddress?: string | null | undefined;
+    userAgent?: string | null | undefined;
+};
+declare function parseInputData<T extends Record<string, any>>(data: T, schema: {
+    fields: Record<string, DBFieldAttribute>;
+    action?: "create" | "update";
+}): Partial<T>;
+declare function parseUserInput(options: BetterAuthOptions, user: Record<string, any> | undefined, action: "create" | "update"): Partial<Record<string, any>>;
+declare function parseAdditionalUserInput(options: BetterAuthOptions, user?: Record<string, any>): Partial<Record<string, any>>;
+declare function parseAccountInput(options: BetterAuthOptions, account: Partial<Account>): Partial<Partial<{
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    providerId: string;
+    accountId: string;
+    userId: string;
+    accessToken?: string | null | undefined;
+    refreshToken?: string | null | undefined;
+    idToken?: string | null | undefined;
+    accessTokenExpiresAt?: Date | null | undefined;
+    refreshTokenExpiresAt?: Date | null | undefined;
+    scope?: string | null | undefined;
+    password?: string | null | undefined;
+}>>;
+declare function parseSessionInput(options: BetterAuthOptions, session: Partial<Session>): Partial<Partial<{
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    userId: string;
+    expiresAt: Date;
+    token: string;
+    ipAddress?: string | null | undefined;
+    userAgent?: string | null | undefined;
+}>>;
+declare function mergeSchema<S extends AuthPluginSchema>(schema: S, newSchema?: {
+    [K in keyof S]?: {
+        modelName?: string;
+        fields?: {
+            [P: string]: string;
+        };
+    };
+}): S;
 
 type Models = "user" | "account" | "session" | "verification" | "rate-limit" | "organization" | "member" | "invitation" | "jwks" | "passkey" | "two-factor";
 type AdditionalUserFieldsInput<Options extends BetterAuthOptions> = InferFieldsFromPlugins<Options, "user", "input"> & InferFieldsFromOptions<Options, "user", "input">;
@@ -2360,6 +2058,308 @@ type InferSessionAPI<API> = API extends {
     }> : Promise<PrettifyDeep<Awaited<ReturnType<E>>> | null> : Promise<Response>;
 } : never : never> : never;
 type InferAPI<API> = InferSessionAPI<API> & API;
+
+declare const createInternalAdapter: (adapter: Adapter, ctx: {
+    options: Omit<BetterAuthOptions, "logger">;
+    logger: InternalLogger;
+    hooks: Exclude<BetterAuthOptions["databaseHooks"], undefined>[];
+    generateId: AuthContext["generateId"];
+}) => {
+    createOAuthUser: (user: Omit<User, "id" | "createdAt" | "updatedAt">, account: Omit<Account, "userId" | "id" | "createdAt" | "updatedAt"> & Partial<Account>, context?: GenericEndpointContext) => Promise<{
+        user: any;
+        account: any;
+    }>;
+    createUser: <T>(user: Omit<User, "id" | "createdAt" | "updatedAt" | "emailVerified"> & Partial<User> & Record<string, any>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<T & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        email: string;
+        emailVerified: boolean;
+        name: string;
+        image?: string | null | undefined;
+    }>;
+    createAccount: <T extends Record<string, any>>(account: Omit<Account, "id" | "createdAt" | "updatedAt"> & Partial<Account> & T, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<T & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        providerId: string;
+        accountId: string;
+        userId: string;
+        accessToken?: string | null | undefined;
+        refreshToken?: string | null | undefined;
+        idToken?: string | null | undefined;
+        accessTokenExpiresAt?: Date | null | undefined;
+        refreshTokenExpiresAt?: Date | null | undefined;
+        scope?: string | null | undefined;
+        password?: string | null | undefined;
+    }>;
+    listSessions: (userId: string, trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        expiresAt: Date;
+        token: string;
+        ipAddress?: string | null | undefined;
+        userAgent?: string | null | undefined;
+    }[]>;
+    listUsers: (limit?: number, offset?: number, sortBy?: {
+        field: string;
+        direction: "asc" | "desc";
+    }, where?: Where[], trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        email: string;
+        emailVerified: boolean;
+        name: string;
+        image?: string | null | undefined;
+    }[]>;
+    countTotalUsers: (where?: Where[], trxAdapter?: TransactionAdapter) => Promise<number>;
+    deleteUser: (userId: string, trxAdapter?: TransactionAdapter) => Promise<void>;
+    createSession: (userId: string, ctx: GenericEndpointContext, dontRememberMe?: boolean, override?: Partial<Session> & Record<string, any>, overrideAll?: boolean, trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        expiresAt: Date;
+        token: string;
+        ipAddress?: string | null | undefined;
+        userAgent?: string | null | undefined;
+    }>;
+    findSession: (token: string, trxAdapter?: TransactionAdapter) => Promise<{
+        session: Session & Record<string, any>;
+        user: User & Record<string, any>;
+    } | null>;
+    findSessions: (sessionTokens: string[], trxAdapter?: TransactionAdapter) => Promise<{
+        session: Session;
+        user: User;
+    }[]>;
+    updateSession: (sessionToken: string, session: Partial<Session> & Record<string, any>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
+    deleteSession: (token: string, trxAdapter?: TransactionAdapter) => Promise<void>;
+    deleteAccounts: (userId: string, trxAdapter?: TransactionAdapter) => Promise<void>;
+    deleteAccount: (accountId: string, trxAdapter?: TransactionAdapter) => Promise<void>;
+    deleteSessions: (userIdOrSessionTokens: string | string[], trxAdapter?: TransactionAdapter) => Promise<void>;
+    findOAuthUser: (email: string, accountId: string, providerId: string, trxAdapter?: TransactionAdapter) => Promise<{
+        user: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            email: string;
+            emailVerified: boolean;
+            name: string;
+            image?: string | null | undefined;
+        };
+        accounts: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            providerId: string;
+            accountId: string;
+            userId: string;
+            accessToken?: string | null | undefined;
+            refreshToken?: string | null | undefined;
+            idToken?: string | null | undefined;
+            accessTokenExpiresAt?: Date | null | undefined;
+            refreshTokenExpiresAt?: Date | null | undefined;
+            scope?: string | null | undefined;
+            password?: string | null | undefined;
+        }[];
+    } | null>;
+    findUserByEmail: (email: string, options?: {
+        includeAccounts: boolean;
+    }, trxAdapter?: TransactionAdapter) => Promise<{
+        user: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            email: string;
+            emailVerified: boolean;
+            name: string;
+            image?: string | null | undefined;
+        };
+        accounts: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            providerId: string;
+            accountId: string;
+            userId: string;
+            accessToken?: string | null | undefined;
+            refreshToken?: string | null | undefined;
+            idToken?: string | null | undefined;
+            accessTokenExpiresAt?: Date | null | undefined;
+            refreshTokenExpiresAt?: Date | null | undefined;
+            scope?: string | null | undefined;
+            password?: string | null | undefined;
+        }[];
+    } | null>;
+    findUserById: (userId: string, trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        email: string;
+        emailVerified: boolean;
+        name: string;
+        image?: string | null | undefined;
+    } | null>;
+    linkAccount: (account: Omit<Account, "id" | "createdAt" | "updatedAt"> & Partial<Account>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
+    updateUser: (userId: string, data: Partial<User> & Record<string, any>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
+    updateUserByEmail: (email: string, data: Partial<User & Record<string, any>>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
+    updatePassword: (userId: string, password: string, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<void>;
+    findAccounts: (userId: string, trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        providerId: string;
+        accountId: string;
+        userId: string;
+        accessToken?: string | null | undefined;
+        refreshToken?: string | null | undefined;
+        idToken?: string | null | undefined;
+        accessTokenExpiresAt?: Date | null | undefined;
+        refreshTokenExpiresAt?: Date | null | undefined;
+        scope?: string | null | undefined;
+        password?: string | null | undefined;
+    }[]>;
+    findAccount: (accountId: string, trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        providerId: string;
+        accountId: string;
+        userId: string;
+        accessToken?: string | null | undefined;
+        refreshToken?: string | null | undefined;
+        idToken?: string | null | undefined;
+        accessTokenExpiresAt?: Date | null | undefined;
+        refreshTokenExpiresAt?: Date | null | undefined;
+        scope?: string | null | undefined;
+        password?: string | null | undefined;
+    } | null>;
+    findAccountByProviderId: (accountId: string, providerId: string, trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        providerId: string;
+        accountId: string;
+        userId: string;
+        accessToken?: string | null | undefined;
+        refreshToken?: string | null | undefined;
+        idToken?: string | null | undefined;
+        accessTokenExpiresAt?: Date | null | undefined;
+        refreshTokenExpiresAt?: Date | null | undefined;
+        scope?: string | null | undefined;
+        password?: string | null | undefined;
+    } | null>;
+    findAccountByUserId: (userId: string, trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        providerId: string;
+        accountId: string;
+        userId: string;
+        accessToken?: string | null | undefined;
+        refreshToken?: string | null | undefined;
+        idToken?: string | null | undefined;
+        accessTokenExpiresAt?: Date | null | undefined;
+        refreshTokenExpiresAt?: Date | null | undefined;
+        scope?: string | null | undefined;
+        password?: string | null | undefined;
+    }[]>;
+    updateAccount: (id: string, data: Partial<Account>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
+    createVerificationValue: (data: Omit<Verification, "createdAt" | "id" | "updatedAt"> & Partial<Verification>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        value: string;
+        expiresAt: Date;
+        identifier: string;
+    }>;
+    findVerificationValue: (identifier: string, trxAdapter?: TransactionAdapter) => Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        value: string;
+        expiresAt: Date;
+        identifier: string;
+    } | null>;
+    deleteVerificationValue: (id: string, trxAdapter?: TransactionAdapter) => Promise<void>;
+    deleteVerificationByIdentifier: (identifier: string, trxAdapter?: TransactionAdapter) => Promise<void>;
+    updateVerificationValue: (id: string, data: Partial<Verification>, context?: GenericEndpointContext, trxAdapter?: TransactionAdapter) => Promise<any>;
+};
+type InternalAdapter = ReturnType<typeof createInternalAdapter>;
+
+declare const createFieldAttribute: <T extends DBFieldType, C extends DBFieldAttributeConfig>(type: T, config?: C) => DBFieldAttribute<T>;
+type InferValueType<T extends DBFieldType> = T extends "string" ? string : T extends "number" ? number : T extends "boolean" ? boolean : T extends "date" ? Date : T extends `${infer T}[]` ? T extends "string" ? string[] : number[] : T extends Array<any> ? T[number] : never;
+type InferFieldsOutput<Field> = Field extends Record<infer Key, DBFieldAttribute> ? {
+    [key in Key as Field[key]["required"] extends false ? Field[key]["defaultValue"] extends boolean | string | number | Date ? key : never : key]: InferFieldOutput<Field[key]>;
+} & {
+    [key in Key as Field[key]["returned"] extends false ? never : key]?: InferFieldOutput<Field[key]> | null;
+} : {};
+type InferFieldsInput<Field> = Field extends Record<infer Key, DBFieldAttribute> ? {
+    [key in Key as Field[key]["required"] extends false ? never : Field[key]["defaultValue"] extends string | number | boolean | Date ? never : Field[key]["input"] extends false ? never : key]: InferFieldInput<Field[key]>;
+} & {
+    [key in Key as Field[key]["input"] extends false ? never : key]?: InferFieldInput<Field[key]> | undefined | null;
+} : {};
+/**
+ * For client will add "?" on optional fields
+ */
+type InferFieldsInputClient<Field> = Field extends Record<infer Key, DBFieldAttribute> ? {
+    [key in Key as Field[key]["required"] extends false ? never : Field[key]["defaultValue"] extends string | number | boolean | Date ? never : Field[key]["input"] extends false ? never : key]: InferFieldInput<Field[key]>;
+} & {
+    [key in Key as Field[key]["input"] extends false ? never : Field[key]["required"] extends false ? key : Field[key]["defaultValue"] extends string | number | boolean | Date ? key : never]?: InferFieldInput<Field[key]> | undefined | null;
+} : {};
+type InferFieldOutput<T extends DBFieldAttribute> = T["returned"] extends false ? never : T["required"] extends false ? InferValueType<T["type"]> | undefined | null : InferValueType<T["type"]>;
+/**
+ * Converts a Record<string, DBFieldAttribute> to an object type
+ * with keys and value types inferred from DBFieldAttribute["type"].
+ */
+type FieldAttributeToObject<Fields extends Record<string, DBFieldAttribute>> = AddOptionalFields<{
+    [K in keyof Fields]: InferValueType<Fields[K]["type"]>;
+}, Fields>;
+type AddOptionalFields<T extends Record<string, any>, Fields extends Record<keyof T, DBFieldAttribute>> = {
+    [K in keyof T as Fields[K] extends {
+        required: true;
+    } ? K : never]: T[K];
+} & {
+    [K in keyof T as Fields[K] extends {
+        required: true;
+    } ? never : K]?: T[K];
+};
+/**
+ * Infer the additional fields from the plugin options.
+ * For example, you can infer the additional fields of the org plugin's organization schema like this:
+ * ```ts
+ * type AdditionalFields = InferAdditionalFieldsFromPluginOptions<"organization", OrganizationOptions>
+ * ```
+ */
+type InferAdditionalFieldsFromPluginOptions<SchemaName extends string, Options extends {
+    schema?: {
+        [key in SchemaName]?: {
+            additionalFields?: Record<string, DBFieldAttribute>;
+        };
+    };
+}, isClientSide extends boolean = true> = Options["schema"] extends {
+    [key in SchemaName]?: {
+        additionalFields: infer Field extends Record<string, DBFieldAttribute>;
+    };
+} ? isClientSide extends true ? FieldAttributeToObject<RemoveFieldsWithInputFalse<Field>> : FieldAttributeToObject<Field> : {};
+type RemoveFieldsWithInputFalse<T extends Record<string, DBFieldAttribute>> = {
+    [K in keyof T as T[K]["input"] extends false ? never : K]: T[K];
+};
+type InferFieldInput<T extends DBFieldAttribute> = InferValueType<T["type"]>;
+type PluginFieldAttribute = Omit<DBFieldAttribute, "transform" | "defaultValue" | "hashValue">;
+type InferFieldsFromPlugins<Options extends BetterAuthOptions, Key extends string, Format extends "output" | "input" = "output"> = Options["plugins"] extends [] ? {} : Options["plugins"] extends Array<infer T> ? T extends {
+    schema: {
+        [key in Key]: {
+            fields: infer Field;
+        };
+    };
+} ? Format extends "output" ? InferFieldsOutput<Field> : InferFieldsInput<Field> : {} : {};
+type InferFieldsFromOptions<Options extends BetterAuthOptions, Key extends "session" | "user", Format extends "output" | "input" = "output"> = Options[Key] extends {
+    additionalFields: infer Field;
+} ? Format extends "output" ? InferFieldsOutput<Field> : InferFieldsInput<Field> : {};
 
 declare const signInSocial: {
     <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {

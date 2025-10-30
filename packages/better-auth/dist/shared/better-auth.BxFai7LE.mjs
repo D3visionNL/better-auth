@@ -1,54 +1,40 @@
-'use strict';
-
-const z = require('zod');
-const betterCall = require('better-call');
-const session = require('./better-auth.B0k5C6Ik.cjs');
-require('./better-auth.l_Ru3SGW.cjs');
-require('./better-auth.B6fIklBU.cjs');
-const base64 = require('@better-auth/utils/base64');
-require('@better-auth/utils/hmac');
-require('./better-auth.BToNb2fI.cjs');
-require('@better-auth/utils/binary');
-require('@better-auth/core/db');
-const schema = require('./better-auth.Bu93hUoT.cjs');
-require('@better-auth/utils/random');
-const hash = require('@better-auth/utils/hash');
-require('@noble/ciphers/chacha.js');
-require('@noble/ciphers/utils.js');
-require('jose');
-require('@noble/hashes/scrypt.js');
-require('@better-auth/utils/hex');
-require('@noble/hashes/utils.js');
-const random = require('./better-auth.CYeOI8C-.cjs');
-require('kysely');
-require('./better-auth.sRvUzL4j.cjs');
-require('../plugins/organization/access/index.cjs');
-require('@better-auth/utils/otp');
-require('../plugins/admin/access/index.cjs');
-require('@better-fetch/fetch');
-require('@better-auth/utils');
-require('../plugins/custom-session/index.cjs');
-const date = require('./better-auth.C1hdVENX.cjs');
-const getRequestIp = require('./better-auth.D1rR7ww4.cjs');
-const parser = require('./better-auth.DUNU0obG.cjs');
-const json = require('./better-auth.Jlhc86WK.cjs');
-const plugins_access_index = require('../plugins/access/index.cjs');
-require('@noble/hashes/sha3.js');
-require('../plugins/device-authorization/index.cjs');
-
-function _interopNamespaceCompat(e) {
-	if (e && typeof e === 'object' && 'default' in e) return e;
-	const n = Object.create(null);
-	if (e) {
-		for (const k in e) {
-			n[k] = e[k];
-		}
-	}
-	n.default = e;
-	return n;
-}
-
-const z__namespace = /*#__PURE__*/_interopNamespaceCompat(z);
+import * as z from 'zod';
+import { APIError } from 'better-call';
+import { a as createAuthEndpoint, g as getSessionFromCtx, s as sessionMiddleware, c as createAuthMiddleware } from './better-auth.D_jpufHc.mjs';
+import './better-auth.CpZXDeOc.mjs';
+import './better-auth.CiuwFiHM.mjs';
+import { base64Url } from '@better-auth/utils/base64';
+import '@better-auth/utils/hmac';
+import './better-auth.DgGir396.mjs';
+import '@better-auth/utils/binary';
+import '@better-auth/core/db';
+import { m as mergeSchema } from './better-auth.BZghgUMh.mjs';
+import '@better-auth/utils/random';
+import { createHash } from '@better-auth/utils/hash';
+import '@noble/ciphers/chacha.js';
+import '@noble/ciphers/utils.js';
+import 'jose';
+import '@noble/hashes/scrypt.js';
+import '@better-auth/utils/hex';
+import '@noble/hashes/utils.js';
+import { g as generateRandomString } from './better-auth.B4Qoxdgc.mjs';
+import 'kysely';
+import './better-auth.AiorGAx9.mjs';
+import '../plugins/organization/access/index.mjs';
+import '@better-auth/utils/otp';
+import '../plugins/admin/access/index.mjs';
+import '@better-fetch/fetch';
+import '@better-auth/utils';
+import 'better-auth/api';
+import 'better-auth/crypto';
+import '../plugins/custom-session/index.mjs';
+import { g as getDate } from './better-auth.CW6D9eSx.mjs';
+import { g as getIp } from './better-auth.BQOp-6ij.mjs';
+import { p as parseJSON } from './better-auth.msGOU0m9.mjs';
+import { s as safeJSONParse } from './better-auth.BTrSrKsi.mjs';
+import { role } from '../plugins/access/index.mjs';
+import '@noble/hashes/sha3.js';
+import '../plugins/device-authorization/index.mjs';
 
 const apiKeySchema = ({
   timeWindow,
@@ -232,7 +218,7 @@ const apiKeySchema = ({
           },
           output(value) {
             if (!value) return null;
-            return parser.parseJSON(value);
+            return parseJSON(value);
           }
         }
       }
@@ -246,41 +232,41 @@ function createApiKey({
   schema,
   deleteAllExpiredApiKeys
 }) {
-  return session.createAuthEndpoint(
+  return createAuthEndpoint(
     "/api-key/create",
     {
       method: "POST",
-      body: z__namespace.object({
-        name: z__namespace.string().meta({ description: "Name of the Api Key" }).optional(),
-        expiresIn: z__namespace.number().meta({
+      body: z.object({
+        name: z.string().meta({ description: "Name of the Api Key" }).optional(),
+        expiresIn: z.number().meta({
           description: "Expiration time of the Api Key in seconds"
         }).min(1).optional().nullable().default(null),
-        userId: z__namespace.coerce.string().meta({
+        userId: z.coerce.string().meta({
           description: 'User Id of the user that the Api Key belongs to. server-only. Eg: "user-id"'
         }).optional(),
-        prefix: z__namespace.string().meta({ description: "Prefix of the Api Key" }).regex(/^[a-zA-Z0-9_-]+$/, {
+        prefix: z.string().meta({ description: "Prefix of the Api Key" }).regex(/^[a-zA-Z0-9_-]+$/, {
           message: "Invalid prefix format, must be alphanumeric and contain only underscores and hyphens."
         }).optional(),
-        remaining: z__namespace.number().meta({
+        remaining: z.number().meta({
           description: "Remaining number of requests. Server side only"
         }).min(0).optional().nullable().default(null),
-        metadata: z__namespace.any().optional(),
-        refillAmount: z__namespace.number().meta({
+        metadata: z.any().optional(),
+        refillAmount: z.number().meta({
           description: "Amount to refill the remaining count of the Api Key. server-only. Eg: 100"
         }).min(1).optional(),
-        refillInterval: z__namespace.number().meta({
+        refillInterval: z.number().meta({
           description: "Interval to refill the Api Key in milliseconds. server-only. Eg: 1000"
         }).optional(),
-        rateLimitTimeWindow: z__namespace.number().meta({
+        rateLimitTimeWindow: z.number().meta({
           description: "The duration in milliseconds where each request is counted. Once the `maxRequests` is reached, the request will be rejected until the `timeWindow` has passed, at which point the `timeWindow` will be reset. server-only. Eg: 1000"
         }).optional(),
-        rateLimitMax: z__namespace.number().meta({
+        rateLimitMax: z.number().meta({
           description: "Maximum amount of requests allowed within a window. Once the `maxRequests` is reached, the request will be rejected until the `timeWindow` has passed, at which point the `timeWindow` will be reset. server-only. Eg: 100"
         }).optional(),
-        rateLimitEnabled: z__namespace.boolean().meta({
+        rateLimitEnabled: z.boolean().meta({
           description: "Whether the key has rate limiting enabled. server-only. Eg: true"
         }).optional(),
-        permissions: z__namespace.record(z__namespace.string(), z__namespace.array(z__namespace.string())).meta({
+        permissions: z.record(z.string(), z.array(z.string())).meta({
           description: "Permissions of the Api Key."
         }).optional()
       }),
@@ -435,90 +421,90 @@ function createApiKey({
         rateLimitTimeWindow,
         rateLimitEnabled
       } = ctx.body;
-      const session$1 = await session.getSessionFromCtx(ctx);
+      const session = await getSessionFromCtx(ctx);
       const authRequired = ctx.request || ctx.headers;
-      const user = authRequired && !session$1 ? null : session$1?.user || { id: ctx.body.userId };
+      const user = authRequired && !session ? null : session?.user || { id: ctx.body.userId };
       if (!user?.id) {
-        throw new betterCall.APIError("UNAUTHORIZED", {
+        throw new APIError("UNAUTHORIZED", {
           message: ERROR_CODES.UNAUTHORIZED_SESSION
         });
       }
-      if (session$1 && ctx.body.userId && session$1?.user.id !== ctx.body.userId) {
-        throw new betterCall.APIError("UNAUTHORIZED", {
+      if (session && ctx.body.userId && session?.user.id !== ctx.body.userId) {
+        throw new APIError("UNAUTHORIZED", {
           message: ERROR_CODES.UNAUTHORIZED_SESSION
         });
       }
       if (authRequired) {
         if (refillAmount !== void 0 || refillInterval !== void 0 || rateLimitMax !== void 0 || rateLimitTimeWindow !== void 0 || rateLimitEnabled !== void 0 || permissions !== void 0 || remaining !== null) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.SERVER_ONLY_PROPERTY
           });
         }
       }
       if (metadata) {
         if (opts.enableMetadata === false) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.METADATA_DISABLED
           });
         }
         if (typeof metadata !== "object") {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.INVALID_METADATA_TYPE
           });
         }
       }
       if (refillAmount && !refillInterval) {
-        throw new betterCall.APIError("BAD_REQUEST", {
+        throw new APIError("BAD_REQUEST", {
           message: ERROR_CODES.REFILL_AMOUNT_AND_INTERVAL_REQUIRED
         });
       }
       if (refillInterval && !refillAmount) {
-        throw new betterCall.APIError("BAD_REQUEST", {
+        throw new APIError("BAD_REQUEST", {
           message: ERROR_CODES.REFILL_INTERVAL_AND_AMOUNT_REQUIRED
         });
       }
       if (expiresIn) {
         if (opts.keyExpiration.disableCustomExpiresTime === true) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.KEY_DISABLED_EXPIRATION
           });
         }
         const expiresIn_in_days = expiresIn / (60 * 60 * 24);
         if (opts.keyExpiration.minExpiresIn > expiresIn_in_days) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.EXPIRES_IN_IS_TOO_SMALL
           });
         } else if (opts.keyExpiration.maxExpiresIn < expiresIn_in_days) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.EXPIRES_IN_IS_TOO_LARGE
           });
         }
       }
       if (prefix) {
         if (prefix.length < opts.minimumPrefixLength) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.INVALID_PREFIX_LENGTH
           });
         }
         if (prefix.length > opts.maximumPrefixLength) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.INVALID_PREFIX_LENGTH
           });
         }
       }
       if (name) {
         if (name.length < opts.minimumNameLength) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.INVALID_NAME_LENGTH
           });
         }
         if (name.length > opts.maximumNameLength) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.INVALID_NAME_LENGTH
           });
         }
       } else if (opts.requireName) {
-        throw new betterCall.APIError("BAD_REQUEST", {
+        throw new APIError("BAD_REQUEST", {
           message: ERROR_CODES.NAME_REQUIRED
         });
       }
@@ -545,7 +531,7 @@ function createApiKey({
         start,
         key: hashed,
         enabled: true,
-        expiresAt: expiresIn ? date.getDate(expiresIn, "sec") : opts.keyExpiration.defaultExpiresIn ? date.getDate(opts.keyExpiration.defaultExpiresIn, "sec") : null,
+        expiresAt: expiresIn ? getDate(expiresIn, "sec") : opts.keyExpiration.defaultExpiresIn ? getDate(opts.keyExpiration.defaultExpiresIn, "sec") : null,
         userId: user.id,
         lastRefillAt: null,
         lastRequest: null,
@@ -571,7 +557,7 @@ function createApiKey({
         ...apiKey,
         key,
         metadata: metadata ?? null,
-        permissions: apiKey.permissions ? json.safeJSONParse(apiKey.permissions) : null
+        permissions: apiKey.permissions ? safeJSONParse(apiKey.permissions) : null
       });
     }
   );
@@ -582,16 +568,16 @@ function deleteApiKey({
   schema,
   deleteAllExpiredApiKeys
 }) {
-  return session.createAuthEndpoint(
+  return createAuthEndpoint(
     "/api-key/delete",
     {
       method: "POST",
-      body: z__namespace.object({
-        keyId: z__namespace.string().meta({
+      body: z.object({
+        keyId: z.string().meta({
           description: "The id of the Api Key"
         })
       }),
-      use: [session.sessionMiddleware],
+      use: [sessionMiddleware],
       metadata: {
         openapi: {
           description: "Delete an existing API key",
@@ -637,7 +623,7 @@ function deleteApiKey({
       const { keyId } = ctx.body;
       const session = ctx.context.session;
       if (session.user.banned === true) {
-        throw new betterCall.APIError("UNAUTHORIZED", {
+        throw new APIError("UNAUTHORIZED", {
           message: ERROR_CODES.USER_BANNED
         });
       }
@@ -651,7 +637,7 @@ function deleteApiKey({
         ]
       });
       if (!apiKey || apiKey.userId !== session.user.id) {
-        throw new betterCall.APIError("NOT_FOUND", {
+        throw new APIError("NOT_FOUND", {
           message: ERROR_CODES.KEY_NOT_FOUND
         });
       }
@@ -666,7 +652,7 @@ function deleteApiKey({
           ]
         });
       } catch (error) {
-        throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
+        throw new APIError("INTERNAL_SERVER_ERROR", {
           message: error?.message
         });
       }
@@ -683,16 +669,16 @@ function getApiKey({
   schema,
   deleteAllExpiredApiKeys
 }) {
-  return session.createAuthEndpoint(
+  return createAuthEndpoint(
     "/api-key/get",
     {
       method: "GET",
-      query: z__namespace.object({
-        id: z__namespace.string().meta({
+      query: z.object({
+        id: z.string().meta({
           description: "The id of the Api Key"
         })
       }),
-      use: [session.sessionMiddleware],
+      use: [sessionMiddleware],
       metadata: {
         openapi: {
           description: "Retrieve an existing API key by ID",
@@ -839,7 +825,7 @@ function getApiKey({
         ]
       });
       if (!apiKey) {
-        throw new betterCall.APIError("NOT_FOUND", {
+        throw new APIError("NOT_FOUND", {
           message: ERROR_CODES.KEY_NOT_FOUND
         });
       }
@@ -850,7 +836,7 @@ function getApiKey({
       const { key, ...returningApiKey } = apiKey;
       return ctx.json({
         ...returningApiKey,
-        permissions: returningApiKey.permissions ? json.safeJSONParse(returningApiKey.permissions) : null
+        permissions: returningApiKey.permissions ? safeJSONParse(returningApiKey.permissions) : null
       });
     }
   );
@@ -861,46 +847,46 @@ function updateApiKey({
   schema,
   deleteAllExpiredApiKeys
 }) {
-  return session.createAuthEndpoint(
+  return createAuthEndpoint(
     "/api-key/update",
     {
       method: "POST",
-      body: z__namespace.object({
-        keyId: z__namespace.string().meta({
+      body: z.object({
+        keyId: z.string().meta({
           description: "The id of the Api Key"
         }),
-        userId: z__namespace.coerce.string().meta({
+        userId: z.coerce.string().meta({
           description: 'The id of the user which the api key belongs to. server-only. Eg: "some-user-id"'
         }).optional(),
-        name: z__namespace.string().meta({
+        name: z.string().meta({
           description: "The name of the key"
         }).optional(),
-        enabled: z__namespace.boolean().meta({
+        enabled: z.boolean().meta({
           description: "Whether the Api Key is enabled or not"
         }).optional(),
-        remaining: z__namespace.number().meta({
+        remaining: z.number().meta({
           description: "The number of remaining requests"
         }).min(1).optional(),
-        refillAmount: z__namespace.number().meta({
+        refillAmount: z.number().meta({
           description: "The refill amount"
         }).optional(),
-        refillInterval: z__namespace.number().meta({
+        refillInterval: z.number().meta({
           description: "The refill interval"
         }).optional(),
-        metadata: z__namespace.any().optional(),
-        expiresIn: z__namespace.number().meta({
+        metadata: z.any().optional(),
+        expiresIn: z.number().meta({
           description: "Expiration time of the Api Key in seconds"
         }).min(1).optional().nullable(),
-        rateLimitEnabled: z__namespace.boolean().meta({
+        rateLimitEnabled: z.boolean().meta({
           description: "Whether the key has rate limiting enabled."
         }).optional(),
-        rateLimitTimeWindow: z__namespace.number().meta({
+        rateLimitTimeWindow: z.number().meta({
           description: "The duration in milliseconds where each request is counted. server-only. Eg: 1000"
         }).optional(),
-        rateLimitMax: z__namespace.number().meta({
+        rateLimitMax: z.number().meta({
           description: "Maximum amount of requests allowed within a window. Once the `maxRequests` is reached, the request will be rejected until the `timeWindow` has passed, at which point the `timeWindow` will be reset. server-only. Eg: 100"
         }).optional(),
-        permissions: z__namespace.record(z__namespace.string(), z__namespace.array(z__namespace.string())).meta({
+        permissions: z.record(z.string(), z.array(z.string())).meta({
           description: "Update the permissions on the API Key. server-only."
         }).optional().nullable()
       }),
@@ -1048,17 +1034,17 @@ function updateApiKey({
         rateLimitTimeWindow,
         rateLimitMax
       } = ctx.body;
-      const session$1 = await session.getSessionFromCtx(ctx);
+      const session = await getSessionFromCtx(ctx);
       const authRequired = (ctx.request || ctx.headers) && !ctx.body.userId;
-      const user = session$1?.user ?? (authRequired ? null : { id: ctx.body.userId });
+      const user = session?.user ?? (authRequired ? null : { id: ctx.body.userId });
       if (!user?.id) {
-        throw new betterCall.APIError("UNAUTHORIZED", {
+        throw new APIError("UNAUTHORIZED", {
           message: ERROR_CODES.UNAUTHORIZED_SESSION
         });
       }
       if (authRequired) {
         if (refillAmount !== void 0 || refillInterval !== void 0 || rateLimitMax !== void 0 || rateLimitTimeWindow !== void 0 || rateLimitEnabled !== void 0 || remaining !== void 0 || permissions !== void 0) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.SERVER_ONLY_PROPERTY
           });
         }
@@ -1077,18 +1063,18 @@ function updateApiKey({
         ]
       });
       if (!apiKey) {
-        throw new betterCall.APIError("NOT_FOUND", {
+        throw new APIError("NOT_FOUND", {
           message: ERROR_CODES.KEY_NOT_FOUND
         });
       }
       let newValues = {};
       if (name !== void 0) {
         if (name.length < opts.minimumNameLength) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.INVALID_NAME_LENGTH
           });
         } else if (name.length > opts.maximumNameLength) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.INVALID_NAME_LENGTH
           });
         }
@@ -1099,27 +1085,27 @@ function updateApiKey({
       }
       if (expiresIn !== void 0) {
         if (opts.keyExpiration.disableCustomExpiresTime === true) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.KEY_DISABLED_EXPIRATION
           });
         }
         if (expiresIn !== null) {
           const expiresIn_in_days = expiresIn / (60 * 60 * 24);
           if (expiresIn_in_days < opts.keyExpiration.minExpiresIn) {
-            throw new betterCall.APIError("BAD_REQUEST", {
+            throw new APIError("BAD_REQUEST", {
               message: ERROR_CODES.EXPIRES_IN_IS_TOO_SMALL
             });
           } else if (expiresIn_in_days > opts.keyExpiration.maxExpiresIn) {
-            throw new betterCall.APIError("BAD_REQUEST", {
+            throw new APIError("BAD_REQUEST", {
               message: ERROR_CODES.EXPIRES_IN_IS_TOO_LARGE
             });
           }
         }
-        newValues.expiresAt = expiresIn ? date.getDate(expiresIn, "sec") : null;
+        newValues.expiresAt = expiresIn ? getDate(expiresIn, "sec") : null;
       }
       if (metadata !== void 0) {
         if (typeof metadata !== "object") {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.INVALID_METADATA_TYPE
           });
         }
@@ -1130,11 +1116,11 @@ function updateApiKey({
       }
       if (refillAmount !== void 0 || refillInterval !== void 0) {
         if (refillAmount !== void 0 && refillInterval === void 0) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.REFILL_AMOUNT_AND_INTERVAL_REQUIRED
           });
         } else if (refillInterval !== void 0 && refillAmount === void 0) {
-          throw new betterCall.APIError("BAD_REQUEST", {
+          throw new APIError("BAD_REQUEST", {
             message: ERROR_CODES.REFILL_INTERVAL_AND_AMOUNT_REQUIRED
           });
         }
@@ -1154,7 +1140,7 @@ function updateApiKey({
         newValues.permissions = JSON.stringify(permissions);
       }
       if (Object.keys(newValues).length === 0) {
-        throw new betterCall.APIError("BAD_REQUEST", {
+        throw new APIError("BAD_REQUEST", {
           message: ERROR_CODES.NO_VALUES_TO_UPDATE
         });
       }
@@ -1176,7 +1162,7 @@ function updateApiKey({
         });
         if (result) newApiKey = result;
       } catch (error) {
-        throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
+        throw new APIError("INTERNAL_SERVER_ERROR", {
           message: error?.message
         });
       }
@@ -1187,7 +1173,7 @@ function updateApiKey({
       const { key, ...returningApiKey } = newApiKey;
       return ctx.json({
         ...returningApiKey,
-        permissions: returningApiKey.permissions ? json.safeJSONParse(returningApiKey.permissions) : null
+        permissions: returningApiKey.permissions ? safeJSONParse(returningApiKey.permissions) : null
       });
     }
   );
@@ -1272,12 +1258,12 @@ async function validateApiKey({
     ]
   });
   if (!apiKey) {
-    throw new betterCall.APIError("UNAUTHORIZED", {
+    throw new APIError("UNAUTHORIZED", {
       message: ERROR_CODES.INVALID_API_KEY
     });
   }
   if (apiKey.enabled === false) {
-    throw new betterCall.APIError("UNAUTHORIZED", {
+    throw new APIError("UNAUTHORIZED", {
       message: ERROR_CODES.KEY_DISABLED,
       code: "KEY_DISABLED"
     });
@@ -1299,24 +1285,24 @@ async function validateApiKey({
       } catch (error) {
         ctx.context.logger.error(`Failed to delete expired API keys:`, error);
       }
-      throw new betterCall.APIError("UNAUTHORIZED", {
+      throw new APIError("UNAUTHORIZED", {
         message: ERROR_CODES.KEY_EXPIRED,
         code: "KEY_EXPIRED"
       });
     }
   }
   if (permissions) {
-    const apiKeyPermissions = apiKey.permissions ? json.safeJSONParse(apiKey.permissions) : null;
+    const apiKeyPermissions = apiKey.permissions ? safeJSONParse(apiKey.permissions) : null;
     if (!apiKeyPermissions) {
-      throw new betterCall.APIError("UNAUTHORIZED", {
+      throw new APIError("UNAUTHORIZED", {
         message: ERROR_CODES.KEY_NOT_FOUND,
         code: "KEY_NOT_FOUND"
       });
     }
-    const r = plugins_access_index.role(apiKeyPermissions);
+    const r = role(apiKeyPermissions);
     const result = r.authorize(permissions);
     if (!result.success) {
-      throw new betterCall.APIError("UNAUTHORIZED", {
+      throw new APIError("UNAUTHORIZED", {
         message: ERROR_CODES.KEY_NOT_FOUND,
         code: "KEY_NOT_FOUND"
       });
@@ -1338,7 +1324,7 @@ async function validateApiKey({
     } catch (error) {
       ctx.context.logger.error(`Failed to delete expired API keys:`, error);
     }
-    throw new betterCall.APIError("TOO_MANY_REQUESTS", {
+    throw new APIError("TOO_MANY_REQUESTS", {
       message: ERROR_CODES.USAGE_EXCEEDED,
       code: "USAGE_EXCEEDED"
     });
@@ -1355,7 +1341,7 @@ async function validateApiKey({
       }
     }
     if (remaining === 0) {
-      throw new betterCall.APIError("TOO_MANY_REQUESTS", {
+      throw new APIError("TOO_MANY_REQUESTS", {
         message: ERROR_CODES.USAGE_EXCEEDED,
         code: "USAGE_EXCEEDED"
       });
@@ -1379,13 +1365,13 @@ async function validateApiKey({
     }
   });
   if (!newApiKey) {
-    throw new betterCall.APIError("INTERNAL_SERVER_ERROR", {
+    throw new APIError("INTERNAL_SERVER_ERROR", {
       message: ERROR_CODES.FAILED_TO_UPDATE_API_KEY,
       code: "INTERNAL_SERVER_ERROR"
     });
   }
   if (success === false) {
-    throw new betterCall.APIError("UNAUTHORIZED", {
+    throw new APIError("UNAUTHORIZED", {
       message: message ?? void 0,
       code: "RATE_LIMITED",
       details: {
@@ -1400,15 +1386,15 @@ function verifyApiKey({
   schema,
   deleteAllExpiredApiKeys
 }) {
-  return session.createAuthEndpoint(
+  return createAuthEndpoint(
     "/api-key/verify",
     {
       method: "POST",
-      body: z__namespace.object({
-        key: z__namespace.string().meta({
+      body: z.object({
+        key: z.string().meta({
           description: "The key to verify"
         }),
-        permissions: z__namespace.record(z__namespace.string(), z__namespace.array(z__namespace.string())).meta({
+        permissions: z.record(z.string(), z.array(z.string())).meta({
           description: "The permissions to verify."
         }).optional()
       }),
@@ -1453,7 +1439,7 @@ function verifyApiKey({
         });
         await deleteAllExpiredApiKeys(ctx.context);
       } catch (error) {
-        if (error instanceof betterCall.APIError) {
+        if (error instanceof APIError) {
           return ctx.json({
             valid: false,
             error: {
@@ -1481,7 +1467,7 @@ function verifyApiKey({
           returningApiKey.metadata
         );
       }
-      returningApiKey.permissions = returningApiKey.permissions ? json.safeJSONParse(returningApiKey.permissions) : null;
+      returningApiKey.permissions = returningApiKey.permissions ? safeJSONParse(returningApiKey.permissions) : null;
       return ctx.json({
         valid: true,
         error: null,
@@ -1496,11 +1482,11 @@ function listApiKeys({
   schema,
   deleteAllExpiredApiKeys
 }) {
-  return session.createAuthEndpoint(
+  return createAuthEndpoint(
     "/api-key/list",
     {
       method: "GET",
-      use: [session.sessionMiddleware],
+      use: [sessionMiddleware],
       metadata: {
         openapi: {
           description: "List all API keys for the authenticated user",
@@ -1657,7 +1643,7 @@ function listApiKeys({
         const { key, ...returningApiKey2 } = x;
         return {
           ...returningApiKey2,
-          permissions: returningApiKey2.permissions ? json.safeJSONParse(returningApiKey2.permissions) : null
+          permissions: returningApiKey2.permissions ? safeJSONParse(returningApiKey2.permissions) : null
         };
       });
       return ctx.json(returningApiKey);
@@ -1668,7 +1654,7 @@ function listApiKeys({
 function deleteAllExpiredApiKeysEndpoint({
   deleteAllExpiredApiKeys
 }) {
-  return session.createAuthEndpoint(
+  return createAuthEndpoint(
     "/api-key/delete-all-expired-api-keys",
     {
       method: "POST",
@@ -1747,10 +1733,10 @@ function createApiKeyRoutes({
 }
 
 const defaultKeyHasher = async (key) => {
-  const hash$1 = await hash.createHash("SHA-256").digest(
+  const hash = await createHash("SHA-256").digest(
     new TextEncoder().encode(key)
   );
-  const hashed = base64.base64Url.encode(new Uint8Array(hash$1), {
+  const hashed = base64Url.encode(new Uint8Array(hash), {
     padding: false
   });
   return hashed;
@@ -1812,7 +1798,7 @@ const apiKey = (options) => {
     },
     enableSessionForAPIKeys: options?.enableSessionForAPIKeys ?? false
   };
-  const schema$1 = schema.mergeSchema(
+  const schema = mergeSchema(
     apiKeySchema({
       rateLimitMax: opts.rateLimit.maxRequests,
       timeWindow: opts.rateLimit.timeWindow
@@ -1840,7 +1826,7 @@ const apiKey = (options) => {
     }
     return apiKey2;
   });
-  const routes = createApiKeyRoutes({ keyGenerator, opts, schema: schema$1 });
+  const routes = createApiKeyRoutes({ keyGenerator, opts, schema });
   return {
     id: "api-key",
     $ERROR_CODES: ERROR_CODES,
@@ -1848,22 +1834,22 @@ const apiKey = (options) => {
       before: [
         {
           matcher: (ctx) => !!getter(ctx) && opts.enableSessionForAPIKeys,
-          handler: session.createAuthMiddleware(async (ctx) => {
+          handler: createAuthMiddleware(async (ctx) => {
             const key = getter(ctx);
             if (typeof key !== "string") {
-              throw new betterCall.APIError("BAD_REQUEST", {
+              throw new APIError("BAD_REQUEST", {
                 message: ERROR_CODES.INVALID_API_KEY_GETTER_RETURN_TYPE
               });
             }
             if (key.length < opts.defaultKeyLength) {
-              throw new betterCall.APIError("FORBIDDEN", {
+              throw new APIError("FORBIDDEN", {
                 message: ERROR_CODES.INVALID_API_KEY
               });
             }
             if (opts.customAPIKeyValidator) {
               const isValid = await opts.customAPIKeyValidator({ ctx, key });
               if (!isValid) {
-                throw new betterCall.APIError("FORBIDDEN", {
+                throw new APIError("FORBIDDEN", {
                   message: ERROR_CODES.INVALID_API_KEY
                 });
               }
@@ -1873,7 +1859,7 @@ const apiKey = (options) => {
               hashedKey: hashed,
               ctx,
               opts,
-              schema: schema$1
+              schema
             });
             deleteAllExpiredApiKeys(ctx.context).catch((err) => {
               ctx.context.logger.error(
@@ -1885,7 +1871,7 @@ const apiKey = (options) => {
               apiKey2.userId
             );
             if (!user) {
-              throw new betterCall.APIError("UNAUTHORIZED", {
+              throw new APIError("UNAUTHORIZED", {
                 message: ERROR_CODES.INVALID_USER_ID_FROM_API_KEY
               });
             }
@@ -1896,10 +1882,10 @@ const apiKey = (options) => {
                 token: key,
                 userId: apiKey2.userId,
                 userAgent: ctx.request?.headers.get("user-agent") ?? null,
-                ipAddress: ctx.request ? getRequestIp.getIp(ctx.request, ctx.context.options) : null,
+                ipAddress: ctx.request ? getIp(ctx.request, ctx.context.options) : null,
                 createdAt: /* @__PURE__ */ new Date(),
                 updatedAt: /* @__PURE__ */ new Date(),
-                expiresAt: apiKey2.expiresAt || date.getDate(
+                expiresAt: apiKey2.expiresAt || getDate(
                   ctx.context.options.session?.expiresIn || 60 * 60 * 24 * 7,
                   // 7 days
                   "ms"
@@ -2026,7 +2012,7 @@ const apiKey = (options) => {
        */
       deleteAllExpiredApiKeys: routes.deleteAllExpiredApiKeys
     },
-    schema: schema$1
+    schema
   };
 };
 
@@ -2062,11 +2048,11 @@ const oneTimeToken = (options) => {
        *
        * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/one-time-token#api-method-one-time-token-generate)
        */
-      generateOneTimeToken: session.createAuthEndpoint(
+      generateOneTimeToken: createAuthEndpoint(
         "/one-time-token/generate",
         {
           method: "GET",
-          use: [session.sessionMiddleware]
+          use: [sessionMiddleware]
         },
         async (c) => {
           if (opts?.disableClientRequest && c.request) {
@@ -2075,7 +2061,7 @@ const oneTimeToken = (options) => {
             });
           }
           const session = c.context.session;
-          const token = opts?.generateToken ? await opts.generateToken(session, c) : random.generateRandomString(32);
+          const token = opts?.generateToken ? await opts.generateToken(session, c) : generateRandomString(32);
           const expiresAt = new Date(
             Date.now() + (opts?.expiresIn ?? 3) * 60 * 1e3
           );
@@ -2103,12 +2089,12 @@ const oneTimeToken = (options) => {
        *
        * @see [Read our docs to learn more.](https://better-auth.com/docs/plugins/one-time-token#api-method-one-time-token-verify)
        */
-      verifyOneTimeToken: session.createAuthEndpoint(
+      verifyOneTimeToken: createAuthEndpoint(
         "/one-time-token/verify",
         {
           method: "POST",
-          body: z__namespace.object({
-            token: z__namespace.string().meta({
+          body: z.object({
+            token: z.string().meta({
               description: 'The token to verify. Eg: "some-token"'
             })
           })
@@ -2147,8 +2133,4 @@ const oneTimeToken = (options) => {
   };
 };
 
-exports.API_KEY_TABLE_NAME = API_KEY_TABLE_NAME;
-exports.ERROR_CODES = ERROR_CODES;
-exports.apiKey = apiKey;
-exports.defaultKeyHasher = defaultKeyHasher;
-exports.oneTimeToken = oneTimeToken;
+export { API_KEY_TABLE_NAME as A, ERROR_CODES as E, apiKey as a, defaultKeyHasher as d, oneTimeToken as o };

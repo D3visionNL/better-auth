@@ -2611,7 +2611,7 @@ declare const cognito: (options: CognitoOptions) => {
     } | null>;
     options: CognitoOptions;
 };
-declare const getCognitoPublicKey: (kid: string, region: string, userPoolId: string) => Promise<Uint8Array<ArrayBufferLike> | CryptoKey>;
+declare const getCognitoPublicKey: (kid: string, region: string, userPoolId: string) => Promise<CryptoKey | Uint8Array<ArrayBufferLike>>;
 
 interface AtlassianProfile {
     account_type?: string;
@@ -2775,7 +2775,7 @@ declare const apple: (options: AppleOptions) => {
     } | null>;
     options: AppleOptions;
 };
-declare const getApplePublicKey: (kid: string) => Promise<Uint8Array<ArrayBufferLike> | CryptoKey>;
+declare const getApplePublicKey: (kid: string) => Promise<CryptoKey | Uint8Array<ArrayBufferLike>>;
 
 declare const socialProviders: {
     apple: (options: AppleOptions) => {

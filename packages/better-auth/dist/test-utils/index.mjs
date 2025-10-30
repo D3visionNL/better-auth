@@ -49,6 +49,8 @@ import { bearer } from '../plugins/bearer/index.mjs';
 import '../plugins/admin/access/index.mjs';
 import '@better-fetch/fetch';
 import '@better-auth/utils';
+import 'better-auth/api';
+import 'better-auth/crypto';
 import '../plugins/custom-session/index.mjs';
 import '@noble/hashes/sha3.js';
 import '../plugins/device-authorization/index.mjs';

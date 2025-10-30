@@ -51,6 +51,8 @@ const plugins_bearer_index = require('../plugins/bearer/index.cjs');
 require('../plugins/admin/access/index.cjs');
 require('@better-fetch/fetch');
 require('@better-auth/utils');
+require('better-auth/api');
+require('better-auth/crypto');
 require('../plugins/custom-session/index.cjs');
 require('@noble/hashes/sha3.js');
 require('../plugins/device-authorization/index.cjs');

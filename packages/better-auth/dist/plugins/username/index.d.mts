@@ -1,10 +1,10 @@
 import * as better_call from 'better-call';
-import { I as InferOptionSchema, d as AuthContext, G as GenericEndpointContext, H as HookEndpointContext } from '../../shared/better-auth.DQrlHYV7.mjs';
+import { I as InferOptionSchema, d as AuthContext, G as GenericEndpointContext, H as HookEndpointContext } from '../../shared/better-auth.CDN3l_op.mjs';
 import * as z from 'zod';
-import '../../shared/better-auth.XefKa8DI.mjs';
 import '../../shared/better-auth.DTtXpZYr.mjs';
 import 'kysely';
 import '@better-auth/core/db';
+import '../../shared/better-auth.BHPr8J54.mjs';
 import 'better-sqlite3';
 import 'bun:sqlite';
 import 'node:sqlite';

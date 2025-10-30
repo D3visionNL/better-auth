@@ -3,8 +3,8 @@ export { adminAc, defaultAc, defaultRoles, defaultStatements, memberAc, ownerAc 
 export { TWO_FACTOR_ERROR_CODES, TwoFactorOptions, TwoFactorProvider, TwoFactorTable, UserWithTwoFactor, twoFactor, twoFactorClient } from './two-factor/index.mjs';
 export { USERNAME_ERROR_CODES, UsernameOptions, username } from './username/index.mjs';
 export { bearer } from './bearer/index.mjs';
-import { G as GenericEndpointContext, B as BetterAuthOptions, d as AuthContext } from '../shared/better-auth.DQrlHYV7.mjs';
-export { t as AuthEndpoint, u as AuthMiddleware, m as AuthPluginSchema, n as BetterAuthPlugin, I as InferOptionSchema, o as InferPluginErrorCodes, r as createAuthEndpoint, q as createAuthMiddleware, p as optionsMiddleware } from '../shared/better-auth.DQrlHYV7.mjs';
+import { G as GenericEndpointContext, B as BetterAuthOptions, d as AuthContext } from '../shared/better-auth.CDN3l_op.mjs';
+export { t as AuthEndpoint, u as AuthMiddleware, m as AuthPluginSchema, n as BetterAuthPlugin, I as InferOptionSchema, o as InferPluginErrorCodes, r as createAuthEndpoint, q as createAuthMiddleware, p as optionsMiddleware } from '../shared/better-auth.CDN3l_op.mjs';
 export { H as HIDE_METADATA } from '../shared/better-auth.DEHJp1rk.mjs';
 export { magicLink } from './magic-link/index.mjs';
 export { PhoneNumberOptions, UserWithPhoneNumber, phoneNumber } from './phone-number/index.mjs';
@@ -21,7 +21,7 @@ export { OpenAPIOptions, Path, generator, openAPI } from './open-api/index.mjs';
 import { OIDCOptions, OIDCMetadata, OAuthAccessToken } from './oidc-provider/index.mjs';
 export { AuthorizationQuery, Client, CodeVerificationValue, TokenBody, getClient, getMetadata, oidcProvider } from './oidc-provider/index.mjs';
 export { captcha } from './captcha/index.mjs';
-export { A as API_KEY_TABLE_NAME, E as ERROR_CODES, a as apiKey, d as defaultKeyHasher } from '../shared/better-auth.Cm-oyMDN.mjs';
+export { A as API_KEY_TABLE_NAME, E as ERROR_CODES, a as apiKey, d as defaultKeyHasher } from '../shared/better-auth.CZ009zPs.mjs';
 export { HaveIBeenPwnedOptions, haveIBeenPwned } from './haveibeenpwned/index.mjs';
 export { oneTimeToken } from './one-time-token/index.mjs';
 import * as better_call from 'better-call';
@@ -32,13 +32,14 @@ import '@better-auth/core/db';
 import './access/index.mjs';
 import '../shared/better-auth.DTtXpZYr.mjs';
 import '@better-fetch/fetch';
-import '../shared/better-auth.XefKa8DI.mjs';
 import 'kysely';
+import '../shared/better-auth.BHPr8J54.mjs';
 import 'better-sqlite3';
 import 'bun:sqlite';
 import 'node:sqlite';
 import 'zod/v4/core';
 import 'jose';
+import 'better-auth';
 
 interface MCPOptions {
     loginPage: string;

@@ -1,132 +1,63 @@
-import { H as HookEndpointContext, d as AuthContext } from '../../shared/better-auth.C5tRLx0o.js';
-import * as better_call from 'better-call';
-import * as z from 'zod';
-import '../../shared/better-auth.4SXCyo06.js';
-import '../../shared/better-auth.DTtXpZYr.js';
-import 'kysely';
-import '@better-auth/core/db';
-import 'better-sqlite3';
-import 'bun:sqlite';
-import 'node:sqlite';
-import 'zod/v4/core';
+import { BetterAuthPlugin } from 'better-auth';
 
-interface OAuthProxyOptions {
-    /**
-     * The current URL of the application.
-     * The plugin will attempt to infer the current URL from your environment
-     * by checking the base URL from popular hosting providers,
-     * from the request URL if invoked by a client,
-     * or as a fallback, from the `baseURL` in your auth config.
-     * If the URL is not inferred correctly, you can provide a value here."
-     */
-    currentURL?: string;
-    /**
-     * If a request in a production url it won't be proxied.
-     *
-     * default to `BETTER_AUTH_URL`
-     */
-    productionURL?: string;
-}
 /**
- * A proxy plugin, that allows you to proxy OAuth requests.
- * Useful for development and preview deployments where
- * the redirect URL can't be known in advance to add to the OAuth provider.
+ * OAuth Proxy Plugin for Better Auth
+ *
+ * This plugin enables OAuth flows to work across multiple environments (dev,
+ * staging, production) without requiring shared databases or additional shared
+ * secrets. It acts as a "smart router" that intercepts OAuth requests and
+ * responses to transparently route them between originating servers and OAuth
+ * providers.
+ *
+ * ## How It Works
+ *
+ * ### Stage 1: Request Interception (Originating Server)
+ *
+ * When an OAuth sign-in flow is initiated on any server (dev, staging, etc.):
+ * 1. Better Auth generates a standard persisted state parameter
+ * 2. Better Auth creates the OAuth sign-in request with the state parameter
+ * 3. The plugin's `after` hook intercepts the OAuth sign-in response
+ * 4. Plugin extracts the `redirectURI` from the OAuth request URL
+ * 5. If the `redirectURI` matches the configured app's baseURL, the plugin does
+ *    nothing and lets the service act normally, as it's not a request that
+ *    requires proxying.
+ * 6. Plugin matches the `redirectURI` against configured social provider
+ *    redirect URIs
+ * 7. Plugin gets the corresponding provider's client secret
+ * 8. Plugin creates a JSON payload containing original state ID and originating
+ *    server's baseURL
+ * 9. Plugin symmetrically encrypts the JSON payload using the provider's client
+ *    secret, as this secret already needs to be shared with the proxy server.
+ * 10. Plugin replaces the state parameter with `_proxy_` + encrypted payload
+ * 11. OAuth request proceeds to the provider with the encrypted state
+ *
+ * ### Stage 2: Callback Interception (Proxy Server)
+ *
+ * When the OAuth provider redirects back to the proxy server:
+ * 1. Plugin's `before` hook intercepts the callback request
+ * 2. If the state parameter doesn't start with `_proxy_`, the plugin does
+ *    nothing and lets normal OAuth processing continue
+ * 3. Plugin extracts the provider from the callback path
+ * 4. Plugin gets that provider's client secret from config
+ * 5. Plugin symmetrically decrypts the state parameter using the provider's
+ *    secret
+ * 6. If valid, plugin extracts original state ID and originating server's
+ *    baseURL
+ * 7. Plugin reconstructs the redirect URL with the original state
+ * 8. Plugin redirects to the originating server, bypassing normal OAuth
+ *    processing
+ *
+ * ## Security Considerations
+ *
+ * - Payload is symmetrically encrypted using the OAuth provider's client secret
+ * - Each provider uses its own secret for its flows
+ * - No additional shared secrets required
+ * - OAuth flow's own expiration mechanism handles timing
  */
-declare const oAuthProxy: (opts?: OAuthProxyOptions) => {
-    id: "oauth-proxy";
-    options: OAuthProxyOptions | undefined;
-    endpoints: {
-        oAuthProxy: {
-            <AsResponse extends boolean = false, ReturnHeaders extends boolean = false>(inputCtx_0: {
-                body?: undefined;
-            } & {
-                method?: "GET" | undefined;
-            } & {
-                query: {
-                    callbackURL: string;
-                    cookies: string;
-                };
-            } & {
-                params?: Record<string, any>;
-            } & {
-                request?: Request;
-            } & {
-                headers?: HeadersInit;
-            } & {
-                asResponse?: boolean;
-                returnHeaders?: boolean;
-                use?: better_call.Middleware[];
-                path?: string;
-            } & {
-                asResponse?: AsResponse | undefined;
-                returnHeaders?: ReturnHeaders | undefined;
-            }): Promise<[AsResponse] extends [true] ? Response : [ReturnHeaders] extends [true] ? {
-                headers: Headers;
-                response: never;
-            } : never>;
-            options: {
-                method: "GET";
-                query: z.ZodObject<{
-                    callbackURL: z.ZodString;
-                    cookies: z.ZodString;
-                }, z.core.$strip>;
-                use: ((inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<void>)[];
-                metadata: {
-                    openapi: {
-                        description: string;
-                        parameters: {
-                            in: "query";
-                            name: string;
-                            required: true;
-                            description: string;
-                        }[];
-                        responses: {
-                            302: {
-                                description: string;
-                                headers: {
-                                    Location: {
-                                        description: string;
-                                        schema: {
-                                            type: string;
-                                        };
-                                    };
-                                };
-                            };
-                        };
-                    };
-                };
-            } & {
-                use: any[];
-            };
-            path: "/oauth-proxy-callback";
-        };
-    };
-    hooks: {
-        after: {
-            matcher(context: HookEndpointContext): boolean;
-            handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<void>;
-        }[];
-        before: ({
-            matcher(): true;
-            handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
-                context: {
-                    context: {
-                        oauthConfig: {
-                            skipStateCookieCheck: boolean;
-                        };
-                    };
-                };
-            } | undefined>;
-        } | {
-            matcher(context: HookEndpointContext): boolean;
-            handler: (inputContext: better_call.MiddlewareInputContext<better_call.MiddlewareOptions>) => Promise<{
-                context: better_call.MiddlewareContext<better_call.MiddlewareOptions, AuthContext & {
-                    returned?: unknown;
-                    responseHeaders?: Headers;
-                }>;
-            } | undefined>;
-        })[];
-    };
-};
+
+/**
+ * Creates the OAuth Proxy Plugin for Better Auth
+ */
+declare function oAuthProxy(): BetterAuthPlugin;
 
 export { oAuthProxy };

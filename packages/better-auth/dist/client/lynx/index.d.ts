@@ -4,15 +4,15 @@ export * from 'nanostores';
 import * as _better_fetch_fetch from '@better-fetch/fetch';
 import { BetterFetchError } from '@better-fetch/fetch';
 export * from '@better-fetch/fetch';
-import { C as ClientOptions, B as BetterAuthClientPlugin, I as IsSignal, a as InferClientAPI, b as InferActions, S as SessionQueryParams, c as InferErrorCodes } from '../../shared/better-auth.CuF9iBtI.js';
+import { C as ClientOptions, B as BetterAuthClientPlugin, I as IsSignal, a as InferClientAPI, b as InferActions, S as SessionQueryParams, c as InferErrorCodes } from '../../shared/better-auth.CGdpWOOw.js';
 import { U as UnionToIntersection, P as PrettifyDeep } from '../../shared/better-auth.DTtXpZYr.js';
 import { DependencyList } from '@lynx-js/react';
-import { b as BASE_ERROR_CODES } from '../../shared/better-auth.C5tRLx0o.js';
+import { b as BASE_ERROR_CODES } from '../../shared/better-auth.CfNvkNu2.js';
 import 'better-call';
-import '../../shared/better-auth.4SXCyo06.js';
-import 'zod';
 import 'kysely';
 import '@better-auth/core/db';
+import 'zod';
+import '../../shared/better-auth.C6qXK08w.js';
 import 'better-sqlite3';
 import 'bun:sqlite';
 import 'node:sqlite';
@@ -68,15 +68,15 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
         data: InferClientAPI<Option> extends {
             getSession: () => Promise<infer Res>;
         } ? Res extends {
-            data: infer S;
-            error: null;
-        } | {
             data: null;
             error: {
                 message?: string | undefined;
                 status: number;
                 statusText: string;
             };
+        } | {
+            data: infer S;
+            error: null;
         } ? S : Res : never;
         isPending: boolean;
         error: BetterFetchError | null;
@@ -88,15 +88,15 @@ declare function createAuthClient<Option extends ClientOptions>(options?: Option
         Session: NonNullable<InferClientAPI<Option> extends {
             getSession: () => Promise<infer Res>;
         } ? Res extends {
-            data: infer S;
-            error: null;
-        } | {
             data: null;
             error: {
                 message?: string | undefined;
                 status: number;
                 statusText: string;
             };
+        } | {
+            data: infer S;
+            error: null;
         } ? S : Res : never>;
     };
     $fetch: _better_fetch_fetch.BetterFetch<{

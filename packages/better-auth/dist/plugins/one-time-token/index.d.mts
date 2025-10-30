@@ -1,10 +1,10 @@
 import * as better_call from 'better-call';
 import * as z from 'zod';
-import { U as User, S as Session, G as GenericEndpointContext } from '../../shared/better-auth.DQrlHYV7.mjs';
-import '../../shared/better-auth.XefKa8DI.mjs';
+import { U as User, S as Session, G as GenericEndpointContext } from '../../shared/better-auth.CDN3l_op.mjs';
 import '../../shared/better-auth.DTtXpZYr.mjs';
 import 'kysely';
 import '@better-auth/core/db';
+import '../../shared/better-auth.BHPr8J54.mjs';
 import 'better-sqlite3';
 import 'bun:sqlite';
 import 'node:sqlite';

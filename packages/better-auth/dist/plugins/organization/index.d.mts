@@ -1,14 +1,14 @@
 import * as z from 'zod';
 import { DBFieldAttribute } from '@better-auth/core/db';
-import { U as User, S as Session, d as AuthContext, ae as InferAdditionalFieldsFromPluginOptions, G as GenericEndpointContext } from '../../shared/better-auth.DQrlHYV7.mjs';
+import { U as User, S as Session, d as AuthContext, ae as InferAdditionalFieldsFromPluginOptions, G as GenericEndpointContext } from '../../shared/better-auth.CDN3l_op.mjs';
 import { AccessControl, Role, Subset, Statements } from '../access/index.mjs';
 import * as better_call from 'better-call';
 import { Prettify } from 'better-call';
 import { L as LiteralString } from '../../shared/better-auth.DTtXpZYr.mjs';
 import { defaultRoles } from './access/index.mjs';
 export { adminAc, defaultAc, defaultStatements, memberAc, ownerAc } from './access/index.mjs';
-import '../../shared/better-auth.XefKa8DI.mjs';
 import 'kysely';
+import '../../shared/better-auth.BHPr8J54.mjs';
 import 'better-sqlite3';
 import 'bun:sqlite';
 import 'node:sqlite';
@@ -9465,7 +9465,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                     role: z.ZodString;
                     permission: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString>>;
                     additionalFields: z.ZodOptional<z.ZodObject<{
-                        [x: string]: z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | Record<string, never> | z.ZodAny | z.ZodOptional<z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | z.ZodAny>;
+                        [x: string]: z.ZodString | z.ZodDate | z.ZodBoolean | Record<string, never> | z.ZodNumber | z.ZodAny | z.ZodOptional<z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | z.ZodAny>;
                     }, z.core.$strip>>;
                 }, z.core.$strip>;
                 metadata: {
@@ -9524,7 +9524,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                     role: z.ZodString;
                     permission: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString>>;
                     additionalFields: z.ZodOptional<z.ZodObject<{
-                        [x: string]: z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | Record<string, never> | z.ZodAny | z.ZodOptional<z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | z.ZodAny>;
+                        [x: string]: z.ZodString | z.ZodDate | z.ZodBoolean | Record<string, never> | z.ZodNumber | z.ZodAny | z.ZodOptional<z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | z.ZodAny>;
                     }, z.core.$strip>>;
                 }, z.core.$strip>;
                 metadata: {
@@ -9609,7 +9609,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                     role: z.ZodString;
                     permission: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString>>;
                     additionalFields: z.ZodOptional<z.ZodObject<{
-                        [x: string]: z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | Record<string, never> | z.ZodAny | z.ZodOptional<z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | z.ZodAny>;
+                        [x: string]: z.ZodString | z.ZodDate | z.ZodBoolean | Record<string, never> | z.ZodNumber | z.ZodAny | z.ZodOptional<z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | z.ZodAny>;
                     }, z.core.$strip>>;
                 }, z.core.$strip>;
                 metadata: {
@@ -9720,7 +9720,7 @@ declare const organization: <O extends OrganizationOptions>(options?: O) => {
                     role: z.ZodString;
                     permission: z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString>>;
                     additionalFields: z.ZodOptional<z.ZodObject<{
-                        [x: string]: z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | Record<string, never> | z.ZodAny | z.ZodOptional<z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | z.ZodAny>;
+                        [x: string]: z.ZodString | z.ZodDate | z.ZodBoolean | Record<string, never> | z.ZodNumber | z.ZodAny | z.ZodOptional<z.ZodString | z.ZodDate | z.ZodBoolean | z.ZodNumber | z.ZodAny>;
                     }, z.core.$strip>>;
                 }, z.core.$strip>;
                 metadata: {
